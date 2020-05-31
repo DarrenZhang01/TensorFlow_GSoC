@@ -19,14 +19,12 @@ from tensorflow.nn import (relu, log_softmax, softmax, softplus, sigmoid, elu,
 from tensorflow.keras.initializers import GlorotNormal, RandomNormal, Ones, Zeros
 
 def Dense(out_dim, W_init=None, bias_init=None):
-  """
-  Dense/Fully-connected layer.
-  """
+  """ Dense/Fully-connected layer."""
   def init_func(rng_seed, input_shape):
     """ rng_seed is for specifying seed for the random initializers. """
     output_shape = input_shape[:-1] + (out_dim,)
-    W_init = GlorotNormal(rng_seed) if not W_init else W_init
-    bias_init = RandomNormal(seed=rng_seed) if not bias_init else bias_init
+    W_init = W_init or GlorotNormal(rng_seed)
+    bias_init = bias_init or RandomNormal(seed=rng_seed)
     W, b = W_init((input_shape[-1], out_dim)), bias_init((out_dim,))
     return output_shape, (W, b)
   def apply_func(params, inputs, **kwargs):
@@ -35,7 +33,6 @@ def Dense(out_dim, W_init=None, bias_init=None):
   return init_func, apply_func
 
 def GeneralConv():
-
 
   pass
 

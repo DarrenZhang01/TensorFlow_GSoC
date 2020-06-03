@@ -17,6 +17,7 @@
 For an example of its use, see examples/resnet50.py.
 """
 
+# REVISION: Change part of the JAX support into TF support.
 
 import functools
 import itertools

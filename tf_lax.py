@@ -11,7 +11,7 @@ This file contains TF equivalences for:
     3. `jax.lax.reduce_window_shape_tuple`
 """
 
-from tensorflow.compiler.xla.python import xla_client
+# from tensorflow.compiler.xla.python import xla_client
 import numpy as onp
 
 #-------------------------------helper functions------------------------------#
@@ -20,27 +20,27 @@ def _ceil_divide(x1, x2):
 
 
 def padtype_to_pads(in_shape, window_shape, window_strides, padding):
-  PaddingType = xla_client.PaddingType
+  # PaddingType = xla_client.PaddingType
+  #
+  # if isinstance(padding, str):
+  #   mapping = {'VALID': PaddingType.VALID, 'SAME': PaddingType.SAME}
+  #   try:
+  #     padding = mapping[padding.upper()]
+  #   except KeyError as err:
+  #     msg = "Unrecognized padding type: expected 'VALID' or 'SAME', got {}."
+  #     raise RuntimeError(msg.format(padding)) from err
 
-  if isinstance(padding, str):
-    mapping = {'VALID': PaddingType.VALID, 'SAME': PaddingType.SAME}
-    try:
-      padding = mapping[padding.upper()]
-    except KeyError as err:
-      msg = "Unrecognized padding type: expected 'VALID' or 'SAME', got {}."
-      raise RuntimeError(msg.format(padding)) from err
+  # if padding == PaddingType.SAME:
+  out_shape = _ceil_divide(in_shape, window_strides)
+  pad_sizes = onp.maximum(0, (out_shape - 1) * window_strides +
+                              window_shape - in_shape)
+  return [(pad_size // 2, pad_size - pad_size // 2) for pad_size in pad_sizes]
+  # elif padding == PaddingType.VALID:
+  #   return [(0, 0)] * len(in_shape)
+  # else:
+  #   msg = "Unknown padding type: {}."
+  #   raise TypeError(msg.format(padding))
 
-  if padding == PaddingType.SAME:
-    out_shape = _ceil_divide(in_shape, window_strides)
-    pad_sizes = onp.maximum(0, (out_shape - 1) * window_strides +
-                                window_shape - in_shape)
-    return [(pad_size // 2, pad_size - pad_size // 2) for pad_size in pad_sizes]
-  elif padding == PaddingType.VALID:
-    return [(0, 0)] * len(in_shape)
-  else:
-    msg = "Unknown padding type: {}."
-    raise TypeError(msg.format(padding))
-  
 
 def _conv_transpose_padding(k, s, padding):
 
@@ -96,6 +96,15 @@ def conv_general_permutations(dimension_numbers):
            "set of spatial characters, got {}.")
     raise TypeError(msg.format(dimension_numbers))
 
+  def getperm(spec, charpair):
+    spatial = (i for i, c in enumerate(spec) if c not in charpair)
+    if spec is not rhs_spec:
+      spatial = sorted(spatial, key=lambda i: rhs_spec.index(spec[i]))
+    return (spec.index(charpair[0]), spec.index(charpair[1])) + tuple(spatial)
+
+  lhs_perm, rhs_perm, out_perm = map(getperm, dimension_numbers, charpairs)
+  return lhs_perm, rhs_perm, out_perm
+
 
 #---------------------------------main APIs------------------------------------#
 
@@ -117,7 +126,7 @@ def conv_transpose_shape_tuple(lhs_shape, rhs_shape, window_strides, padding,
   lhs_trans = onp.take(lhs_shape, lhs_perm)
   rhs_trans = onp.take(rhs_shape, rhs_perm)
   if isinstance(padding, str):
-    padding = _conv_transpose_padding(k, s, padding)
+    padding = [_conv_transpose_padding(k, s, padding)
                for k,s in zip(rhs_trans[2:], window_strides)]
   padding = list(map(onp.sum, padding))
   unpad_out_space = [(i-1) * s - k + 2

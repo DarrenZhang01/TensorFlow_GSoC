@@ -24,6 +24,8 @@ import itertools
 import operator as op
 
 from trax.tf_numpy import numpy as lax
+from lax_reference import conv_general_dilated
+from tensorflow.compiler.tf2xla.python.xla import reduce_window
 # from jax import lax
 from tf_lax import *
 from jax import random
@@ -83,7 +85,7 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
     return output_shape, (W, b)
   def apply_fun(params, inputs, **kwargs):
     W, b = params
-    return lax.conv_general_dilated(inputs, W, strides, padding, one, one,
+    return conv_general_dilated(inputs, W, strides, padding, one, one,
                                     dimension_numbers=dimension_numbers) + b
   return init_fun, apply_fun
 Conv = functools.partial(GeneralConv, ('NHWC', 'HWIO', 'NHWC'))
@@ -111,7 +113,7 @@ def GeneralConvTranspose(dimension_numbers, out_chan, filter_shape,
     return output_shape, (W, b)
   def apply_fun(params, inputs, **kwargs):
     W, b = params
-    return lax.conv_transpose(inputs, W, strides, padding,
+    return conv_transpose(inputs, W, strides, padding,
                               dimension_numbers=dimension_numbers) + b
   return init_fun, apply_fun
 Conv1DTranspose = functools.partial(GeneralConvTranspose, ('NHC', 'HIO', 'NHC'))
@@ -181,7 +183,7 @@ def _pooling_layer(reducer, init_val, rescaler=None):
                                                 strides, padding)
       return out_shape, ()
     def apply_fun(params, inputs, **kwargs):
-      out = lax.reduce_window(inputs, init_val, reducer, window_shape,
+      out = reduce_window(inputs, init_val, reducer, window_shape,
                               strides, padding)
       return rescale(out, inputs, spec) if rescale else out
     return init_fun, apply_fun
@@ -201,7 +203,7 @@ def _normalize_by_window_size(dims, strides, padding):
                           for i in range(inputs.ndim)
                           if i not in non_spatial_axes)
     one = jnp.ones(spatial_shape, dtype=inputs.dtype)
-    window_sizes = lax.reduce_window(one, 0., lax.add, dims, strides, padding)
+    window_sizes = reduce_window(one, 0., lax.add, dims, strides, padding)
     for i in sorted(non_spatial_axes):
       window_sizes = jnp.expand_dims(window_sizes, i)
 

@@ -12,8 +12,12 @@ This file contains TF equivalences for:
 """
 
 # from tensorflow.compiler.xla.python import xla_client
+import builtins
+from typing import (NamedTuple, Sequence)
 import numpy as onp
 from lax_reference import conv_general_dilated
+
+_max = builtins.max
 
 #-------------------------------helper functions------------------------------#
 def _ceil_divide(x1, x2):
@@ -78,6 +82,22 @@ def conv_shape_tuple(lhs_shape, rhs_shape, strides, pads, batch_group_count=1):
   return tuple(out_shape + tuple(out_space))
 
 
+class ConvDimensionNumbers(NamedTuple):
+  """Describes batch, spatial, and feature dimensions of a convolution.
+  Args:
+    lhs_spec: a tuple of nonnegative integer dimension numbers containing
+      `(batch dimension, feature dimension, spatial dimensions...)`.
+    rhs_spec: a tuple of nonnegative integer dimension numbers containing
+      `(out feature dimension, in feature dimension, spatial dimensions...)`.
+    out_spec: a tuple of nonnegative integer dimension numbers containing
+      `(batch dimension, feature dimension, spatial dimensions...)`.
+  """
+  lhs_spec: Sequence[int]
+  rhs_spec: Sequence[int]
+  out_spec: Sequence[int]
+
+
+
 def conv_general_permutations(dimension_numbers):
   """Utility for convolution dimension permutations relative to Conv HLO."""
   lhs_spec, rhs_spec, out_spec = dimension_numbers
@@ -107,17 +127,58 @@ def conv_general_permutations(dimension_numbers):
   return lhs_perm, rhs_perm, out_perm
 
 
-def standard_primitive(shape_rule, dtype_rule, name, translation_rule=None):
-  prim = Primitive(name)
-  prim.def_impl(partial(xla.apply_primitive, prim))
-  prim.def_abstract_eval(partial(standard_abstract_eval, prim, shape_rule, dtype_rule))
-  xla.translations[prim] = translation_rule or partial(standard_translate, name)
-  return prim
+def conv_dimension_numbers(lhs_shape, rhs_shape, dimension_numbers):
+  """Converts convolution `dimension_numbers` to a `ConvDimensionNumbers`.
+  Args:
+    lhs_shape: tuple of nonnegative integers, shape of the convolution input.
+    rhs_shape: tuple of nonnegative integers, shape of the convolution kernel.
+    dimension_numbers: None or a tuple/list of strings or a ConvDimensionNumbers
+      object following the convolution dimension number specification format in
+      xla_client.py.
+  Returns:
+    A `ConvDimensionNumbers` object that represents `dimension_numbers` in the
+    canonical form used by lax functions.
+  """
+  if isinstance(dimension_numbers, ConvDimensionNumbers):
+    return dimension_numbers
+  if len(lhs_shape) != len(rhs_shape):
+    msg = "convolution requires lhs and rhs ndim to be equal, got {} and {}."
+    raise TypeError(msg.format(len(lhs_shape), len(rhs_shape)))
+
+  if dimension_numbers is None:
+    iota = tuple(range(len(lhs_shape)))
+    return ConvDimensionNumbers(iota, iota, iota)
+  elif isinstance(dimension_numbers, (list, tuple)):
+    if len(dimension_numbers) != 3:
+      msg = "convolution dimension_numbers list/tuple must be length 3, got {}."
+      raise TypeError(msg.format(len(dimension_numbers)))
+    if not all(isinstance(elt, str) for elt in dimension_numbers):
+      msg = "convolution dimension_numbers elements must be strings, got {}."
+      raise TypeError(msg.format(tuple(map(type, dimension_numbers))))
+    msg = ("convolution dimension_numbers[{}] must have len equal to the ndim "
+           "of lhs and rhs, got {} for lhs and rhs shapes {} and {}.")
+    for i, elt in enumerate(dimension_numbers):
+      if len(elt) != len(lhs_shape):
+        raise TypeError(msg.format(i, len(elt), lhs_shape, rhs_shape))
+
+    lhs_spec, rhs_spec, out_spec = conv_general_permutations(dimension_numbers)
+    return ConvDimensionNumbers(lhs_spec, rhs_spec, out_spec)
+  else:
+    msg = "convolution dimension_numbers must be tuple/list or None, got {}."
+    raise TypeError(msg.format(type(dimension_numbers)))
 
 
-conv_general_dilated_p = standard_primitive(
-    _conv_general_dilated_shape_rule, _conv_general_dilated_dtype_rule,
-    'conv_general_dilated', _conv_general_dilated_translation_rule)
+# def standard_primitive(shape_rule, dtype_rule, name, translation_rule=None):
+#   prim = Primitive(name)
+#   prim.def_impl(partial(xla.apply_primitive, prim))
+#   prim.def_abstract_eval(partial(standard_abstract_eval, prim, shape_rule, dtype_rule))
+#   xla.translations[prim] = translation_rule or partial(standard_translate, name)
+#   return prim
+#
+#
+# conv_general_dilated_p = standard_primitive(
+#     _conv_general_dilated_shape_rule, _conv_general_dilated_dtype_rule,
+#     'conv_general_dilated', _conv_general_dilated_translation_rule)
 
 
 #---------------------------------main APIs------------------------------------#
@@ -162,13 +223,10 @@ def reduce_window_shape_tuple(operand_shape, window_dimensions, window_strides,
 
 # helper function: 1. conv_dimension_numbers
 #                  2. _conv_transpose_padding
-#                  3. conv_general_dilated        
-def conv_transpose(lhs: Array, rhs: Array, strides: Sequence[int],
-                   padding: Union[str, Sequence[Tuple[int, int]]],
-                   rhs_dilation: Optional[Sequence[int]] = None,
-                   dimension_numbers: ConvGeneralDilatedDimensionNumbers = None,
-                   transpose_kernel: bool = False,
-                   precision: Optional[PrecisionType] = None) -> Array:
+#                  3. conv_general_dilated
+def conv_transpose(lhs, rhs, strides, padding,
+                   rhs_dilation=None, dimension_numbers=None,
+                   transpose_kernel=False, precision=None):
   """Convenience wrapper for calculating the N-d convolution "transpose".
   This function directly calculates a fractionally strided conv rather than
   indirectly calculating the gradient (transpose) of a forward convolution.
@@ -225,5 +283,6 @@ def conv_transpose(lhs: Array, rhs: Array, strides: Sequence[int],
     # flip spatial dims and swap input / output channel axes
     rhs = _flip_axes(rhs, onp.array(dn.rhs_spec)[2:])
     rhs = onp.swapaxes(rhs, dn.rhs_spec[0], dn.rhs_spec[1])
-  return conv_general_dilated(lhs, rhs, one, pads, strides, rhs_dilation, dn,
-                              precision=precision)
+  # return conv_general_dilated(lhs, rhs, one, pads, strides, rhs_dilation, dn,
+  #                             precision=precision)
+  return conv_general_dilated(lhs, rhs, one, pads, strides, rhs_dilation, dn)

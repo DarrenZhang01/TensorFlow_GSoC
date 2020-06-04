@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# REVISION: Comment out the parts that are related to dtypes.
 
 import builtins
 import collections

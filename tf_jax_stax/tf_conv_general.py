@@ -51,8 +51,7 @@ def conv_dim_translator(lhs_spec, dim):
                     " batch number dim: {}, channel number dim: {}".format(
                     sorted_str.index('N'), sorted_str.index('C')))
   spatial_dim_maps = {1: 'W', 2: "HW", 3: "DHW"}
-  if sorted_str[0] == 'N' and sorted_str[1] == 'C':
-    output_str = "NC" + spatial_dim_maps[dim] \
+  output_str = "NC" + spatial_dim_maps[dim] \
                 if sorted_str[0] == 'N' and sorted_str[1] == 'C' else \
                 'N' + spatial_dim_maps[dim] + 'C'
   return output_str

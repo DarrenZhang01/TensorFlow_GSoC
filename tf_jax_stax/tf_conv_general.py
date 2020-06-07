@@ -22,6 +22,7 @@ Zhibo Zhang, 2020.06.06
 from tf_lax import ConvDimensionNumbers
 from tensorflow import nn
 import tensorflow
+from more_itertools import sort_together
 
 # Translate dimension numbers from number representations into string
 #   representations
@@ -36,9 +37,25 @@ import tensorflow
 #   3D: "NCDHW" <=> (lhs_spec[0], lhs_spec[1], lhs_spec[2], lhs_spec[3], lhs_spec[4])
 # In order to get the translated string version from the number version, sort
 # strings and numbers at the same time based on numbers (0 to len(lhs_spec) - 1)
-def conv_dim_translator(lhs_spec, rhs_spec, out_spec):
+def conv_dim_translator(lhs_spec, dim):
   """ Translate ConvDimensionNumbers into string representations. """
-
+  str_maps = {1: ['N', 'C', 'W'], 2: ['N', 'C', 'H', 'W'],
+              3: ['N', 'C', 'D', 'H', 'W']}
+  str_list = str_maps[dim]
+  sorted_str = sort_together([list(lhs_spec), str_list])[1]
+  if not ((sorted_str[0] == 'N' and sorted_str[1] == 'C') or\
+          (sorted_str[0] == 'N' and sorted_str[-1] == 'C')):
+    raise TypeError("The batch number should always be at the first dimension"
+                    "and the channel/feature number should always be at the"
+                    "second dimension or the very last dimension, but got"
+                    " batch number dim: {}, channel number dim: {}".format(
+                    sorted_str.index('N'), sorted_str.index('C')))
+  spatial_dim_maps = {1: 'W', 2: "HW", 3: "DHW"}
+  if sorted_str[0] == 'N' and sorted_str[1] == 'C':
+    output_str = "NC" + spatial_dim_maps[dim] \
+                if sorted_str[0] == 'N' and sorted_str[1] == 'C' else \
+                'N' + spatial_dim_maps[dim] + 'C'
+  return output_str
 
 
 def conv_general_dilated(lhs, rhs, window_strides, padding, lhs_dilation=None,
@@ -48,6 +65,9 @@ def conv_general_dilated(lhs, rhs, window_strides, padding, lhs_dilation=None,
   dilated convolution, etc."""
   dim = None
   lhs_spec, rhs_spec, out_spec = dimension_numbers
+  if lhs_spec != out_spec:
+    raise TypeError("Current implementation requires the `data_format` of the"
+                    "inputs and outputs to be the same.")
   if len(lhs_spec) >= 6:
     raise TypeError("Current implmentation does not support 4 or higher"
                     "dimensional convolution, but got: ", len(lhs_spec) - 2)

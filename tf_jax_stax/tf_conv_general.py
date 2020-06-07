@@ -21,7 +21,7 @@ Zhibo Zhang, 2020.06.06
 """
 from tf_lax import ConvDimensionNumbers
 from tensorflow import nn
-import tensorflow
+import tensorflow as tf
 from more_itertools import sort_together
 
 # Translate dimension numbers from number representations into string
@@ -59,7 +59,7 @@ def conv_dim_translator(lhs_spec, dim):
 
 
 def conv_general_dilated(lhs, rhs, window_strides, padding, lhs_dilation=None,
-                         rhs_dilation=None, dimension_numbers=None
+                         rhs_dilation=None, dimension_numbers=None,
                          feature_group_count=1, batch_group_count=1, precision=None):
   """ A general conv function that integrates normal conv, deconvolution,
   dilated convolution, etc."""
@@ -73,25 +73,8 @@ def conv_general_dilated(lhs, rhs, window_strides, padding, lhs_dilation=None,
                     "dimensional convolution, but got: ", len(lhs_spec) - 2)
   dim = len(lhs_spec) - 2
   if dim == 1:
-
+    pass
   elif dim == 2:
-
+    pass
   elif dim == 3:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    1
+    pass

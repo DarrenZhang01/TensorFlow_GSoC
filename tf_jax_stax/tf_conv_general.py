@@ -24,6 +24,7 @@ from tensorflow import nn
 import tensorflow as tf
 from more_itertools import sort_together
 
+
 # Translate dimension numbers from number representations into string
 #   representations
 #
@@ -56,6 +57,7 @@ def conv_dim_translator(lhs_spec, dim):
                 'N' + spatial_dim_maps[dim] + 'C'
   return output_str
 
+
 # For example,
 #  in the 3D case, if lhs_dilation = 2, then convert it to [2, 2, 2]
 #                  if lhs_dilation = (2, 2, 2), convert it also to [2, 2, 2]
@@ -73,6 +75,8 @@ def _conv_general_param_type_converter(window_strides, lhs_dilation, rhs_dilatio
   return (strides, lhs_dilation, rhs_dilation)
 
 
+# TODO: Support feature_group_count, batch_group_count and precision, and
+#       allow lhs_dilation and rhs_dilation to happen at the same time.
 def conv_general_dilated(lhs, rhs, window_strides, padding, lhs_dilation=None,
                          rhs_dilation=None, dimension_numbers=None,
                          feature_group_count=1, batch_group_count=1, precision=None):
@@ -101,6 +105,7 @@ def conv_general_dilated(lhs, rhs, window_strides, padding, lhs_dilation=None,
   tf_nn_APIs = {1: [nn.conv1d, nn.conv1d_transpose],
                 2: [nn.conv2d, nn.conv2d_transpose],
                 3: [nn.conv3d, nn.conv3d_transpose]}
+                
   if rhs_dilation or (lhs_dilation is None and rhs_dilation is None):
     return tf_nn_APIs[dim][0](lhs, rhs, strides, padding, data_format, rhs_dilation)
   return tf_nn_APIs[dim][1](lhs, rhs, strides, padding, data_format, lhs_dilation)

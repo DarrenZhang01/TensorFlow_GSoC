@@ -70,7 +70,22 @@ def conv_general_dilated(lhs, rhs, window_strides, padding, lhs_dilation=None,
   if len(lhs_spec) >= 6:
     raise TypeError("Current implmentation does not support 4 or higher"
                     "dimensional convolution, but got: ", len(lhs_spec) - 2)
+  if padding not in ["SAME", "VALID"]:
+    raise TypeError("Current implementation requires the padding parameter"
+                    "to be either 'VALID' or 'SAME', but got: ", str(padding))
+  if lhs_dilation and rhs_dilation:
+    raise TypeError("Current implementation does not support that deconvolution"
+                    "and dilation to be performed at the same time.")
   dim = len(lhs_spec) - 2
+  # Convert params from int/Sequence[int] to list of ints.
+  strides = [window_strides] * dim if isinstance(window_strides, int) else \
+            list(window_strides)
+  if lhs_dilation:
+    lhs_dilation = [lhs_dilation] * dim if isinstance(lhs_dilation, int) else \
+                    list(lhs_dilation)
+  if rhs_dilation:
+    rhs_dilation = [rhs_dilation] * dim if isinstance(rhs_dilation, int) else \
+                    list(rhs_dilation)
   if dim == 1:
     pass
   elif dim == 2:

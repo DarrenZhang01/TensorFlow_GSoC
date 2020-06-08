@@ -56,6 +56,22 @@ def conv_dim_translator(lhs_spec, dim):
                 'N' + spatial_dim_maps[dim] + 'C'
   return output_str
 
+# For example,
+#  in the 3D case, if lhs_dilation = 2, then convert it to [2, 2, 2]
+#                  if lhs_dilation = (2, 2, 2), convert it also to [2, 2, 2]
+def _conv_general_param_type_converter(window_strides, lhs_dilation, rhs_dilation):
+  """ Convert the inputs strides, lhs_dilation, rhs_dilation to the standard
+  TF conv inputs."""
+  strides = [window_strides] * dim if isinstance(window_strides, int) else \
+            list(window_strides)
+  if lhs_dilation:
+    lhs_dilation = [lhs_dilation] * dim if isinstance(lhs_dilation, int) else \
+                    list(lhs_dilation)
+  if rhs_dilation:
+    rhs_dilation = [rhs_dilation] * dim if isinstance(rhs_dilation, int) else \
+                    list(rhs_dilation)
+  return (strides, lhs_dilation, rhs_dilation)
+
 
 def conv_general_dilated(lhs, rhs, window_strides, padding, lhs_dilation=None,
                          rhs_dilation=None, dimension_numbers=None,
@@ -78,17 +94,13 @@ def conv_general_dilated(lhs, rhs, window_strides, padding, lhs_dilation=None,
                     "and dilation to be performed at the same time.")
   dim = len(lhs_spec) - 2
   # Convert params from int/Sequence[int] to list of ints.
-  strides = [window_strides] * dim if isinstance(window_strides, int) else \
-            list(window_strides)
-  if lhs_dilation:
-    lhs_dilation = [lhs_dilation] * dim if isinstance(lhs_dilation, int) else \
-                    list(lhs_dilation)
-  if rhs_dilation:
-    rhs_dilation = [rhs_dilation] * dim if isinstance(rhs_dilation, int) else \
-                    list(rhs_dilation)
-  if dim == 1:
-    pass
-  elif dim == 2:
-    pass
-  elif dim == 3:
-    pass
+  strides, lhs_dilation, rhs_dilation = _conv_general_param_type_converter(
+    window_strides, lhs_dilation, rhs_dilation
+  )
+  data_format = conv_dim_translator(lhs_spec, dim)
+  tf_nn_APIs = {1: [nn.conv1d, nn.conv1d_transpose],
+                2: [nn.conv2d, nn.conv2d_transpose],
+                3: [nn.conv3d, nn.conv3d_transpose]}
+  if rhs_dilation or (lhs_dilation is None and rhs_dilation is None):
+    return tf_nn_APIs[dim][0](lhs, rhs, strides, padding, data_format, rhs_dilation)
+  return tf_nn_APIs[dim][1](lhs, rhs, strides, padding, data_format, lhs_dilation)

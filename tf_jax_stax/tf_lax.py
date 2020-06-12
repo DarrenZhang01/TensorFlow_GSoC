@@ -15,7 +15,7 @@ This file contains TF equivalences for:
 import builtins
 from typing import (NamedTuple, Sequence)
 import numpy as onp
-from lax_reference import conv_general_dilated
+from tf_conv_general import conv_general_dilated
 
 _max = builtins.max
 
@@ -36,12 +36,14 @@ def padtype_to_pads(in_shape, window_shape, window_strides, padding):
   #     raise RuntimeError(msg.format(padding)) from err
 
   # if padding == PaddingType.SAME:
-  out_shape = _ceil_divide(in_shape, window_strides)
-  pad_sizes = onp.maximum(0, (out_shape - 1) * window_strides +
+  if padding == "SAME":
+    out_shape = _ceil_divide(in_shape, window_strides)
+    pad_sizes = onp.maximum(0, (out_shape - 1) * window_strides +
                               window_shape - in_shape)
-  return [(pad_size // 2, pad_size - pad_size // 2) for pad_size in pad_sizes]
+    return [(pad_size // 2, pad_size - pad_size // 2) for pad_size in pad_sizes]
   # elif padding == PaddingType.VALID:
-  #   return [(0, 0)] * len(in_shape)
+  elif padding == "VALID":
+    return [(0, 0)] * len(in_shape)
   # else:
   #   msg = "Unknown padding type: {}."
   #   raise TypeError(msg.format(padding))
@@ -79,6 +81,8 @@ def conv_shape_tuple(lhs_shape, rhs_shape, strides, pads, batch_group_count=1):
   out_space = onp.maximum(0, out_space)
   assert lhs_shape[0] % batch_group_count == 0
   out_shape = (lhs_shape[0] // batch_group_count, rhs_shape[0])
+  # raise TypeError("The output shape given by conv shape tuple is: ",
+  #                 str(tuple(out_shape + tuple(out_space))))
   return tuple(out_shape + tuple(out_space))
 
 
@@ -168,20 +172,9 @@ def conv_dimension_numbers(lhs_shape, rhs_shape, dimension_numbers):
     raise TypeError(msg.format(type(dimension_numbers)))
 
 
-# def standard_primitive(shape_rule, dtype_rule, name, translation_rule=None):
-#   prim = Primitive(name)
-#   prim.def_impl(partial(xla.apply_primitive, prim))
-#   prim.def_abstract_eval(partial(standard_abstract_eval, prim, shape_rule, dtype_rule))
-#   xla.translations[prim] = translation_rule or partial(standard_translate, name)
-#   return prim
-#
-#
-# conv_general_dilated_p = standard_primitive(
-#     _conv_general_dilated_shape_rule, _conv_general_dilated_dtype_rule,
-#     'conv_general_dilated', _conv_general_dilated_translation_rule)
-
 
 #---------------------------------main APIs------------------------------------#
+
 
 # helper function: 1. conv_general_permutations
 #                  2. conv_shape_tuple

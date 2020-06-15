@@ -188,7 +188,7 @@ def _pooling_layer(reducer, init_val, rescaler=None):
       return rescale(out, inputs, spec) if rescale else out
     return init_fun, apply_fun
   return PoolingLayer
-MaxPool = _pooling_layer(lax.max, -jnp.inf)
+MaxPool = _pooling_layer(lax.max, -lax.inf)
 SumPool = _pooling_layer(lax.add, 0.)
 
 

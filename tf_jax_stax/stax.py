@@ -25,7 +25,7 @@ import operator as op
 
 from trax.tf_numpy import numpy as lax
 # from lax_reference import conv_general_dilated
-from tensorflow.compiler.tf2xla.python.xla import reduce_window
+# from tensorflow.compiler.tf2xla.python.xla import reduce_window
 # from jax import lax
 from tf_lax import *
 from jax import random

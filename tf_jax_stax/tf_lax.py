@@ -16,6 +16,7 @@ import builtins
 from typing import (NamedTuple, Sequence)
 import numpy as onp
 from tf_conv_general import conv_general_dilated
+from tf_reduce_window import reduce_window
 
 _max = builtins.max
 

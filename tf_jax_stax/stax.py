@@ -24,7 +24,7 @@ import itertools
 import operator as op
 
 from trax.tf_numpy import numpy as lax
-from lax_reference import conv_general_dilated
+# from lax_reference import conv_general_dilated
 from tensorflow.compiler.tf2xla.python.xla import reduce_window
 # from jax import lax
 from tf_lax import *
@@ -169,14 +169,18 @@ def _pooling_layer(reducer, init_val, rescaler=None):
     strides = strides or (1,) * len(window_shape)
     rescale = rescaler(window_shape, strides, padding) if rescaler else None
 
-    if spec is None:
-      non_spatial_axes = 0, len(window_shape) + 1
-    else:
-      non_spatial_axes = spec.index('N'), spec.index('C')
+    # if spec is None:
+    #   non_spatial_axes = 0, len(window_shape) + 1
+    # else:
+    #   non_spatial_axes = spec.index('N'), spec.index('C')
+    #
+    # for i in sorted(non_spatial_axes):
+    #   window_shape = window_shape[:i] + (1,) + window_shape[i:]
+    #   strides = strides[:i] + (1,) + strides[i:]
 
-    for i in sorted(non_spatial_axes):
-      window_shape = window_shape[:i] + (1,) + window_shape[i:]
-      strides = strides[:i] + (1,) + strides[i:]
+    # Make it uniform and let the input to be of shape "NHWC"
+    window_shape = (1,) + window_shape + (1,)
+    strides = (1,) + strides + (1,)
 
     def init_fun(rng, input_shape):
       out_shape = reduce_window_shape_tuple(input_shape, window_shape,

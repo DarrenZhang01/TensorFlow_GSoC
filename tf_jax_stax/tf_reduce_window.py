@@ -24,3 +24,24 @@ Zhibo Zhang, 2020.06.15
 enable backpropagation and better interact with the TF ecosystem, an
 implementation that directly builds on `tf.nn` is required.)
 """
+
+import tensorflow as tf
+from tensorflow.nn import pool
+from trax.tf_numpy import numpy as np
+import numpy as onp
+
+
+def reduce_window(input, init_value, reducer, window_dimensions, strides, padding):
+  if reducer not in [np.max, np.add]:
+    raise TypeError("Only max pooling and average/sum pooling are supported.")
+  pooling_type = "AVG" if reducer is np.max else "MAX"
+  dim = input.ndim - 2
+  formats = {1: "NWC", 2: "NHWC", 3: "NDHWC"}
+  output = pool(input, window_dimensions, pooling_type, strides, padding, \
+                formats[dim])
+  if pooling_type == "MAX":
+    return output
+  # If it is max pooling, mutiply the output by the number of grids inside a
+  # window.
+  grids = onp.prod(list(window_dimensions))
+  return output * grids

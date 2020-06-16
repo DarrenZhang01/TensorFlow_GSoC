@@ -181,12 +181,22 @@ def _pooling_layer(reducer, init_val, rescaler=None):
     # Make it uniform and let the input to be of shape "NHWC"
     window_shape = (1,) + window_shape + (1,)
     strides = (1,) + strides + (1,)
+    dim = len(spec) - 2
 
     def init_fun(rng, input_shape):
-      out_shape = reduce_window_shape_tuple(input_shape, window_shape,
+      # Move the batch and channel dimension of the input shape such
+      # that it is of data format "NHWC"
+      shape = [input_shape[spec.index('N')]]
+      for i in range(len(input_shape)):
+        if i not in [spec.index('N'), spec.index('C')]:
+          shape.append(input_shape[i])
+      shape.append(input_shape[spec.index('C')])
+      out_shape = reduce_window_shape_tuple(shape, window_shape,
                                                 strides, padding)
       return out_shape, ()
     def apply_fun(params, inputs, **kwargs):
+      inputs = np.moveaxis(inputs, (spec.index('N'), spec.index('C')), \
+                          (0, dim + 1))
       out = reduce_window(inputs, init_val, reducer, window_shape,
                               strides, padding)
       return rescale(out, inputs, spec) if rescale else out

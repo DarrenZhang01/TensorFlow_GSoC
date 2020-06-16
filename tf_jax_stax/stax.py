@@ -178,9 +178,6 @@ def _pooling_layer(reducer, init_val, rescaler=None):
     #   window_shape = window_shape[:i] + (1,) + window_shape[i:]
     #   strides = strides[:i] + (1,) + strides[i:]
 
-    # Make it uniform and let the input to be of shape "NHWC"
-    window_shape = (1,) + window_shape + (1,)
-    strides = (1,) + strides + (1,)
     dim = len(spec) - 2
 
     def init_fun(rng, input_shape):

@@ -30,6 +30,7 @@ from trax.tf_numpy import numpy as lax
 from tf_lax import *
 from jax import random
 import jax.numpy as jnp
+import numpy as onp
 
 from jax.nn import (relu, log_softmax, softmax, softplus, sigmoid, elu,
                     leaky_relu, selu, gelu, normalize)
@@ -179,10 +180,10 @@ def _pooling_layer(reducer, init_val, rescaler=None):
     #   strides = strides[:i] + (1,) + strides[i:]
 
     dim = len(spec) - 2
+    window_shape = window_shape
+    strides = strides
 
     def init_fun(rng, input_shape):
-      window_shape = (1,) + window_shape + (1,)
-      strides = (1,) + strides + (1,)
       # Move the batch and channel dimension of the input shape such
       # that it is of data format "NHWC"
       shape = [input_shape[spec.index('N')]]
@@ -194,7 +195,7 @@ def _pooling_layer(reducer, init_val, rescaler=None):
                                                 strides, padding)
       return out_shape, ()
     def apply_fun(params, inputs, **kwargs):
-      inputs = np.moveaxis(inputs, (spec.index('N'), spec.index('C')), \
+      inputs = onp.moveaxis(inputs, (spec.index('N'), spec.index('C')), \
                           (0, dim + 1))
       out = reduce_window(inputs, init_val, reducer, window_shape,
                               strides, padding)

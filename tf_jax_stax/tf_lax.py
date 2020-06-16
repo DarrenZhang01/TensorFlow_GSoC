@@ -207,6 +207,8 @@ def conv_transpose_shape_tuple(lhs_shape, rhs_shape, window_strides, padding,
 # helper function: 1. padtype_to_pads
 def reduce_window_shape_tuple(operand_shape, window_dimensions, window_strides,
                               padding):
+  window_dimensions = (1,) + window_dimensions + (1,)
+  window_strides = (1,) + window_strides + (1,)
   pads = padtype_to_pads(operand_shape, window_dimensions, window_strides, padding)
   operand_padded = onp.add(operand_shape, onp.add(*zip(*pads)))
   t = onp.floor_divide(

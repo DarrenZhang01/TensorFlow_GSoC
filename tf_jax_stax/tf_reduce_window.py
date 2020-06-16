@@ -35,10 +35,12 @@ def reduce_window(input, init_value, reducer, window_dimensions, strides, paddin
   if reducer not in [np.max, np.add]:
     raise TypeError("Only max pooling and average/sum pooling are supported.")
   pooling_type = "AVG" if reducer is np.max else "MAX"
-  dim = input.ndim - 2
-  formats = {1: "NWC", 2: "NHWC", 3: "NDHWC"}
-  output = pool(input, window_dimensions, pooling_type, strides, padding, \
-                formats[dim])
+  # raise TypeError("input shape: {}, window_dimensions: {}, strides: {}".format(input.shape, window_dimensions, strides))
+
+  # Note that there is no need to send in the parameter data format since the
+  # input is already of default data format - "N...C". The adjustments of the
+  # input shape is already finished in apply_fun of Pooling in stax.
+  output = pool(input, window_dimensions, pooling_type, strides, padding)
   if pooling_type == "MAX":
     return output
   # If it is max pooling, mutiply the output by the number of grids inside a

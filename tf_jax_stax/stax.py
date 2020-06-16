@@ -181,6 +181,8 @@ def _pooling_layer(reducer, init_val, rescaler=None):
     dim = len(spec) - 2
 
     def init_fun(rng, input_shape):
+      window_shape = (1,) + window_shape + (1,)
+      strides = (1,) + strides + (1,)
       # Move the batch and channel dimension of the input shape such
       # that it is of data format "NHWC"
       shape = [input_shape[spec.index('N')]]

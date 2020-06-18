@@ -199,7 +199,8 @@ def _pooling_layer(reducer, init_val, rescaler=None):
                           (0, dim + 1))
       out = reduce_window(inputs, init_val, reducer, window_shape,
                               strides, padding)
-      return rescale(out, inputs, spec) if rescale else out
+      # return rescale(out, inputs, spec) if rescale else out
+      return out
     return init_fun, apply_fun
   return PoolingLayer
 MaxPool = _pooling_layer(lax.max, -lax.inf)

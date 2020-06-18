@@ -31,19 +31,19 @@ from trax.tf_numpy import numpy as np
 import numpy as onp
 
 
-def reduce_window(input, init_value, reducer, window_dimensions, strides, padding):
+def reduce_window(inputs, init_value, reducer, window_dimensions, strides, padding):
   if reducer not in [np.max, np.add]:
     raise TypeError("Only max pooling and average/sum pooling are supported.")
   pooling_type = "AVG" if reducer is np.max else "MAX"
-  # raise TypeError("input shape: {}, window_dimensions: {}, strides: {}".format(input.shape, window_dimensions, strides))
+  print("input shape: {}, window_dimensions: {}, strides: {}".format(inputs.shape, window_dimensions, strides))
 
   # Note that there is no need to send in the parameter data format since the
   # input is already of default data format - "N...C". The adjustments of the
   # input shape is already finished in apply_fun of Pooling in stax.
-  output = pool(input, window_dimensions, pooling_type, strides, padding)
+  output = pool(inputs, window_dimensions, pooling_type, strides, padding)
   if pooling_type == "MAX":
     return output
   # If it is max pooling, mutiply the output by the number of grids inside a
   # window.
   grids = onp.prod(list(window_dimensions))
-  return output * grids
+  return output / grids

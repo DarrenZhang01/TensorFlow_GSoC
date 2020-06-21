@@ -33,4 +33,16 @@ def sign(x):
     return tf.convert_to_tensor(x)
   else:
     raise TypeError("The inputs must be one of types {int, float, numpy array"
-                    ", TensorFlow Tensor, TensorFlow ndarray object.")
+                    ", TensorFlow Tensor, TensorFlow ndarray} object.")
+
+@utils.np_doc(np.size)
+def size(x):
+  if isinstance(x, (int, float)):
+    return 1
+  elif isinstance(x, (arrays.ndarray, tf.Tensor)):
+    return np.prod(x.numpy().shape)
+  elif isinstance(x, np.ndarray):
+    return np.prod(x.shape)
+  else:
+    raise TypeError("The inputs must be one of types {int, float, numpy array"
+                    ", TensorFlow Tensor, TensorFlow ndarray} object.")

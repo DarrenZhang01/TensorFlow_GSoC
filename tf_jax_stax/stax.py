@@ -24,9 +24,6 @@ import itertools
 import operator as op
 
 from trax.tf_numpy import numpy as tfnp
-# from tfnp_reference import conv_general_dilated
-# from tensorflow.compiler.tf2xla.python.xla import reduce_window
-# from jax import tfnp
 from tf_lax import *
 from jax import random
 import numpy as onp

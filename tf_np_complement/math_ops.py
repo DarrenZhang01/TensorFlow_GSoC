@@ -21,38 +21,16 @@ Zhibo Zhang, 2020.06.19
 
 import tensorflow.compat.v2 as tf
 import numpy as np
-
-# ##############################################################
-# # Below are two type conversion utils from
-# #     <https://github.com/google/trax/blob/master/trax/tf_numpy/numpy_impl/utils.py>
-# # TODO(Zhibo Zhang):
-# #     remove these two after integrating the TF Numpy operations into trax/TF
-#
-# def _to_tf_type(dtype):
-#   """Converts a native python or numpy type to TF DType.
-#   Args:
-#     dtype: Could be a python type, a numpy type or a TF DType.
-#   Returns:
-#     A tensorflow `DType`.
-#   """
-#   return tf.as_dtype(dtype)
-#
-#
-# def _to_numpy_type(dtype):
-#   """Converts a native python or TF DType to numpy type.
-#   Args:
-#     dtype: Could be a python type, a numpy type or a TF DType.
-#   Returns:
-#     A NumPy `dtype`.
-#   """
-#   if isinstance(dtype, tf.DType):
-#     return dtype.as_numpy_dtype
-#   return np.dtype(dtype)
-#
-# ##############################################################
+from trax.tf_numpy.numpy_impl import arrays
 
 
 @utils.np_doc(np.sign)
 def sign(x):
-  x = np.sign(x.numpy())
-  return tf.convert_to_tensor(x)
+  if isinstance(x, (float, int, np.ndarray)):
+    return tf.convert_to_tensor(np.sign(x))
+  elif isinstance(x, (tf.Tensor, arrays.ndarray)):
+    x = np.sign(x.numpy())
+    return tf.convert_to_tensor(x)
+  else:
+    raise TypeError("The inputs must be one of types {int, float, numpy array"
+                    ", TensorFlow Tensor, TensorFlow ndarray object.")

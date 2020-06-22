@@ -17,7 +17,8 @@
 For an example of its use, see examples/resnet50.py.
 """
 
-# REVISION: Change part of the JAX support into TF support.
+# REVISION: Change the JAX supports into TF supports.
+# TODO (Zhibo Zhang): The only JAX API remaining: jax.random
 
 import functools
 import itertools
@@ -32,7 +33,6 @@ import numpy as onp
 
 from tensorflow.nn import (relu, log_softmax, softmax, softplus, sigmoid, elu,
                     leaky_relu, selu)
-# from jax.nn.initializers import glorot_normal, normal, ones, zeros
 from tensorflow import random_normal_initializer as rni
 from tensorflow import zeros_initializer as zi
 from tensorflow import ones_initializer as oi

@@ -23,19 +23,19 @@ import functools
 import itertools
 import operator as op
 
+import sys
+import tensorflow as tf
 from trax.tf_numpy import numpy as tfnp
 from tf_lax import *
 from jax import random
 import numpy as onp
 
-from jax.nn import (relu, log_softmax, softmax, softplus, sigmoid, elu,
-                    leaky_relu, selu, gelu, normalize)
-from jax.nn.initializers import glorot_normal, normal, ones, zeros
-
-# aliases for backwards compatibility
-glorot = glorot_normal
-randn = normal
-logsoftmax = log_softmax
+from tensorflow.nn import (relu, log_softmax, softmax, softplus, sigmoid, elu,
+                    leaky_relu, selu)
+# from jax.nn.initializers import glorot_normal, normal, ones, zeros
+from tensorflow import random_normal_initializer as rni
+from tensorflow import zeros_initializer as zi
+from tensorflow import ones_initializer as oi
 
 # Following the convention used in Keras and tf.layers, we use CamelCase for the
 # names of layer constructors, like Conv and Relu, while using snake_case for
@@ -47,13 +47,15 @@ logsoftmax = log_softmax
 #   apply_fun: takes params, inputs, and an rng key and applies the layer.
 
 
-def Dense(out_dim, W_init=glorot_normal(), b_init=normal()):
+def Dense(out_dim, W_init=rni, b_init=rni):
   """Layer constructor function for a dense (fully-connected) layer."""
   def init_fun(rng, input_shape):
     output_shape = input_shape[:-1] + (out_dim,)
     k1, k2 = random.split(rng)
-    W, b = W_init(k1, (input_shape[-1], out_dim)), b_init(k2, (out_dim,))
-    return output_shape, (W, b)
+    # W, b = W_init(k1, (input_shape[-1], out_dim)), b_init(k2, (out_dim,))
+    W = W_init(seed=k1[0])((input_shape[-1], out_dim))
+    b = b_init(seed=k2[0])((out_dim,),)
+    return output_shape, (W.numpy(), b.numpy())
   def apply_fun(params, inputs, **kwargs):
     W, b = params
     return tfnp.dot(inputs, W) + b
@@ -61,13 +63,13 @@ def Dense(out_dim, W_init=glorot_normal(), b_init=normal()):
 
 
 def GeneralConv(dimension_numbers, out_chan, filter_shape,
-                strides=None, padding='VALID', W_init=None,
-                b_init=normal(1e-6)):
+                strides=None, padding='VALID', W_init=rni,
+                b_init=rni):
   """Layer construction function for a general convolution layer."""
   lhs_spec, rhs_spec, out_spec = dimension_numbers
   one = (1,) * len(filter_shape)
   strides = strides or one
-  W_init = W_init or glorot_normal(rhs_spec.index('I'), rhs_spec.index('O'))
+  # W_init = W_init or glorot_normal(rhs_spec.index('I'), rhs_spec.index('O'))
   def init_fun(rng, input_shape):
     filter_shape_iter = iter(filter_shape)
     kernel_shape = [out_chan if c == 'O' else
@@ -78,8 +80,10 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
     bias_shape = [out_chan if c == 'C' else 1 for c in out_spec]
     bias_shape = tuple(itertools.dropwhile(lambda x: x == 1, bias_shape))
     k1, k2 = random.split(rng)
-    W, b = W_init(k1, kernel_shape), b_init(k2, bias_shape)
-    return output_shape, (W, b)
+    # W, b = W_init(k1, kernel_shape), b_init(k2, bias_shape)
+    W = W_init(seed=k1[0])(kernel_shape)
+    b = b_init(stddev=1e-6, seed=k2[0])(bias_shape)
+    return output_shape, (W.numpy(), b.numpy())
   def apply_fun(params, inputs, **kwargs):
     W, b = params
     return conv_general_dilated(inputs, W, strides, padding, one, one,
@@ -88,58 +92,60 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
 Conv = functools.partial(GeneralConv, ('NHWC', 'HWIO', 'NHWC'))
 
 
-def GeneralConvTranspose(dimension_numbers, out_chan, filter_shape,
-                         strides=None, padding='VALID', W_init=None,
-                         b_init=normal(1e-6)):
-  """Layer construction function for a general transposed-convolution layer."""
-  lhs_spec, rhs_spec, out_spec = dimension_numbers
-  one = (1,) * len(filter_shape)
-  strides = strides or one
-  W_init = W_init or glorot_normal(rhs_spec.index('I'), rhs_spec.index('O'))
-  def init_fun(rng, input_shape):
-    filter_shape_iter = iter(filter_shape)
-    kernel_shape = [out_chan if c == 'O' else
-                    input_shape[lhs_spec.index('C')] if c == 'I' else
-                    next(filter_shape_iter) for c in rhs_spec]
-    output_shape = conv_transpose_shape_tuple(
-        input_shape, kernel_shape, strides, padding, dimension_numbers)
-    bias_shape = [out_chan if c == 'C' else 1 for c in out_spec]
-    bias_shape = tuple(itertools.dropwhile(lambda x: x == 1, bias_shape))
-    k1, k2 = random.split(rng)
-    W, b = W_init(k1, kernel_shape), b_init(k2, bias_shape)
-    return output_shape, (W, b)
-  def apply_fun(params, inputs, **kwargs):
-    W, b = params
-    return conv_transpose(inputs, W, strides, padding,
-                              dimension_numbers=dimension_numbers) + b
-  return init_fun, apply_fun
-Conv1DTranspose = functools.partial(GeneralConvTranspose, ('NHC', 'HIO', 'NHC'))
-ConvTranspose = functools.partial(GeneralConvTranspose,
-                                  ('NHWC', 'HWIO', 'NHWC'))
+# def GeneralConvTranspose(dimension_numbers, out_chan, filter_shape,
+#                          strides=None, padding='VALID', W_init=rni,
+#                          b_init=rni):
+#   """Layer construction function for a general transposed-convolution layer."""
+#   lhs_spec, rhs_spec, out_spec = dimension_numbers
+#   one = (1,) * len(filter_shape)
+#   strides = strides or one
+#   # W_init = W_init or glorot_normal(rhs_spec.index('I'), rhs_spec.index('O'))
+#   def init_fun(rng, input_shape):
+#     filter_shape_iter = iter(filter_shape)
+#     kernel_shape = [out_chan if c == 'O' else
+#                     input_shape[lhs_spec.index('C')] if c == 'I' else
+#                     next(filter_shape_iter) for c in rhs_spec]
+#     output_shape = conv_transpose_shape_tuple(
+#         input_shape, kernel_shape, strides, padding, dimension_numbers)
+#     bias_shape = [out_chan if c == 'C' else 1 for c in out_spec]
+#     bias_shape = tuple(itertools.dropwhile(lambda x: x == 1, bias_shape))
+#     k1, k2 = random.split(rng)
+#     # W, b = W_init(k1, kernel_shape), b_init(k2, bias_shape)
+#     W = tf.Variable(kernel_shape, W_init(seed=k1[0]))
+#     b = tf.Variable(bias_shape, b_init(stddev=1e-6, seed=k2[0]))
+#     return output_shape, (W, b)
+#   def apply_fun(params, inputs, **kwargs):
+#     W, b = params
+#     return conv_transpose(inputs, W, strides, padding,
+#                               dimension_numbers=dimension_numbers) + b
+#   return init_fun, apply_fun
+# Conv1DTranspose = functools.partial(GeneralConvTranspose, ('NHC', 'HIO', 'NHC'))
+# ConvTranspose = functools.partial(GeneralConvTranspose,
+#                                   ('NHWC', 'HWIO', 'NHWC'))
 
 
-def BatchNorm(axis=(0, 1, 2), epsilon=1e-5, center=True, scale=True,
-              beta_init=zeros, gamma_init=ones):
-  """Layer construction function for a batch normalization layer."""
-  _beta_init = lambda rng, shape: beta_init(rng, shape) if center else ()
-  _gamma_init = lambda rng, shape: gamma_init(rng, shape) if scale else ()
-  axis = (axis,) if tfnp.isscalar(axis) else axis
-  def init_fun(rng, input_shape):
-    shape = tuple(d for i, d in enumerate(input_shape) if i not in axis)
-    k1, k2 = random.split(rng)
-    beta, gamma = _beta_init(k1, shape), _gamma_init(k2, shape)
-    return input_shape, (beta, gamma)
-  def apply_fun(params, x, **kwargs):
-    beta, gamma = params
-    # TODO(phawkins): tfnp.expand_dims should accept an axis tuple.
-    # (https://github.com/numpy/numpy/issues/12290)
-    ed = tuple(None if i in axis else slice(None) for i in range(tfnp.ndim(x)))
-    z = normalize(x, axis, epsilon=epsilon)
-    if center and scale: return gamma[ed] * z + beta[ed]
-    if center: return z + beta[ed]
-    if scale: return gamma[ed] * z
-    return z
-  return init_fun, apply_fun
+# def BatchNorm(axis=(0, 1, 2), epsilon=1e-5, center=True, scale=True,
+#               beta_init=zeros, gamma_init=ones):
+#   """Layer construction function for a batch normalization layer."""
+#   _beta_init = lambda rng, shape: beta_init(rng, shape) if center else ()
+#   _gamma_init = lambda rng, shape: gamma_init(rng, shape) if scale else ()
+#   axis = (axis,) if tfnp.isscalar(axis) else axis
+#   def init_fun(rng, input_shape):
+#     shape = tuple(d for i, d in enumerate(input_shape) if i not in axis)
+#     k1, k2 = random.split(rng)
+#     beta, gamma = _beta_init(k1, shape), _gamma_init(k2, shape)
+#     return input_shape, (beta, gamma)
+#   def apply_fun(params, x, **kwargs):
+#     beta, gamma = params
+#     # TODO(phawkins): tfnp.expand_dims should accept an axis tuple.
+#     # (https://github.com/numpy/numpy/issues/12290)
+#     ed = tuple(None if i in axis else slice(None) for i in range(tfnp.ndim(x)))
+#     z = normalize(x, axis, epsilon=epsilon)
+#     if center and scale: return gamma[ed] * z + beta[ed]
+#     if center: return z + beta[ed]
+#     if scale: return gamma[ed] * z
+#     return z
+#   return init_fun, apply_fun
 
 
 def elementwise(fun, **fun_kwargs):
@@ -157,10 +163,10 @@ Sigmoid = elementwise(sigmoid)
 Elu = elementwise(elu)
 LeakyRelu = elementwise(leaky_relu)
 Selu = elementwise(selu)
-Gelu = elementwise(gelu)
+# Gelu = elementwise(gelu)
 
 
-def _pooling_layer(reducer, init_val, rescaler=None):
+def _pooling_layer(reducer, init_val, pooling_type, rescaler=None):
   def PoolingLayer(window_shape, strides=None, padding='VALID', spec=None):
     """Layer construction function for a pooling layer."""
     strides = strides or (1,) * len(window_shape)
@@ -193,14 +199,14 @@ def _pooling_layer(reducer, init_val, rescaler=None):
     def apply_fun(params, inputs, **kwargs):
       inputs = onp.moveaxis(inputs, (spec.index('N'), spec.index('C')), \
                           (0, dim + 1))
-      out = reduce_window(inputs, init_val, reducer, window_shape,
-                              strides, padding)
+      output = reduce_window(inputs, init_val, reducer, window_shape,
+                              strides, padding, pooling_type)
       # return rescale(out, inputs, spec) if rescale else out
-      return out
+      return output
     return init_fun, apply_fun
   return PoolingLayer
-MaxPool = _pooling_layer(tfnp.max, -tfnp.inf)
-SumPool = _pooling_layer(tfnp.add, 0.)
+MaxPool = _pooling_layer(tfnp.max, -tfnp.inf, "MAX")
+SumPool = _pooling_layer(tfnp.add, 0., "SUM")
 
 
 # def _normalize_by_window_size(dims, strides, padding):
@@ -220,10 +226,8 @@ SumPool = _pooling_layer(tfnp.add, 0.)
 #
 #     return outputs / window_sizes
 #   return rescale
-def empty():
-  pass
 # AvgPool = _pooling_layer(tfnp.add, 0., _normalize_by_window_size)
-AvgPool = _pooling_layer(tfnp.add, 0., empty)
+AvgPool = _pooling_layer(tfnp.add, 0., "AVG")
 
 
 def Flatten():

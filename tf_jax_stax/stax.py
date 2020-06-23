@@ -18,7 +18,6 @@ For an example of its use, see examples/resnet50.py.
 """
 
 # REVISION: Change the JAX supports into TF supports.
-# TODO (Zhibo Zhang): The only JAX API remaining: jax.random
 
 import functools
 import itertools
@@ -30,7 +29,6 @@ import tensorflow_probability as tfp
 from trax.tf_numpy import numpy as tfnp
 from tf_lax import *
 import numpy as onp
-# from jax import random
 from tensorflow.random import Generator as G
 
 from tensorflow.nn import (relu, log_softmax, softmax, softplus, sigmoid, elu,

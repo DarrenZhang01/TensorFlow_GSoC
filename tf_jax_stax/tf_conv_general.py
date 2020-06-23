@@ -22,7 +22,6 @@ Zhibo Zhang, 2020.06.06
 from tensorflow import nn
 import numpy as np
 import tensorflow as tf
-from jax import lax
 from more_itertools import sort_together
 
 

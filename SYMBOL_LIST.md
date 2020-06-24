@@ -16,7 +16,7 @@
 2. `jax.linear_util`
     * [`jax.linear_util.wrap_init`](https://github.com/google/jax/blob/master/jax/linear_util.py)
 
-3. `jax.numpy`
+3. `jax.numpy` (`trax.tf_numpy.numpy`, `tf.math`, `tf.linalg`, `tf`)
     * [`jax.numpy.abs`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.abs.html)
     * [`jax.numpy.all`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.all.html)
     * [`jax.numpy.any`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.any.html#jax.numpy.any)

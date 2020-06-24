@@ -31,7 +31,7 @@ from tf_lax import *
 import numpy as onp
 # from tensorflow.random import Generator as G
 from stateless_random_ops import split
-from stateless_random_ops import stateless_random_uniform
+from tensorflow.random import stateless_uniform
 
 from tensorflow.nn import (relu, log_softmax, softmax, softplus, sigmoid, elu,
                     leaky_relu, selu)
@@ -53,10 +53,12 @@ def Dense(out_dim, W_init=rni, b_init=rni):
   """Layer constructor function for a dense (fully-connected) layer."""
   def init_fun(rng, input_shape):
     output_shape = input_shape[:-1] + (out_dim,)
-    k1, k2 = split(seed=tf.constant(rng, dtype=tf.int64), num=2)
-    # W, b = W_init(k1, (input_shape[-1], out_dim)), b_init(k2, (out_dim,))
-    W = W_init(seed=k1.numpy()[0])((input_shape[-1], out_dim))
-    b = b_init(seed=k2.numpy()[0])((out_dim,),)
+    k1, k2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+    # convert the two keys from shape (2,) into a scalar
+    k1 = stateless_uniform(shape=[], seed=k1, minval=None, maxval=None, dtype=tf.int32)
+    k2 = stateless_uniform(shape=[], seed=k2, minval=None, maxval=None, dtype=tf.int32)
+    W = W_init(seed=k1)((input_shape[-1], out_dim))
+    b = b_init(seed=k2)((out_dim,),)
     return output_shape, (W.numpy(), b.numpy())
   def apply_fun(params, inputs, **kwargs):
     W, b = params
@@ -81,10 +83,12 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
         input_shape, kernel_shape, strides, padding, dimension_numbers)
     bias_shape = [out_chan if c == 'C' else 1 for c in out_spec]
     bias_shape = tuple(itertools.dropwhile(lambda x: x == 1, bias_shape))
-    k1, k2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int64), num=2)
-    # W, b = W_init(k1, kernel_shape), b_init(k2, bias_shape)
-    W = W_init(seed=k1.numpy()[0])(kernel_shape)
-    b = b_init(stddev=1e-6, seed=k2.numpy()[0])(bias_shape)
+    k1, k2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+    # convert the two keys from shape (2,) into a scalar
+    k1 = stateless_uniform(shape=[], seed=k1, minval=None, maxval=None, dtype=tf.int32)
+    k2 = stateless_uniform(shape=[], seed=k2, minval=None, maxval=None, dtype=tf.int32)
+    W = W_init(seed=k1)(kernel_shape)
+    b = b_init(stddev=1e-6, seed=k2)(bias_shape)
     return output_shape, (W.numpy(), b.numpy())
   def apply_fun(params, inputs, **kwargs):
     W, b = params
@@ -295,7 +299,7 @@ def Dropout(rate, mode='train'):
       # bernoulli = tfp.distributions.Bernoulli(probs=rate)
       # keep = bernoulli.sample(sample_shape=inputs.shape, seed=rng[0])
       prob = tf.ones(inputs.shape) * rate
-      keep = stateless_random_uniform(shape=inputs.shape, seed=rng, maxval=1) < prob
+      keep = stateless_uniform(shape=inputs.shape, seed=rng, minval=0, maxval=1) < prob
       return tfnp.where(keep, inputs / rate, 0)
     else:
       return inputs
@@ -320,7 +324,7 @@ def serial(*layers):
   def init_fun(rng, input_shape):
     params = []
     for init_fun in init_funs:
-      rng, layer_rng = split(seed=tf.convert_to_tensor(rng, dtype=tf.int64), num=2)
+      rng, layer_rng = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
       input_shape, param = init_fun(layer_rng, input_shape)
       params.append(param)
     return input_shape, params
@@ -328,7 +332,7 @@ def serial(*layers):
     rng = kwargs.pop('rng', None)
     rngs = None
     if rng is not None:
-      rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int64), num=nlayers)
+      rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=nlayers)
     else:
       rngs = (None,) * nlayers
     for fun, param, rng in zip(apply_funs, params, rngs):
@@ -355,14 +359,14 @@ def parallel(*layers):
   nlayers = len(layers)
   init_funs, apply_funs = zip(*layers)
   def init_fun(rng, input_shape):
-    rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int64), num=nlayers)
+    rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=nlayers)
     return zip(*[init(rng.numpy(), shape) for init, rng, shape
                  in zip(init_funs, rngs, input_shape)])
   def apply_fun(params, inputs, **kwargs):
     rng = kwargs.pop('rng', None)
     rngs = None
     if rng is not None:
-      rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int64), num=nlayers)
+      rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=nlayers)
     else:
       rngs = (None,) * nlayers
     return [f(p, x, rng=r.numpy(), **kwargs) for f, p, x, r in zip(apply_funs, params, inputs, rngs)]

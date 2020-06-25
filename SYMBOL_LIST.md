@@ -127,8 +127,8 @@
 20. `jax.api.vjp` (`vjp` in TF Numpy extensions)
 21. \*`jax.api.vmap`
 22. `jax.api.eval_shape` (`eval_on_shapes` in TF Numpy extensions)
-23. [`Config` object in `jax.config`](https://github.com/google/jax/blob/master/jax/config.py#L39)
-24. [`jax.interpreters.pxla.ShardedDeviceArray`](https://jax.readthedocs.io/en/latest/_modules/jax/interpreters/pxla.html)
+23. \*[`Config` object in `jax.config`](https://github.com/google/jax/blob/master/jax/config.py#L39)
+24. \*[`jax.interpreters.pxla.ShardedDeviceArray`](https://jax.readthedocs.io/en/latest/_modules/jax/interpreters/pxla.html)
 25. \*[`jax.test_util`](https://github.com/google/jax/blob/master/jax/test_util.py)
     * `jax.test_util._default_tolerance`
     * `jax.test_util.device_under_test`

@@ -4,10 +4,10 @@
 
 1. `jax.lax`
     * [`jax.lax.add`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.add.html#jax.lax.add) (`trax.tf_numpy.numpy.add`)
-    * [`jax.lax.cond`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.cond.html)
-    * [`jax.lax.conv_general_dilated`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.conv_general_dilated.html#jax.lax.conv_general_dilated)
+    * [`jax.lax.cond`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.cond.html) (`tf.cond`)
+    * [`jax.lax.conv_general_dilated`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.conv_general_dilated.html#jax.lax.conv_general_dilated) ([TF `conv_general_dilated`](https://github.com/DarrenZhang01/TensorFlow_GSoC/blob/master/tf_jax_stax/tf_conv_general.py))
     * [`jax.lax.dot_general`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.dot_general.html#jax.lax.dot_general)
-    * `jax.lax.dot_general_dilated` ([TF `conv_general_dilated`](https://github.com/DarrenZhang01/TensorFlow_GSoC/blob/master/tf_jax_stax/tf_conv_general.py))
+    * `jax.lax.dot_general_dilated`
     * [`jax.lax.padtype_to_pads`](https://jax.readthedocs.io/en/latest/_modules/jax/lax/lax.html)
     * [`jax.lax.reduce_window`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.reduce_window.html#jax.lax.reduce_window) ([TF `reduce_window`](https://github.com/DarrenZhang01/TensorFlow_GSoC/blob/master/tf_jax_stax/tf_reduce_window.py))
     * [`jax.lax.reduce_window_shape_tuple`](https://jax.readthedocs.io/en/latest/_modules/jax/lax/lax.html)
@@ -91,7 +91,7 @@
     * `jax.random.uniform`
     * `jax.random.bernoulli`
     * `jax.random.PRNGKey`
-6. [`jax.abstract_arrays.ShapeArray`](https://github.com/google/jax/blob/master/jax/abstract_arrays.py)
+6. <font color="#dd0000">[`jax.abstract_arrays.ShapedArray`](https://github.com/google/jax/blob/master/jax/abstract_arrays.py)</font> (Only appeared [once](https://github.com/google/neural-tangents/search?q=shapedarray&unscoped_q=shapedarray) in Neural Tangents, and TF ndarray can be an equivalence)
 7. [`jax.api_util.flatten_fun`](https://github.com/google/jax/blob/master/jax/api_util.py)
 8. [`jax.experimental.stax`](https://jax.readthedocs.io/en/latest/jax.experimental.stax.html)
     * `jax.experimental.stax.serial` (line 305 in stax.py)
@@ -124,7 +124,7 @@
 17. [`jax.api.device_get`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html)
 18. `jax.api.jacobian`
 19. `jax.api.jvp`
-20. `jax.api.vjp`
+20. `jax.api.vjp` (`vjp` in trax extensions)
 21. `jax.api.vmap`
 22. `jax.api.eval_shape`
 23. `jax.config.config`

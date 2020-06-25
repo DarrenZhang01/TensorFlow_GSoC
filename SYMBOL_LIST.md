@@ -91,7 +91,7 @@
     * `jax.random.uniform`
     * `jax.random.bernoulli`
     * `jax.random.PRNGKey`
-6. <font color="#dd0000">[`jax.abstract_arrays.ShapedArray`](https://github.com/google/jax/blob/master/jax/abstract_arrays.py)</font> (Only appeared [once](https://github.com/google/neural-tangents/search?q=shapedarray&unscoped_q=shapedarray) in Neural Tangents, and TF ndarray can be an equivalence)
+6. \*[`jax.abstract_arrays.ShapedArray`](https://github.com/google/jax/blob/master/jax/abstract_arrays.py)(Only appeared [once](https://github.com/google/neural-tangents/search?q=shapedarray&unscoped_q=shapedarray) in Neural Tangents, and TF ndarray can be an equivalence)
 7. [`jax.api_util.flatten_fun`](https://github.com/google/jax/blob/master/jax/api_util.py)
 8. [`jax.experimental.stax`](https://jax.readthedocs.io/en/latest/jax.experimental.stax.html)
     * `jax.experimental.stax.serial` (line 305 in stax.py)

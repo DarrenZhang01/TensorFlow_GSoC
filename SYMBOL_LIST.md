@@ -111,26 +111,25 @@
 10. \*[`jax.lib.xla_bridge.get_backend`](https://jax.readthedocs.io/en/latest/_modules/jax/lib/xla_bridge.html)
 11. \*[`jax.scipy.special.erf`](https://jax.readthedocs.io/en/latest/_autosummary/jax.scipy.special.erf.html#jax.scipy.special.erf) (`tf.math.erf`, may need a TF Numpy wrapper)
 12. [`jax.scipy.linalg.solve`](https://jax.readthedocs.io/en/latest/_autosummary/jax.scipy.linalg.solve.html) (`tf.linalg.solve`, may need a TF Numpy wrapper later on)
-13. \*[`jax.tree_util`](https://jax.readthedocs.io/en/latest/jax.tree_util.html)
+13. \*[`jax.tree_util`](https://jax.readthedocs.io/en/latest/jax.tree_util.html) (Need tree utils for TF)
     * `jax.tree_util.tree_map`
     * `jax.tree_util.tree_flatten`
     * `jax.tree_util.tree_unflatten`
     * `jax.tree_util.register_pytree_node`
     * `jax.tree_util.tree_reduce`
     * `jax.tree_util.tree_multimap`
-14. [`jax.api.grad`](https://jax.readthedocs.io/en/latest/jax.html#jax.grad)
-15. [`jax.api.jit`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html)
-16. [`jax.api.pmap`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html)
-17. [`jax.api.device_get`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html)
-18. `jax.api.jacobian`
-19. `jax.api.jvp`
-20. `jax.api.vjp` (`vjp` in trax extensions)
-21. `jax.api.vmap`
-22. `jax.api.eval_shape`
-23. `jax.config.config`
-24. `jax.config.config.parse_flags_with_absl`
+14. [`jax.api.grad`](https://jax.readthedocs.io/en/latest/jax.html#jax.grad) ([`grad` in TF Numpy extensions](https://github.com/google/trax/blob/master/trax/tf_numpy/extensions/extensions.py#L219))
+15. [`jax.api.jit`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html) ([`jit` in TF Numpy extensions](https://github.com/google/trax/blob/master/trax/tf_numpy/extensions/extensions.py#L282))
+16. [`jax.api.pmap`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html) ([`pmap` in TF Numpy extensions](](https://github.com/google/trax/blob/master/trax/tf_numpy/extensions/extensions.py#L1020)))
+17. \*[`jax.api.device_get`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html)
+18. \*[`jax.api.jacobian`](https://github.com/google/jax/blob/master/jax/api.py#L600)
+19. \*`jax.api.jvp` (Need a direct jvp interface based on the current forward-mode in TF)
+20. `jax.api.vjp` (`vjp` in TF Numpy extensions)
+21. \*`jax.api.vmap`
+22. `jax.api.eval_shape` (`eval_on_shapes` in TF Numpy extensions)
+23. [`Config` object in `jax.config`](https://github.com/google/jax/blob/master/jax/config.py#L39)
 24. [`jax.interpreters.pxla.ShardedDeviceArray`](https://jax.readthedocs.io/en/latest/_modules/jax/interpreters/pxla.html)
-25. [`jax.test_util`](https://github.com/google/jax/blob/master/jax/test_util.py)
+25. \*[`jax.test_util`](https://github.com/google/jax/blob/master/jax/test_util.py)
     * `jax.test_util._default_tolerance`
     * `jax.test_util.device_under_test`
     * `jax.test_util.JaxTestCase`
@@ -140,5 +139,5 @@
     * `jax.absltest.main`
 26. `jax.experimental.optimizers.optimizer`
 27. `jax.experimental.optimizers.momentum`
-28. `jax.experimental.optimizers.make_schedule`
+28. \*`jax.experimental.optimizers.make_schedule`
 29. `jax.experimental.optimizers.sgd`

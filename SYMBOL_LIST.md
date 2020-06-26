@@ -61,7 +61,7 @@
     * [`jax.numpy.outer`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.outer.html)
     * [`jax.numpy.pad`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.pad.html)
     * [`jax.numpy.prod`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.prod.html)
-    * \*`jax.numpy.pi` (`tf.constant(math.pi)`?)
+    * \*`jax.numpy.pi` (TF nightly version; `tf.constant(math.pi)`)
     * [`jax.numpy.reshape`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.reshape.html)
     * [`jax.numpy.round`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.round.html) (`tf.math.round`, may need a TF Numpy wrapper later on)
     * [`jax.numpy.squeeze`](https://jax.readthedocs.io/en/latest/_autosummary/jax.numpy.squeeze.html)
@@ -91,8 +91,8 @@
     * `jax.random.uniform`
     * `jax.random.bernoulli`
     * `jax.random.PRNGKey`
-6. \*[`jax.abstract_arrays.ShapedArray`](https://github.com/google/jax/blob/master/jax/abstract_arrays.py)(Only appeared [once](https://github.com/google/neural-tangents/search?q=shapedarray&unscoped_q=shapedarray) in Neural Tangents, and TF ndarray can be an equivalence)
-7. \*[`jax.api_util.flatten_fun`](https://github.com/google/jax/blob/master/jax/api_util.py) (based on `tree_flatten` in JAX tree utils - may need an equivalent set of tree utils in TF)
+6. [`jax.abstract_arrays.ShapedArray`](https://github.com/google/jax/blob/master/jax/abstract_arrays.py) (Avoid direct access)
+7. [`jax.api_util.flatten_fun`](https://github.com/google/jax/blob/master/jax/api_util.py) 
 8. [`jax.experimental.stax`](https://jax.readthedocs.io/en/latest/jax.experimental.stax.html) ([TF equivalent functionalities](https://github.com/DarrenZhang01/TensorFlow_GSoC/tree/master/tf_jax_stax))
     * `jax.experimental.stax.serial` (line 305 in stax.py)
     * `jax.experimental.stax.parallel` (line 334 in stax.py)
@@ -107,11 +107,11 @@
     * `jax.experimental.stax.softmax` (line 1349 in stax.py)
     * `jax.experimental.stax.Dropout` (line 1559 in stax.py)
     * `jax.experimental.stax.elementwise` (line 2048 in stax.py)
-9. \*[`jax.interpreters.partial_eval.abstract_eval_fun`](https://github.com/google/jax/blob/master/jax/interpreters/partial_eval.py)
-10. \*[`jax.lib.xla_bridge.get_backend`](https://jax.readthedocs.io/en/latest/_modules/jax/lib/xla_bridge.html)
+9. [`jax.interpreters.partial_eval.abstract_eval_fun`](https://github.com/google/jax/blob/master/jax/interpreters/partial_eval.py) (avoid direct access)
+10. [`jax.lib.xla_bridge.get_backend`](https://jax.readthedocs.io/en/latest/_modules/jax/lib/xla_bridge.html) (avoid direct access)
 11. \*[`jax.scipy.special.erf`](https://jax.readthedocs.io/en/latest/_autosummary/jax.scipy.special.erf.html#jax.scipy.special.erf) (`tf.math.erf`, may need a TF Numpy wrapper)
 12. [`jax.scipy.linalg.solve`](https://jax.readthedocs.io/en/latest/_autosummary/jax.scipy.linalg.solve.html) (`tf.linalg.solve`, may need a TF Numpy wrapper later on)
-13. \*[`jax.tree_util`](https://jax.readthedocs.io/en/latest/jax.tree_util.html) (Need tree utils for TF)
+13. [`jax.tree_util`](https://jax.readthedocs.io/en/latest/jax.tree_util.html)
     * `jax.tree_util.tree_map`
     * `jax.tree_util.tree_flatten`
     * `jax.tree_util.tree_unflatten`
@@ -121,14 +121,14 @@
 14. [`jax.api.grad`](https://jax.readthedocs.io/en/latest/jax.html#jax.grad) ([`grad` in TF Numpy extensions](https://github.com/google/trax/blob/master/trax/tf_numpy/extensions/extensions.py#L219))
 15. [`jax.api.jit`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html) ([`jit` in TF Numpy extensions](https://github.com/google/trax/blob/master/trax/tf_numpy/extensions/extensions.py#L282))
 16. [`jax.api.pmap`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html) ([`pmap` in TF Numpy extensions](](https://github.com/google/trax/blob/master/trax/tf_numpy/extensions/extensions.py#L1020)))
-17. \*[`jax.api.device_get`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html)
-18. \*[`jax.api.jacobian`](https://github.com/google/jax/blob/master/jax/api.py#L600)
+17. [`jax.api.device_get`](https://jax.readthedocs.io/en/latest/_modules/jax/api.html) (`with tf.device("CPU"): np.array(x)`)
+18. [`jax.api.jacobian`](https://github.com/google/jax/blob/master/jax/api.py#L600) ([`tf.GradientTape.jacobian`](https://www.tensorflow.org/api_docs/python/tf/GradientTape#jacobian))
 19. \*`jax.api.jvp` (Need a direct jvp interface based on the current forward-mode in TF)
 20. `jax.api.vjp` (`vjp` in TF Numpy extensions)
-21. \*`jax.api.vmap`
+21. [`jax.api.vmap`] ([`tf.vectorized_map`](https://www.tensorflow.org/api_docs/python/tf/vectorized_map))
 22. `jax.api.eval_shape` (`eval_on_shapes` in TF Numpy extensions)
 23. \*[`Config` object in `jax.config`](https://github.com/google/jax/blob/master/jax/config.py#L39)
-24. \*[`jax.interpreters.pxla.ShardedDeviceArray`](https://jax.readthedocs.io/en/latest/_modules/jax/interpreters/pxla.html)
+24. [`jax.interpreters.pxla.ShardedDeviceArray`](https://jax.readthedocs.io/en/latest/_modules/jax/interpreters/pxla.html) (avoid direct access)
 25. \*[`jax.test_util`](https://github.com/google/jax/blob/master/jax/test_util.py)
     * `jax.test_util._default_tolerance`
     * `jax.test_util.device_under_test`

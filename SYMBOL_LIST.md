@@ -92,7 +92,7 @@
     * `jax.random.bernoulli`
     * `jax.random.PRNGKey`
 6. [`jax.abstract_arrays.ShapedArray`](https://github.com/google/jax/blob/master/jax/abstract_arrays.py) (Avoid direct access)
-7. [`jax.api_util.flatten_fun`](https://github.com/google/jax/blob/master/jax/api_util.py) 
+7. [`jax.api_util.flatten_fun`](https://github.com/google/jax/blob/master/jax/api_util.py)
 8. [`jax.experimental.stax`](https://jax.readthedocs.io/en/latest/jax.experimental.stax.html) ([TF equivalent functionalities](https://github.com/DarrenZhang01/TensorFlow_GSoC/tree/master/tf_jax_stax))
     * `jax.experimental.stax.serial` (line 305 in stax.py)
     * `jax.experimental.stax.parallel` (line 334 in stax.py)
@@ -133,10 +133,7 @@
     * `jax.test_util._default_tolerance`
     * `jax.test_util.device_under_test`
     * `jax.test_util.JaxTestCase`
-    * `jax.test_util.parameterized.named_parameters`
-    * `jax.test_util.parameterized.parameters`
     * `jax.test_util.cases_from_list`
-    * `jax.absltest.main`
 26. `jax.experimental.optimizers.optimizer`
 27. `jax.experimental.optimizers.momentum`
 28. \*`jax.experimental.optimizers.make_schedule`

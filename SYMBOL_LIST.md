@@ -7,7 +7,6 @@
     * [`jax.lax.cond`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.cond.html) (`tf.cond`)
     * [`jax.lax.conv_general_dilated`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.conv_general_dilated.html#jax.lax.conv_general_dilated) ([TF `conv_general_dilated`](https://github.com/DarrenZhang01/TensorFlow_GSoC/blob/master/tf_jax_stax/tf_conv_general.py))
     * \*[`jax.lax.dot_general`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.dot_general.html#jax.lax.dot_general)
-    * \*`jax.lax.dot_general_dilated`
     * [`jax.lax.padtype_to_pads`](https://jax.readthedocs.io/en/latest/_modules/jax/lax/lax.html)
     * [`jax.lax.reduce_window`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.reduce_window.html#jax.lax.reduce_window) ([TF `reduce_window`](https://github.com/DarrenZhang01/TensorFlow_GSoC/blob/master/tf_jax_stax/tf_reduce_window.py))
     * [`jax.lax.reduce_window_shape_tuple`](https://jax.readthedocs.io/en/latest/_modules/jax/lax/lax.html)

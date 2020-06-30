@@ -22,3 +22,46 @@ possible.
 
 Zhibo Zhang, 2020.06.30
 """
+
+import tensorflow as tf
+import string
+
+
+# Given lhs representation, rhs representation, contraction and batch dimensions,
+# compose the output representation.
+#   e.g., ij, jk, (((1,), (0,)), ((), ())) -> ik
+#         aij, ajk, (((2,), (1,)), ((0,), (0,))) -> aik
+def compose_output_rep(lhs_rep, rhs_rep, lhs_contraction, rhs_contraction,
+                        lhs_batch, rhs_batch):
+  output_rep = []
+  for dim in lhs_batch:
+    output_rep.append(lhs_rep[dim])
+  for dim in rhs_batch:
+    if rhs_rep[dim] not in output_rep:
+      output_rep.append(rhs_rep[dim])
+  for i in range(len(lhs_rep)):
+    if i not in lhs_batch and i not in lhs_contraction:
+      output_rep.append(lhs_rep[i])
+  for i in range(len(rhs_rep)):
+    if i not in rhs_batch and i not in rhs_contraction:
+      output_rep.append(rhs_rep[i])
+  return ''.join(output_rep)
+
+
+# The general dot operation:
+#   e.g., non-batched: ij,jk->ik
+#         batched: ijk,ikl->ijl
+def dot_general(lhs, rhs, dimension_numbers):
+  char_list = list(string.ascii_lowercase)[8:]
+  lhs_rep = char_list[:lhs.ndim]
+  rhs_rep = char_list[lhs.ndim:lhs.ndim + rhs.ndim]
+  contraction, batch = dimension_numbers
+  lhs_contraction, rhs_contraction = contraction
+  lhs_batch, rhs_batch = batch
+  for i in range(len(lhs_contraction)):
+    rhs_rep[rhs_contraction[i]] = lhs_rep[lhs_contraction[i]]
+  for i in range(len(lhs_batch)):
+    if i < len(rhs_batch):
+      rhs_rep[rhs_batch[i]] = lhs_batch[lhs_batch[i]]
+  output_rep = ''
+  # for i in range()

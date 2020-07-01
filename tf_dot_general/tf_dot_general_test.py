@@ -26,8 +26,9 @@ import numpy as np
 import jax.numpy as jnp
 from jax import lax
 from tf_dot_general import compose_output_rep
-from tf_dot_general import dot_general as tf_dot_general
+from tf_dot_general import tf_dot_general
 from absl.testing import parameterized
+import sys
 
 
 class TFConvGeneralTest(test.TestCase, parameterized.TestCase):
@@ -51,6 +52,10 @@ class TFConvGeneralTest(test.TestCase, parameterized.TestCase):
   @parameterized.parameters(
     {"lhs_np": np.ones((5, 3)), "rhs_np": np.ones((3, 2)),
       "dims": (((1,), (0,)), ((), ()))},
+    {"lhs_np": np.ones((5, 3)), "rhs_np": np.ones((5, 3)),
+      "dims": (((0, 1), (0, 1)), ((), ()))},
+    {"lhs_np": np.ones((5, 3, 2)), "rhs_np": np.ones((2, 3, 2)),
+      "dims": (((1, 2), (1, 0)), ((), ()))},
     {"lhs_np": np.ones((6, 5, 3)), "rhs_np": np.ones((6, 3, 2)),
       "dims": (((2,), (1,)), ((0,), (0,)))},
     {"lhs_np": np.ones((2, 2, 5, 3)), "rhs_np": np.ones((2, 2, 3, 2)),

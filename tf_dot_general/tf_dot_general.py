@@ -48,10 +48,16 @@ def compose_output_rep(lhs_rep, rhs_rep, lhs_contraction, rhs_contraction,
   return ''.join(output_rep)
 
 
+# If it is the general non-batched/single-batched matrix multiplication,
+# use the highly optimized kernel `tf.tensordot` to handle it.
+def non_batched_matmul(lhs, rhs, lhs_contraction, rhs_contraction):
+  return tf.tensordot(lhs, rhs, axes=(list(lhs_contraction), list(rhs_contraction)))
+
+
 # The general dot operation:
 #   e.g., non-batched: ij,jk->ik
 #         batched: ijk,ikl->ijl
-def dot_general(lhs, rhs, dimension_numbers):
+def tf_dot_general(lhs, rhs, dimension_numbers):
 
   char_list = list(string.ascii_lowercase)[8:]
   lhs_dim, rhs_dim = len(lhs.shape), len(rhs.shape)
@@ -60,6 +66,9 @@ def dot_general(lhs, rhs, dimension_numbers):
   contraction, batch = dimension_numbers
   lhs_contraction, rhs_contraction = contraction
   lhs_batch, rhs_batch = batch
+
+  if len(lhs_batch) == 0 and len(rhs_batch) == 0:
+    return non_batched_matmul(lhs, rhs, lhs_contraction, rhs_contraction)
 
   for i in range(len(lhs_contraction)):
     rhs_rep[rhs_contraction[i]] = lhs_rep[lhs_contraction[i]]

@@ -25,8 +25,6 @@ Zhibo Zhang, 2020.06.30
 
 import tensorflow as tf
 import string
-import sys
-
 
 # Given lhs representation, rhs representation, contraction and batch dimensions,
 # compose the output representation.

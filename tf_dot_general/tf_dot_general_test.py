@@ -57,6 +57,10 @@ class TFConvGeneralTest(test.TestCase, parameterized.TestCase):
       "dims": (((1, 2), (1, 0)), ((), ()))},
     {"lhs_np": np.ones((6, 5, 3)), "rhs_np": np.ones((6, 3, 2)),
       "dims": (((2,), (1,)), ((0,), (0,)))},
+    {"lhs_np": np.ones((6, 3, 5)), "rhs_np": np.ones((6, 3, 2)),
+      "dims": (((1,), (1,)), ((0,), (0,)))},
+    {"lhs_np": np.ones((5, 3, 2, 2)), "rhs_np": np.ones((5, 2, 2, 6)),
+      "dims": (((2, 3), (1, 2)), ((0,), (0,)))},
     {"lhs_np": np.ones((2, 2, 5, 3)), "rhs_np": np.ones((2, 2, 3, 2)),
       "dims": (((3,), (2,)), ((0, 1), (0, 1)))},
   )

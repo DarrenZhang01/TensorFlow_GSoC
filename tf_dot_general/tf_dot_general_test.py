@@ -28,7 +28,6 @@ from jax import lax
 from tf_dot_general import compose_output_rep
 from tf_dot_general import tf_dot_general
 from absl.testing import parameterized
-import sys
 
 
 class TFConvGeneralTest(test.TestCase, parameterized.TestCase):

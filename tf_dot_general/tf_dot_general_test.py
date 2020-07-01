@@ -19,11 +19,16 @@ Tests for the general dot operation for TensorFlow.
 
 Zhibo Zhang, 2020.06.30
 """
-from tensorflow import nn
+
 import tensorflow as tf
 from tensorflow.python.platform import test
+import numpy as np
+import jax.numpy as jnp
+from jax import lax
 from tf_dot_general import compose_output_rep
+from tf_dot_general import dot_general as tf_dot_general
 from absl.testing import parameterized
+
 
 class TFConvGeneralTest(test.TestCase, parameterized.TestCase):
 
@@ -43,6 +48,18 @@ class TFConvGeneralTest(test.TestCase, parameterized.TestCase):
                                     lhs_batch, rhs_batch)
     self.assertEqual(output_rep, result)
 
+  @parameterized.parameters(
+    {"lhs_np": np.ones((5, 3)), "rhs_np": np.ones((3, 2)),
+      "dims": (((1,), (0,)), ((), ()))},
+    {"lhs_np": np.ones((6, 5, 3)), "rhs_np": np.ones((6, 3, 2)),
+      "dims": (((2,), (1,)), ((0,), (0,)))},
+    {"lhs_np": np.ones((2, 2, 5, 3)), "rhs_np": np.ones((2, 2, 3, 2)),
+      "dims": (((3,), (2,)), ((0, 1), (0, 1)))},
+  )
+  def test_tf_dot_general(self, lhs_np, rhs_np, dims):
+    ans = lax.dot_general(jnp.array(lhs_np), jnp.array(rhs_np), dims)
+    result = tf_dot_general(tf.constant(lhs_np), tf.constant(rhs_np), dims)
+    self.assertTrue((result.numpy() == np.array(ans)).all())
 
 
 if __name__ == "__main__":

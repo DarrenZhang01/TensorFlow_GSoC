@@ -25,6 +25,7 @@ Zhibo Zhang, 2020.06.30
 
 import tensorflow as tf
 import string
+import sys
 
 
 # Given lhs representation, rhs representation, contraction and batch dimensions,
@@ -39,6 +40,7 @@ def compose_output_rep(lhs_rep, rhs_rep, lhs_contraction, rhs_contraction,
   for dim in rhs_batch:
     if rhs_rep[dim] not in output_rep:
       output_rep.append(rhs_rep[dim])
+
   for i in range(len(lhs_rep)):
     if i not in lhs_batch and i not in lhs_contraction:
       output_rep.append(lhs_rep[i])
@@ -52,16 +54,22 @@ def compose_output_rep(lhs_rep, rhs_rep, lhs_contraction, rhs_contraction,
 #   e.g., non-batched: ij,jk->ik
 #         batched: ijk,ikl->ijl
 def dot_general(lhs, rhs, dimension_numbers):
+
   char_list = list(string.ascii_lowercase)[8:]
-  lhs_rep = char_list[:lhs.ndim]
-  rhs_rep = char_list[lhs.ndim:lhs.ndim + rhs.ndim]
+  lhs_dim, rhs_dim = len(lhs.shape), len(rhs.shape)
+  lhs_rep = char_list[:lhs_dim]
+  rhs_rep = char_list[lhs_dim:lhs_dim+rhs_dim]
   contraction, batch = dimension_numbers
   lhs_contraction, rhs_contraction = contraction
   lhs_batch, rhs_batch = batch
+
   for i in range(len(lhs_contraction)):
     rhs_rep[rhs_contraction[i]] = lhs_rep[lhs_contraction[i]]
   for i in range(len(lhs_batch)):
     if i < len(rhs_batch):
-      rhs_rep[rhs_batch[i]] = lhs_batch[lhs_batch[i]]
-  output_rep = ''
-  # for i in range()
+      rhs_rep[rhs_batch[i]] = lhs_rep[lhs_batch[i]]
+
+  output_rep = compose_output_rep(lhs_rep, rhs_rep, lhs_contraction,
+                                  rhs_contraction, lhs_batch, rhs_batch)
+  equation = ''.join(lhs_rep) + ',' + ''.join(rhs_rep) + "->" + output_rep
+  return tf.einsum(equation, lhs, rhs)

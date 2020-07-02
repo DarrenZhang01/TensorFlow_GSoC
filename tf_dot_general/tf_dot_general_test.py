@@ -63,6 +63,10 @@ class TFConvGeneralTest(test.TestCase, parameterized.TestCase):
       "dims": (((2, 3), (1, 2)), ((0,), (0,)))},
     {"lhs_np": np.ones((2, 2, 5, 3)), "rhs_np": np.ones((2, 2, 3, 2)),
       "dims": (((3,), (2,)), ((0, 1), (0, 1)))},
+    {"lhs_np": np.ones((2, 2, 5, 2)), "rhs_np": np.ones((2, 2, 3, 2)),
+      "dims": (((3,), (1,)), ((0,), (0,)))},
+    {"lhs_np": np.ones((2, 2, 5, 3, 3)), "rhs_np": np.ones((2, 3, 2, 3, 2)),
+      "dims": (((4,), (1,)), ((0,), (0,)))},
   )
   def test_tf_dot_general(self, lhs_np, rhs_np, dims):
     ans = lax.dot_general(jnp.array(lhs_np), jnp.array(rhs_np), dims)

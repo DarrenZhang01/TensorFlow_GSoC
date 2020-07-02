@@ -55,25 +55,25 @@ def non_batched_matmul(lhs, rhs, lhs_contraction, rhs_contraction):
   return tf.tensordot(lhs, rhs, axes=(list(lhs_contraction), list(rhs_contraction)))
 
 
-# If the batch dimension of the two input matrices correspond with each other
-# (which includes most of the cases), then move the batch dimension to the very
-# front of the matrices, move the contraction dimensions to the end of the lhs
-# matrices and to the axes that are right after the batch dimension in rhs.
-# i.e.,
-#   lhs: (batch dim) + (other spatial dims) + (contraction dims)
-#   rhs: (batch dim) + (contraction dims) + (other spatial dims)
-#
-# Then combine the contraction dimensions into one (if several) such that the
-# matmul API can easily handle them without ambiguity.
-def batched_matmul(lhs, rhs, lhs_dim, lhs_batch, rhs_batch, lhs_contraction,
-                    rhs_contraction):
-  lhs = tf_np.moveaxis(tf_np.array(lhs), lhs_batch + lhs_contraction,
-                      (0,) + tuple(range(lhs_dim - len(lhs_contraction), lhs_dim)))
-  rhs = tf_np.moveaxis(tf_np.array(rhs), rhs_batch + rhs_contraction,
-                      (0,) + tuple(range(1, 1 + lhs_dim)))
-  lhs = lhs.reshape(lhs.shape[:lhs_dim - len(lhs_contraction)] + (-1,))
-  rhs = rhs.reshape((rhs.shape[0], -1) + rhs.shape[1 + len(lhs_contraction):])
-  return tf.linalg.matmul(lhs, rhs)
+# # If the batch dimension of the two input matrices correspond with each other
+# # (which includes most of the cases), then move the batch dimension to the very
+# # front of the matrices, move the contraction dimensions to the end of the lhs
+# # matrices and to the axes that are right after the batch dimension in rhs.
+# # i.e.,
+# #   lhs: (batch dim) + (other spatial dims) + (contraction dims)
+# #   rhs: (batch dim) + (contraction dims) + (other spatial dims)
+# #
+# # Then combine the contraction dimensions into one (if several) such that the
+# # matmul API can easily handle them without ambiguity.
+# def batched_matmul(lhs, rhs, lhs_dim, lhs_batch, rhs_batch, lhs_contraction,
+#                     rhs_contraction):
+#   lhs = tf_np.moveaxis(tf_np.array(lhs), lhs_batch + lhs_contraction,
+#                       (0,) + tuple(range(lhs_dim - len(lhs_contraction), lhs_dim)))
+#   rhs = tf_np.moveaxis(tf_np.array(rhs), rhs_batch + rhs_contraction,
+#                       (0,) + tuple(range(1, 1 + lhs_dim)))
+#   lhs = lhs.reshape(lhs.shape[:lhs_dim - len(lhs_contraction)] + (-1,))
+#   rhs = rhs.reshape((rhs.shape[0], -1) + rhs.shape[1 + len(lhs_contraction):])
+#   return tf.linalg.matmul(lhs, rhs)
 
 
 # The general dot operation:
@@ -92,9 +92,11 @@ def tf_dot_general(lhs, rhs, dimension_numbers):
   if len(lhs_batch) == 0 and len(rhs_batch) == 0:
     return non_batched_matmul(lhs, rhs, lhs_contraction, rhs_contraction)
 
-  if len(lhs_batch) == len(rhs_batch) == 1:
-    return batched_matmul(lhs, rhs, lhs_dim, lhs_batch, rhs_batch, lhs_contraction,
-                          rhs_contraction)
+  cond_a = lhs_dim == rhs_dim == 3
+  cond_b = lhs_batch == (0,) and rhs_batch == (0,)
+  cond_c = lhs_contraction == (lhs_dim - 1,) and rhs_contraction == (1,)
+  if cond_a and cond_b and cond_c:
+    return tf.linalg.matmul(lhs, rhs)
 
   for i in range(len(lhs_contraction)):
     rhs_rep[rhs_contraction[i]] = lhs_rep[lhs_contraction[i]]

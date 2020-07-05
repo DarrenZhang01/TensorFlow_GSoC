@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+install:
+  - pip install --upgrade pip
+  - pip install numpy jaxlib jax tensorflow tensorflow-datasets trax --upgrade
+  - git clone https://github.com/DarrenZhang01/TensorFlow_GSoC.git
+  - cd TensorFlow_GSoC
+  - pip install -e neural-tangents
+script:
+  - for f in neural-tangents/neural_tangents/tests/*.py; do python $f; done

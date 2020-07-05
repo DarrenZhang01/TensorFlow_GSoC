@@ -16,7 +16,6 @@
 
 
 import math
-import unittest
 
 from absl.testing import absltest
 from jax import test_util as jtu
@@ -217,8 +216,8 @@ class PredictTest(jtu.JaxTestCase):
                           for out_logits in OUTPUT_LOGITS
                           for name, fn in KERNELS.items()
                           for momentum in [None, 0.9]
-                          for learning_rate in [0.0001]
-                          for t in [10]
+                          for learning_rate in [0.0002]
+                          for t in [5]
                           for loss in ['mse_analytic', 'mse'])
   )
   def testNTKGDPrediction(self, train_shape, test_shape, network, out_logits,
@@ -238,7 +237,7 @@ class PredictTest(jtu.JaxTestCase):
     trace_axes = () if g_dd.ndim == 4 else (-1,)
     if loss == 'mse_analytic':
       if momentum is not None:
-        raise unittest.SkipTest(momentum)
+        raise absltest.SkipTest(momentum)
       predictor = predict.gradient_descent_mse(g_dd, y_train,
                                                learning_rate=learning_rate,
                                                trace_axes=trace_axes)
@@ -848,7 +847,9 @@ class PredictTest(jtu.JaxTestCase):
 
             kernel_fn = empirical.empirical_kernel_fn(apply_fn,
                                                       trace_axes=trace_axes)
-            kernel_fn = jit(kernel_fn, static_argnums=(2,))
+
+            # TODO(romann): investigate the SIGTERM error on CPU.
+            # kernel_fn = jit(kernel_fn, static_argnums=(2,))
             ntk_train_train = kernel_fn(x_train, None, 'ntk', params)
             if x is not None:
               ntk_test_train = kernel_fn(x, x_train, 'ntk', params)

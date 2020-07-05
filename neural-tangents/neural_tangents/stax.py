@@ -375,7 +375,7 @@ def Dense(
 
       Under standard parameterization (https://arxiv.org/abs/2001.07301),
       weights and biases are initialized as :math:`W_{ij} \sim \mathcal{N}(0,
-      W_std^2/N)`,
+      W_{std}^2/N)`,
       :math:`b_i \sim \mathcal{N}(0,\sigma_b^2)`, and the finite width layer
       equation is
       :math:`z_i = \sum_j W_{ij} x_j + b_i`.
@@ -1209,29 +1209,79 @@ def Identity() -> InternalLayer:
 
 @layer
 @_supports_masking(remask_kernel=True)
-def Erf(do_backprop: bool = False) -> InternalLayer:
-  """Error function nonlinearity.
-
+def Erf(a: float = 1.,
+        b: float = 1.,
+        c: float = 0.,
+        do_backprop: bool = False) -> InternalLayer:
+  """Affine transform of `Erf` nonlinearity, i.e. `a Erf(b * x) + c`.
   Args:
-    do_backprop: set to `True` if you wan to backpropagate through the kernel.
+    a: a float.
+    b: a float.
+    c: a float.
+    do_backprop: set to `True` if you want to backpropagate through the kernel.
 
   Returns:
     `(init_fn, apply_fn, kernel_fn)`.
   """
   return _elementwise(_erf,
                       'Erf',
+                      a=a,
+                      b=b,
+                      c=c,
                       do_backprop=do_backprop)
 
 
 @layer
 @_supports_masking(remask_kernel=True)
-def Sin(a=1., b=1., c=0.) -> InternalLayer:
-  """Returns the function f(x) = a sin(bx + c).
+def Gelu(do_backprop: bool = False) -> InternalLayer:
+  """Gelu function.
+
+  Args:
+    do_backprop: set to `True` if you want to backpropagate through the kernel.
 
   Returns:
     `(init_fn, apply_fn, kernel_fn)`.
   """
+  return _elementwise(_gelu,
+                      'Gelu',
+                      do_backprop=do_backprop)
+
+
+@layer
+@_supports_masking(remask_kernel=True)
+def Sin(a: float = 1.,
+        b: float = 1.,
+        c: float = 0.) -> InternalLayer:
+  """Affine transform of `Sin` nonlinearity, i.e. `a sin(b*x + c)`
+
+  Args:
+    a: a float.
+    b: a float.
+    c: a float.
+  Returns:
+    `(init_fn, apply_fn, kernel_fn)`.
+  """
   return _elementwise(_sin, 'Sin', a=a, b=b, c=c)
+
+
+@layer
+@_supports_masking(remask_kernel=True)
+def Rbf(gamma: float = 1.0) -> InternalLayer:
+  """Returns the dual activation function layer for normalized RBF or sqaured exponential kernel.
+
+  Dual activation function is `f(x) = sqrt(2)*sin(sqrt(2*gamma) x + pi/4)`.
+
+  NNGP kernel transformation correspond to (with input dimension `d`)
+    `k = exp(- gamma / d * ||x - x'||^2) = exp(- gamma*(q11 + q22 - 2 * q12))`.
+
+  Args:
+    gamma: related to characteristic length-scale (l) that controls width of
+      the kernel, where `gamma = 1 / (2 l^2)`.
+
+  Returns:
+    `(init_fn, apply_fn, kernel_fn)`.
+  """
+  return _elementwise(_rbf, 'Rbf', gamma=gamma)
 
 
 @layer
@@ -1242,7 +1292,7 @@ def Relu(
   """ReLU nonlinearity.
 
   Args:
-    do_backprop: set to `True` if you wan to backpropagate through the kernel.
+    do_backprop: set to `True` if you want to backpropagate through the kernel.
     do_stabilize: set to `True` for very deep networks.
 
   Returns:
@@ -1268,7 +1318,7 @@ def ABRelu(
   Args:
     a: slope for `x < 0`.
     b: slope for `x > 0`.
-    do_backprop: set to `True` if you wan to backpropagate through the kernel.
+    do_backprop: set to `True` if you want to backpropagate through the kernel.
     do_stabilize: set to `True` for very deep networks.
 
   Returns:
@@ -1292,7 +1342,7 @@ def LeakyRelu(
 
   Args:
     alpha: slope for `x < 0`.
-    do_backprop: set to `True` if you wan to backpropagate through the kernel.
+    do_backprop: set to `True` if you want to backpropagate through the kernel.
     do_stabilize: set to `True` for very deep networks.
 
   Returns:
@@ -1312,7 +1362,7 @@ def Abs(do_backprop: bool = False, do_stabilize: bool = False) -> InternalLayer:
   """Absolute value nonlinearity.
 
   Args:
-    do_backprop: set to `True` if you wan to backpropagate through the kernel.
+    do_backprop: set to `True` if you want to backpropagate through the kernel.
     do_stabilize: set to `True` for very deep networks.
 
   Returns:
@@ -1364,7 +1414,7 @@ def GlobalSelfAttention(
   The final computation for single head is then
   :math:`f_h (x) + softmax(<scaling> Q(x) K(x)^T) V(x)`
   and the output of this layer is computed as
-  :math:`f(x) = concat[f_1(x) , ... , f_<n_{heads}> (x)] W_out + b`
+  :math:`f(x) = concat[f_1(x) , ... , f_{<n_{heads}>} (x)] W_{out} + b`
   where the shape of of `b` is `(n_chan_out,)`, i.e., single bias per channel
 
   The `kernel_fn` computes the limiting kernel of the outputs of this layer
@@ -2192,12 +2242,20 @@ def _ab_relu(x, a, b, **kwargs):
   return a * np.minimum(x, 0) + b * np.maximum(x, 0)
 
 
-def _erf(x, **kwargs):
-  return erf(x)
+def _erf(x, a, b, c, **kwargs):
+  return a * erf(b * x) + c
+
+
+def _gelu(x, **kwargs):
+  return 0.5 * x * (1. + erf(x / np.sqrt(2.)))
 
 
 def _sin(x, a, b, c, **kwargs):
   return a * np.sin(b * x + c)
+
+
+def _rbf(x, gamma, **kwargs):
+  return np.sqrt(2) * np.sin(np.sqrt(2 * gamma) * x + np.pi/4)
 
 
 def _arccos(x, do_backprop):
@@ -2358,16 +2416,16 @@ def _get_erf_kernel(
     prod: np.ndarray,
     do_backprop: bool,
     ntk: np.ndarray = None) -> Tuple[np.ndarray, Optional[np.ndarray]]:
-  dot_sigma = 4 / (np.pi * np.sqrt(prod - 4 * ker_mat**2))
-  ker_mat = _arcsin(2 * ker_mat / _safe_sqrt(prod), do_backprop) * 2 / np.pi
-
   if ntk is not None:
+    dot_sigma = 4 / (np.pi * np.sqrt(prod - 4 * ker_mat**2))
     ntk *= dot_sigma
+  ker_mat = _arcsin(2 * ker_mat / np.sqrt(prod), do_backprop) * 2 / np.pi
+
 
   return ker_mat, ntk
 
 
-def _transform_kernels_erf(k: Kernel, do_backprop: bool) -> Kernel:
+def _transform_kernels_erf_non_scaled(k: Kernel, do_backprop: bool) -> Kernel:
   """Compute new kernels after an `Erf` layer."""
   cov1, nngp, cov2, ntk = k.cov1, k.nngp, k.cov2, k.ntk
 
@@ -2395,6 +2453,89 @@ def _transform_kernels_erf(k: Kernel, do_backprop: bool) -> Kernel:
                    cov2=cov2,
                    ntk=ntk,
                    is_gaussian=False)
+
+
+def _get_gelu_kernel(nngp: np.ndarray,
+                     prod: np.ndarray,
+                     prod_plus_1: np.ndarray,
+                     do_backprop: bool,
+                     ntk: np.ndarray = None
+                     ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
+  delta_squared = prod_plus_1 - nngp**2
+  delta = _safe_sqrt(delta_squared)
+  ratio = nngp / _safe_sqrt(prod_plus_1)
+  new_nngp = (nngp**2 + prod * delta_squared) / (prod_plus_1 * delta)
+  new_nngp += nngp * _arcsin(ratio, do_backprop)
+  new_nngp /= 2 * np.pi
+  new_nngp += 0.25 * nngp
+
+  if ntk is not None:
+    second_term = 0.25 + _arcsin(ratio, do_backprop) / (2 * np.pi)
+    first_term = 1 / delta_squared + (1 - prod) / prod_plus_1 + 1
+    first_term *= nngp / delta / (2. * np.pi)
+    dot_sigma = first_term + second_term
+    ntk *= dot_sigma
+  return new_nngp, ntk
+
+
+def _get_gelu_nngp_diag(nngp_diag: np.ndarray, do_backprop: bool) -> np.ndarray:
+  new_diag = nngp_diag / ((nngp_diag + 1.) * np.sqrt(1. + 2.* nngp_diag))
+  new_diag += _arcsin(nngp_diag/(nngp_diag + 1), do_backprop) / 2
+  new_diag /= np.pi
+  new_diag += 0.25
+  new_diag *= nngp_diag
+  return new_diag
+
+
+def _transform_kernels_gelu(k: Kernel, do_backprop: bool) -> Kernel:
+  """Compute new kernels after an `Gelu` layer; NNGP see `arXiv:2002.08517`."""
+  cov1, nngp, cov2, ntk = k.cov1, k.nngp, k.cov2, k.ntk
+
+  cov1_plus_1 = cov1 + 1
+  cov2_plus_1 = None if cov2 is None else cov2 + 1
+
+  prod11_plus_1, prod12_plus_1, prod22_plus_1 = _get_diagonal_outer_prods(
+      cov1_plus_1, cov2_plus_1, k.diagonal_batch, k.diagonal_spatial, op.mul)
+  prod11, prod12, prod22 = _get_diagonal_outer_prods(
+      cov1, cov2, k.diagonal_batch, k.diagonal_spatial, op.mul)
+
+  nngp, ntk = _get_gelu_kernel(nngp, prod12, prod12_plus_1, do_backprop,
+                               ntk=ntk)
+
+  if k.diagonal_batch and k.diagonal_spatial:
+    cov1 = _get_gelu_nngp_diag(cov1, do_backprop)
+    if cov2 is not None:
+      cov2 = _get_gelu_nngp_diag(cov2, do_backprop)
+  else:
+    cov1, _ = _get_gelu_kernel(cov1, prod11, prod11_plus_1, do_backprop)
+    if cov2 is not None:
+      cov2, _ = _get_gelu_kernel(cov2, prod22, prod22_plus_1, do_backprop)
+
+  return k.replace(cov1=cov1,
+                   nngp=nngp,
+                   cov2=cov2,
+                   ntk=ntk,
+                   is_gaussian=False)
+
+
+def _transform_kernels_affine_erf(
+    k: Kernel,
+    do_backprop: bool,
+    a: float = 1.0,
+    b: float = 1.0,
+    c: float = 0.0) -> Kernel:
+  old_nngp = k.nngp
+  k = k.replace(cov1=b**2 * k.cov1,
+                nngp=b**2 * k.nngp,
+                cov2=None if k.cov2 is None else b**2 * k.cov2,
+                ntk=None if k.ntk is None else b**2 * k.ntk,
+                is_gaussian=False)
+  k = _transform_kernels_erf_non_scaled(k, do_backprop)
+  return k.replace(
+      cov1=_affine(k.cov1, a, c),
+      nngp=_affine(k.nngp, a, c),
+      cov2=_affine(k.cov2, a, c),
+      ntk=None if k.ntk is None else _affine(k.ntk, a, 0.))
 
 
 def _transform_kernels_sin(
@@ -2438,6 +2579,39 @@ def _transform_kernels_sin(
                    is_gaussian=False)
 
 
+def _transform_kernels_rbf(
+    k: Kernel,
+    gamma: float = 1.0) -> Kernel:
+  """Compute new kernels after an `Rbf` layer."""
+  cov1, nngp, cov2, ntk = k.cov1, k.nngp, k.cov2, k.ntk
+
+  sum11, sum12, sum22 = _get_diagonal_outer_prods(cov1,
+                                                  cov2,
+                                                  k.diagonal_batch,
+                                                  k.diagonal_spatial,
+                                                  op.add)
+
+  def _get_rbf_kernel(sum_, cov, ntk):
+    s1 = np.exp(gamma * (-sum_ + 2 * cov))
+    nngp = s1
+    if ntk is not None:
+      ntk *= 2 * gamma * s1
+    return nngp, ntk
+
+  nngp, ntk = _get_rbf_kernel(sum12, nngp, ntk)
+
+  if k.diagonal_batch and k.diagonal_spatial:
+    cov1 = np.ones_like(sum11)
+    if cov2 is not None:
+      cov2 = np.ones_like(sum22)
+  else:
+    cov1 = _get_rbf_kernel(sum11, cov1, None)[0]
+    if cov2 is not None:
+      cov2 = _get_rbf_kernel(sum22, cov2, None)[0]
+
+  return k.replace(cov1=cov1, nngp=nngp, cov2=cov2, ntk=ntk, is_gaussian=False)
+
+
 def _transform_kernels(
     k: Kernel,
     fn: Callable[[float], float],
@@ -2446,7 +2620,7 @@ def _transform_kernels(
 
   Args:
     k: a `Kernel` object.
-    fn: nonlinearity function, can only be Relu, Erf or Identity.
+    fn: nonlinearity function, can only be Relu, Erf, Sine or Identity.
     **fn_kwargs: arguments passed to a `_transform_kernels_<name>` function.
 
   Returns:
@@ -2458,9 +2632,13 @@ def _transform_kernels(
   if fn is _ab_relu:
     return _transform_kernels_ab_relu(k, **fn_kwargs)
   if fn is _erf:
-    return _transform_kernels_erf(k, **fn_kwargs)
+    return _transform_kernels_affine_erf(k, **fn_kwargs)
   if fn is _sin:
     return _transform_kernels_sin(k, **fn_kwargs)
+  if fn is _rbf:
+    return _transform_kernels_rbf(k, **fn_kwargs)
+  if fn is _gelu:
+    return _transform_kernels_gelu(k, **fn_kwargs)
   # TODO(xlc): Monte Carlo approximation to the integral (suggested by schsam@.)
   raise NotImplementedError(f'Analaytic kernel for activiation {fn} is not '
                             f'implmented.')

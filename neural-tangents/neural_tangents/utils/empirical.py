@@ -37,8 +37,7 @@ import jax.numpy as np
 from jax.tree_util import tree_multimap
 from jax.tree_util import tree_reduce
 from neural_tangents.utils import utils
-from neural_tangents.utils.typing import \
-  ApplyFn, EmpiricalKernelFn, PyTree, PRNGKey, Axes
+from neural_tangents.utils.typing import ApplyFn, EmpiricalKernelFn, PyTree, PRNGKey, Axes
 
 
 def linearize(f: Callable[..., np.ndarray],
@@ -216,11 +215,9 @@ def empirical_implicit_ntk_fn(f: ApplyFn,
     """
     key1, key2 = _read_keys(keys)
     # TODO(xlc): find a good way to check utils.x1_is_x2(x1, x2) == (key1==key2)
-    if x2 is None:
-      x2 = x1
 
     f1 = _get_f_params(f, x1, key1, **apply_fn_kwargs)
-    f2 = _get_f_params(f, x2, key2, **apply_fn_kwargs)
+    f2 = f1 if x2 is None else _get_f_params(f, x2, key2, **apply_fn_kwargs)
 
     def delta_vjp_jvp(delta):
       def delta_vjp(delta):
@@ -512,12 +509,12 @@ def empirical_kernel_fn(f: ApplyFn,
       x2:
         second batch of inputs. `x2=None` means `x2=x1`. `f(x2)` must have a
         matching shape with `f(x1)` on `trace_axes` and `diagonal_axes`.
-      params:
-        A `PyTree` of parameters about which we would like to compute the
-        neural tangent kernel.
       get:
         type of the empirical kernel. `get=None` means `get=("nngp", "ntk")`.
         Can be a string (`"nngp"`) or a tuple of strings (`("ntk", "nngp")`).
+      params:
+        A `PyTree` of parameters about which we would like to compute the
+        neural tangent kernel.
       keys:
         `None` or a PRNG key or a tuple of PRNG keys or a (2, 2) array of
         dtype `uint32`. If `key=None`, then the function `f` is deterministic

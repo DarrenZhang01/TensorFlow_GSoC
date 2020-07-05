@@ -16,10 +16,9 @@
 
 
 import string
-from functools import partial
-from itertools import product
 
 import random as prandom
+import functools
 import itertools
 import logging
 from absl.testing import absltest
@@ -34,7 +33,6 @@ from neural_tangents import stax
 from neural_tangents.utils import monte_carlo
 from neural_tangents.utils import test_utils
 import numpy as onp
-import unittest
 from typing import Tuple
 
 
@@ -73,7 +71,6 @@ STRIDES = [
 ]
 
 ACTIVATIONS = {
-    stax.Erf(): 'erf',
     stax.Relu(): 'Relu',
 }
 
@@ -273,9 +270,9 @@ def _get_net_pool(width, is_ntk, pool_type, padding,
   phi = stax.Relu()
   parameterization = 'ntk'
 
-  fc = partial(
+  fc = functools.partial(
       stax.Dense, W_std=W_std, b_std=b_std, parameterization=parameterization)
-  conv = partial(
+  conv = functools.partial(
       stax.Conv,
       filter_shape=(3, 2),
       strides=None,
@@ -285,7 +282,7 @@ def _get_net_pool(width, is_ntk, pool_type, padding,
       parameterization=parameterization)
 
   if pool_type == 'AVG':
-    pool_fn = partial(stax.AvgPool, normalize_edges=normalize_edges)
+    pool_fn = functools.partial(stax.AvgPool, normalize_edges=normalize_edges)
     global_pool_fn = stax.GlobalAvgPool
   elif pool_type == 'SUM':
     pool_fn = stax.SumPool
@@ -352,17 +349,17 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
     # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
     if is_conv:
       if xla_bridge.get_backend().platform == 'cpu':
-        raise unittest.SkipTest('Not running CNN models on CPU to save time.')
+        raise absltest.SkipTest('Not running CNN models on CPU to save time.')
 
       if (is_res and is_conv and ((strides is not None and strides != (1, 1)) or
                                   (padding == 'VALID' and filter_shape !=
                                    (1, 1)))):
-        raise unittest.SkipTest('Different paths in a residual models need to '
+        raise absltest.SkipTest('Different paths in a residual models need to '
                                 'return outputs of the same shape.')
     elif (filter_shape != FILTER_SHAPES[0] or padding != PADDINGS[0] or
           strides != STRIDES[0] or proj_into_2d != PROJECTIONS[0] or
           use_pooling):
-      raise unittest.SkipTest('FC models do not have these parameters.')
+      raise absltest.SkipTest('FC models do not have these parameters.')
 
     pool_type = 'AVG'
     W_std, b_std = 2.**0.5, 0.5**0.5
@@ -421,9 +418,9 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
     # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
     if is_conv:
       if xla_bridge.get_backend().platform == 'cpu':
-        raise unittest.SkipTest('Not running CNN models on CPU to save time.')
+        raise absltest.SkipTest('Not running CNN models on CPU to save time.')
     elif proj_into_2d != PROJECTIONS[0]:
-      raise unittest.SkipTest('FC models do not have these parameters.')
+      raise absltest.SkipTest('FC models do not have these parameters.')
 
     net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
                    padding, phi, strides, width, is_ntk, proj_into_2d,
@@ -471,9 +468,9 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
     # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
     if is_conv:
       if xla_bridge.get_backend().platform == 'cpu':
-        raise unittest.SkipTest('Not running CNN models on CPU to save time.')
+        raise absltest.SkipTest('Not running CNN models on CPU to save time.')
     elif proj_into_2d != PROJECTIONS[0] or layer_norm not in ('C', 'NC'):
-      raise unittest.SkipTest('FC models do not have these parameters.')
+      raise absltest.SkipTest('FC models do not have these parameters.')
 
     W_std, b_std = 2.**0.5, 0.5**0.5
     filter_shape = FILTER_SHAPES[0]
@@ -530,9 +527,9 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
     # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
 
     if xla_bridge.get_backend().platform == 'cpu':
-      raise unittest.SkipTest('Not running CNN models on CPU to save time.')
+      raise absltest.SkipTest('Not running CNN models on CPU to save time.')
     if pool_type == 'SUM' and normalize_edges:
-      raise unittest.SkipTest('normalize_edges not applicable to SumPool.')
+      raise absltest.SkipTest('normalize_edges not applicable to SumPool.')
 
     net = _get_net_pool(width, is_ntk, pool_type,
                         padding, filter_shape, strides, normalize_edges)
@@ -626,7 +623,7 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
   def test_dropout(self, model, width, same_inputs, is_ntk, padding, strides,
                    filter_shape, phi, use_pooling, proj_into_2d):
     if xla_bridge.get_backend().platform == 'tpu' and same_inputs:
-      raise unittest.SkipTest(
+      raise absltest.SkipTest(
           'Skip TPU test for `same_inputs`. Need to handle '
           'random keys carefully for dropout + empirical kernel.')
 
@@ -640,17 +637,17 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
     parameterization = 'ntk'
     if is_conv:
       if xla_bridge.get_backend().platform == 'cpu':
-        raise unittest.SkipTest('Not running CNN models on CPU to save time.')
+        raise absltest.SkipTest('Not running CNN models on CPU to save time.')
 
       if (is_res and is_conv and ((strides is not None and strides != (1, 1)) or
                                   (padding == 'VALID' and filter_shape !=
                                    (1, 1)))):
-        raise unittest.SkipTest('Different paths in a residual models need to '
+        raise absltest.SkipTest('Different paths in a residual models need to '
                                 'return outputs of the same shape.')
     elif (filter_shape != FILTER_SHAPES[0] or padding != PADDINGS[0] or
           strides != STRIDES[0] or proj_into_2d != PROJECTIONS[0] or
           use_pooling):
-      raise unittest.SkipTest('FC models do not have these parameters.')
+      raise absltest.SkipTest('FC models do not have these parameters.')
 
     net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
                    padding, phi, strides, width, is_ntk, proj_into_2d,
@@ -820,54 +817,159 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
       self.assertEqual(shape2, x2_out_shape)
 
 
+class ActivationTest(test_utils.NeuralTangentsTestCase):
 
-@jtu.parameterized.parameters([
-    {
-        'same_inputs': True
-    },
-    {
-        'same_inputs': False
-    },
-])
-class SinTest(test_utils.NeuralTangentsTestCase):
+  @stax.layer
+  def _RBF(self, gamma):
+    init_fn = lambda key, input_shape: (input_shape, ())
+    def apply_fn(unused_params, unused_xs, **kwargs):
+      raise NotImplementedError()
+    def kernel_fn(kernels):
+      if kernels.ntk is not None:
+        raise ValueError('RBF Kernel does not have an associated NTK.')
 
-  def test_sin(self, same_inputs):
+      if kernels.nngp.ndim > 2:
+        raise ValueError(
+            ('RBF Kernel is not defined for covariance matrices with dimension'
+             ' greater than two.'))
+
+      input_dim = kernels.shape1[1]
+      cov1 = kernels.cov1
+      cov1 = np.reshape(cov1, (cov1.shape[0], 1))
+      cov2 = cov1 if kernels.cov2 is None else kernels.cov2
+      cov2 = np.reshape(cov2, (1, cov2.shape[0]))
+      nngp = kernels.nngp
+
+      # TODO(schsam): Update cov1 and cov2 if we want to compose this kernel
+      # with other kernels.
+      return kernels.replace(
+          nngp=np.exp(-input_dim * gamma * (cov1 + cov2 - 2 * nngp)))
+    return init_fn, apply_fn, kernel_fn
+
+
+  def _test_activation(self, activation_fn, same_inputs, model, get,
+                       rbf_gamma=None):
+    platform = xla_bridge.get_backend().platform
+    if platform == 'cpu' and 'conv' in model:
+      raise absltest.SkipTest('Not running CNNs on CPU to save time.')
+
     key = random.PRNGKey(1)
-    for a, b, c in product([5.],
-                           [1.5],
-                           [0., -np.pi/4.]):
-      for get in ['nngp', 'ntk']:
-        output_dim = 2048 if get == 'nngp' else 1
-        key, split = random.split(key)
-        for model in ['fc', 'conv-pool', 'conv-flatten']:
-          with self.subTest(get=get, a=a, b=b, c=c, model=model):
-            if model == 'fc':
-              X0_1 = random.normal(key, (6, 7))
-              X0_2 = None if same_inputs else random.normal(split, (10, 7))
-              affine = stax.Dense(2048, 1., 0.)
-              readout = stax.Dense(output_dim)
-            else:
-              if xla_bridge.get_backend().platform == 'cpu':
-                raise unittest.SkipTest('Not running CNNs on CPU to save time.')
-              X0_1 = random.normal(key, (4, 8, 8, 3))
-              X0_2 = None if same_inputs else random.normal(split, (6, 8, 8, 3))
-              affine = stax.Conv(1024, (3, 2), W_std=1., b_std=0.1,
-                                 padding='SAME')
-              readout = stax.serial(stax.GlobalAvgPool() if 'pool' in model else
-                                    stax.Flatten(),
-                                    stax.Dense(output_dim))
-            init_fn, apply_sin, kernel_fn_sin = stax.serial(affine,
-                                                            stax.Sin(a=a,
-                                                                     b=b,
-                                                                     c=c),
-                                                            readout)
-            analytic_kernel = kernel_fn_sin(X0_1, X0_2, get)
-            key, split = random.split(key)
-            mc_kernel_fn = monte_carlo.monte_carlo_kernel_fn(
-                init_fn, apply_sin, key, 200)
-            empirical_kernel = np.squeeze(mc_kernel_fn(X0_1, X0_2, get))
-            test_utils.assert_close_matrices(self, analytic_kernel,
-                                             empirical_kernel, 0.05)
+    key, split = random.split(key)
+    output_dim = 2048 if get == 'nngp' else 1
+    b_std = 0.5
+    W_std = 2.0
+    if activation_fn[2].__name__ == 'Sin':
+      W_std = 0.9
+    if activation_fn[2].__name__ == 'Rbf':
+      W_std = 1.0
+      b_std = 0.0
+
+    if model == 'fc':
+      rtol = 0.05
+      X0_1 = random.normal(key, (6, 7))
+      X0_2 = None if same_inputs else random.normal(split, (10, 7))
+      affine = stax.Dense(1024, W_std, b_std)
+      readout = stax.Dense(output_dim)
+      depth = 1
+    else:
+      rtol = 0.1
+      X0_1 = random.normal(key, (4, 8, 8, 3))
+      X0_2 = None if same_inputs else random.normal(split, (6, 8, 8, 3))
+      affine = stax.Conv(1024, (3, 2), W_std=W_std, b_std=b_std, padding='SAME')
+      readout = stax.serial(stax.GlobalAvgPool() if 'pool' in model else
+                            stax.Flatten(),
+                            stax.Dense(output_dim))
+      depth = 2
+    if platform == 'cpu':
+      num_samplings = 200
+      rtol *= 2
+    else:
+      num_samplings = (500 if activation_fn[2].__name__ in ('Sin', 'Rbf')
+                       else 300)
+
+    init_fn, apply_fn, kernel_fn = stax.serial(
+        *[affine, activation_fn]*depth, readout)
+    analytic_kernel = kernel_fn(X0_1, X0_2, get)
+    mc_kernel_fn = monte_carlo.monte_carlo_kernel_fn(
+        init_fn, apply_fn, split, num_samplings)
+    empirical_kernel = mc_kernel_fn(X0_1, X0_2, get)
+    test_utils.assert_close_matrices(self, analytic_kernel,
+                                     empirical_kernel, rtol)
+
+    # Check match with explicit RBF
+    if rbf_gamma is not None and get == 'nngp' and model == 'fc':
+      input_dim = X0_1.shape[1]
+      _, _, kernel_fn = self._RBF(rbf_gamma / input_dim)
+      direct_rbf_kernel = kernel_fn(X0_1, X0_2, get)
+      test_utils.assert_close_matrices(self, analytic_kernel,
+                                       direct_rbf_kernel, rtol)
+
+  @jtu.parameterized.named_parameters(
+      jtu.cases_from_list({
+          'testcase_name':
+              '_{}_{}_{}_{}_{}'.format(
+                  model,
+                  phi_name,
+                  'Same_inputs' if same_inputs else 'Different_inputs',
+                  get,
+                  abc),
+          'model':
+              model,
+          'phi_name':
+              phi_name,
+          'same_inputs':
+              same_inputs,
+          'get': get,
+          'abc': abc,
+      }
+                          for model in ['fc', 'conv-pool', 'conv-flatten']
+                          for phi_name in ['Sin', 'Erf', 'Gelu']
+                          for same_inputs in [False, True]
+                          for get in ['nngp', 'ntk']
+                          for abc in itertools.product(
+                              [1., 2., 0.3],
+                              [1., 1.5, 0.3],
+                              [0., -np.pi/4., np.pi/2.])))
+  def test_activation(self, same_inputs, model, phi_name, get, abc):
+    a, b, c = abc
+    if phi_name == 'Sin':
+      activation = stax.Sin(a=a, b=b, c=c)
+    elif phi_name == 'Erf':
+      activation = stax.Erf(a=a, b=b, c=c)
+    elif phi_name == 'Gelu':
+      activation = stax.Gelu()
+      if a != 1. or b != 1. or c != 0.:
+        absltest.SkipTest('Skip `Gelu` test if (a, b, c) != (1., 1., 0.).')
+    else:
+      raise absltest.SkipTest(f'Activation {phi_name} is not implemented.')
+    self._test_activation(activation, same_inputs, model, get)
+
+  @jtu.parameterized.named_parameters(
+      jtu.cases_from_list({
+          'testcase_name':
+              '_{}_Rbf_{}_{}_{}'.format(
+                  model,
+                  'Same_inputs' if same_inputs else 'Different_inputs',
+                  get,
+                  gamma),
+          'model':
+              model,
+          'same_inputs':
+              same_inputs,
+          'get': get,
+          'gamma': gamma,
+      }
+                          for model in ['fc', 'conv-pool', 'conv-flatten']
+                          for same_inputs in [False, True]
+                          for get in ['nngp', 'ntk']
+                          for gamma in [1e-6, 1e-4, 1e-2, 1.0, 2.]
+                          ))
+
+  def test_rbf(self, same_inputs, model, get, gamma):
+    activation = stax.Rbf(gamma)
+    self._test_activation(activation, same_inputs, model, get,
+                          rbf_gamma=gamma)
+
 
 
 @jtu.parameterized.parameters([
@@ -1094,11 +1196,11 @@ class FanInTest(test_utils.NeuralTangentsTestCase):
                             'dense_after_branch_in']))
   def test_fan_in_fc(self, same_inputs, axis, n_branches, get, branch_in):
     if axis in (None, 0) and branch_in == 'dense_after_branch_in':
-      raise unittest.SkipTest('`FanInSum` and `FanInConcat(0)` '
+      raise absltest.SkipTest('`FanInSum` and `FanInConcat(0)` '
                               'require `is_gaussian`.')
 
     if axis == 1 and branch_in == 'dense_before_branch_in':
-      raise unittest.SkipTest('`FanInConcat` on feature axis requires a dense '
+      raise absltest.SkipTest('`FanInConcat` on feature axis requires a dense '
                               'layer after concatenation.')
 
     key = random.PRNGKey(1)
@@ -1192,14 +1294,14 @@ class FanInTest(test_utils.NeuralTangentsTestCase):
                        branch_in,
                        readout):
     if xla_bridge.get_backend().platform == 'cpu':
-      raise unittest.SkipTest('Not running CNNs on CPU to save time.')
+      raise absltest.SkipTest('Not running CNNs on CPU to save time.')
 
     if axis in (None, 0, 1, 2) and branch_in == 'dense_after_branch_in':
-      raise unittest.SkipTest('`FanInSum` and `FanInConcat(0/1/2)` '
+      raise absltest.SkipTest('`FanInSum` and `FanInConcat(0/1/2)` '
                               'require `is_gaussian`.')
 
     if axis == 3 and branch_in == 'dense_before_branch_in':
-      raise unittest.SkipTest('`FanInConcat` on feature axis requires a dense '
+      raise absltest.SkipTest('`FanInConcat` on feature axis requires a dense '
                               'layer after concatenation.')
 
     key = random.PRNGKey(1)
@@ -1310,11 +1412,11 @@ class ConvNDTest(test_utils.NeuralTangentsTestCase):
                    use_dropout, use_layernorm):
     platform = xla_bridge.get_backend().platform
     if platform == 'cpu':
-      raise unittest.SkipTest('Skipping CPU CNN tests for speed.')
+      raise absltest.SkipTest('Skipping CPU CNN tests for speed.')
     elif platform == 'gpu' and n not in (0, 1, 2, 3):
-      raise unittest.SkipTest('>=4D CNN does not work on GPU.')
+      raise absltest.SkipTest('>=4D CNN does not work on GPU.')
     elif platform == 'tpu' and use_dropout and same_inputs:
-      raise unittest.SkipTest('Batched empirical kernel with dropout not '
+      raise absltest.SkipTest('Batched empirical kernel with dropout not '
                               'supported.')
 
     width = 1024
@@ -1465,7 +1567,7 @@ class InputReqTest(test_utils.NeuralTangentsTestCase):
   def test_input_req(self, same_inputs):
     platform = xla_bridge.get_backend().platform
     if platform == 'cpu':
-      raise unittest.SkipTest('Skipping CPU CNN tests for speed.')
+      raise absltest.SkipTest('Skipping CPU CNN tests for speed.')
 
     key = random.PRNGKey(1)
     x1 = random.normal(key, (2, 7, 8, 4, 3))
@@ -1697,9 +1799,9 @@ class MaskingTest(test_utils.NeuralTangentsTestCase):
   def test_mask_conv(self, same_inputs, get, mask_axis, mask_constant, concat,
                      proj, p, use_attn, n):
     if xla_bridge.get_backend().platform == 'cpu':
-      raise unittest.SkipTest('Skipping CNN tests on CPU for speed.')
+      raise absltest.SkipTest('Skipping CNN tests on CPU for speed.')
     elif xla_bridge.get_backend().platform == 'gpu' and n > 3:
-      raise unittest.SkipTest('>=4D-CNN is not supported on GPUs.')
+      raise absltest.SkipTest('>=4D-CNN is not supported on GPUs.')
 
     width = 1024
     n_samples = 128

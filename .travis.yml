@@ -10,4 +10,5 @@ install:
   - cd TensorFlow_GSoC
   - pip install -e neural-tangents
 script:
-  - for f in tests/*.py; do python $f; done
+  # - for f in tests/*.py; do python $f; done
+  python tf_dot_general/tf_dot_general_test.py

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "neural-tangents/neural_tangents/tests/infinite_fcn_test.py", line 21, in <module>
+    from examples import infinite_fcn
+  File "/Users/Darren/Desktop/SchoolYear/2020Summer/GSoC_TensorFlow/GitHub/TensorFlow_GSoC/neural-tangents/examples/infinite_fcn.py", line 26, in <module>
+    from examples import datasets
+  File "/Users/Darren/Desktop/SchoolYear/2020Summer/GSoC_TensorFlow/GitHub/TensorFlow_GSoC/neural-tangents/examples/datasets.py", line 20, in <module>
+    import tensorflow_datasets as tfds
+ModuleNotFoundError: No module named 'tensorflow_datasets'

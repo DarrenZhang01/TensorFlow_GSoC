@@ -1,0 +1,613 @@
+Running tests under Python 3.8.0: /Library/Frameworks/Python.framework/Versions/3.8/bin/python3.8
+[ RUN      ] MonteCarloTest.test_batch_sample_once_[batch_size=1, device_count=0 store_on_device=False get=nngp ]
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+  warnings.warn('No GPU/TPU found, falling back to CPU.')
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/numpy/lax_numpy.py:1531: FutureWarning: jax.numpy reductions won't accept lists and tuples in future versions, only scalars and ndarrays
+  warnings.warn(msg, category=FutureWarning)
+[       OK ] MonteCarloTest.test_batch_sample_once_[batch_size=1, device_count=0 store_on_device=False get=nngp ]
+[ RUN      ] MonteCarloTest.test_batch_sample_once_[batch_size=1, device_count=0 store_on_device=True get=nngp ]
+[       OK ] MonteCarloTest.test_batch_sample_once_[batch_size=1, device_count=0 store_on_device=True get=nngp ]
+[ RUN      ] MonteCarloTest.test_batch_sample_once_[batch_size=1, device_count=1 store_on_device=False get=nngp ]
+[       OK ] MonteCarloTest.test_batch_sample_once_[batch_size=1, device_count=1 store_on_device=False get=nngp ]
+[ RUN      ] MonteCarloTest.test_batch_sample_once_[batch_size=1, device_count=1 store_on_device=True get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_batch_sample_once_[batch_size=1, device_count=1 store_on_device=True get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_batch_sample_once_[batch_size=1, device_count=2 store_on_device=True get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_batch_sample_once_[batch_size=1, device_count=2 store_on_device=True get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_batch_sample_once_[batch_size=2, device_count=0 store_on_device=False get=nngp ]
+[       OK ] MonteCarloTest.test_batch_sample_once_[batch_size=2, device_count=0 store_on_device=False get=nngp ]
+[ RUN      ] MonteCarloTest.test_batch_sample_once_[batch_size=2, device_count=1 store_on_device=True get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_batch_sample_once_[batch_size=2, device_count=1 store_on_device=True get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_batch_sample_once_[batch_size=4, device_count=0 store_on_device=False get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_batch_sample_once_[batch_size=4, device_count=0 store_on_device=False get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_batch_sample_once_[batch_size=4, device_count=0 store_on_device=True get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_batch_sample_once_[batch_size=4, device_count=0 store_on_device=True get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_batch_sample_once_[batch_size=4, device_count=1 store_on_device=False get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_batch_sample_once_[batch_size=4, device_count=1 store_on_device=False get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_monte_carlo_generator_[batch_size=1, device_count=0 store_on_device=False get=nngp]
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/lax/lax.py:5591: UserWarning: Explicitly requested dtype <class 'jax.numpy.lax_numpy.float64'> requested in astype is not available, and will be truncated to dtype float32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/google/jax#current-gotchas for more.
+  warnings.warn(msg.format(dtype, fun_name , truncated_dtype))
+[       OK ] MonteCarloTest.test_monte_carlo_generator_[batch_size=1, device_count=0 store_on_device=False get=nngp]
+[ RUN      ] MonteCarloTest.test_monte_carlo_generator_[batch_size=1, device_count=0 store_on_device=True get=nngp]
+[       OK ] MonteCarloTest.test_monte_carlo_generator_[batch_size=1, device_count=0 store_on_device=True get=nngp]
+[ RUN      ] MonteCarloTest.test_monte_carlo_generator_[batch_size=1, device_count=1 store_on_device=False get=nngp]
+[       OK ] MonteCarloTest.test_monte_carlo_generator_[batch_size=1, device_count=1 store_on_device=False get=nngp]
+[ RUN      ] MonteCarloTest.test_monte_carlo_generator_[batch_size=1, device_count=1 store_on_device=True get=('nngp', 'ntk')]
+[       OK ] MonteCarloTest.test_monte_carlo_generator_[batch_size=1, device_count=1 store_on_device=True get=('nngp', 'ntk')]
+[ RUN      ] MonteCarloTest.test_monte_carlo_generator_[batch_size=1, device_count=2 store_on_device=True get=('nngp', 'ntk')]
+[       OK ] MonteCarloTest.test_monte_carlo_generator_[batch_size=1, device_count=2 store_on_device=True get=('nngp', 'ntk')]
+[ RUN      ] MonteCarloTest.test_monte_carlo_generator_[batch_size=2, device_count=0 store_on_device=False get=nngp]
+[       OK ] MonteCarloTest.test_monte_carlo_generator_[batch_size=2, device_count=0 store_on_device=False get=nngp]
+[ RUN      ] MonteCarloTest.test_monte_carlo_generator_[batch_size=2, device_count=1 store_on_device=True get=('nngp', 'ntk')]
+[       OK ] MonteCarloTest.test_monte_carlo_generator_[batch_size=2, device_count=1 store_on_device=True get=('nngp', 'ntk')]
+[ RUN      ] MonteCarloTest.test_monte_carlo_generator_[batch_size=4, device_count=0 store_on_device=False get=('nngp', 'ntk')]
+[       OK ] MonteCarloTest.test_monte_carlo_generator_[batch_size=4, device_count=0 store_on_device=False get=('nngp', 'ntk')]
+[ RUN      ] MonteCarloTest.test_monte_carlo_generator_[batch_size=4, device_count=0 store_on_device=True get=('nngp', 'ntk')]
+[       OK ] MonteCarloTest.test_monte_carlo_generator_[batch_size=4, device_count=0 store_on_device=True get=('nngp', 'ntk')]
+[ RUN      ] MonteCarloTest.test_monte_carlo_generator_[batch_size=4, device_count=1 store_on_device=False get=('nngp', 'ntk')]
+[       OK ] MonteCarloTest.test_monte_carlo_generator_[batch_size=4, device_count=1 store_on_device=False get=('nngp', 'ntk')]
+[ RUN      ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=1, device_count=0 store_on_device=False ]
+I0705 12:35:17.559221 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.01584850437939167 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.75758547 1.2597536  1.910251   0.9228149 ]
+ [1.0321443  0.90897226 2.2151093  0.8416841 ]
+ [0.9088971  0.9103472  1.2164434  0.5760742 ]
+ [1.3006144  0.95556474 0.6467419  0.9833003 ]
+ [0.56323546 0.4368179  0.22489178 0.75413704]
+ [0.6615645  1.5747819  1.0673271  1.1014246 ]
+ [0.18863577 0.79105777 0.47777146 1.3320379 ]
+ [1.2289054  0.61430985 0.51770985 1.4454958 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.7300412  1.2492315  1.8676213  0.9144112 ]
+ [0.9844685  0.8985686  2.196625   0.8251535 ]
+ [0.89684623 0.9171408  1.2057747  0.5761286 ]
+ [1.28017    0.9717538  0.6445885  0.96445656]
+ [0.5705936  0.44266063 0.22051384 0.7509205 ]
+ [0.64136785 1.5579382  1.0486342  1.0925469 ]
+ [0.1884064  0.7925544  0.47777444 1.339554  ]
+ [1.210482   0.6084606  0.5187012  1.4434339 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=1, device_count=0 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=1, device_count=0 store_on_device=True ]
+I0705 12:35:31.047925 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.01584850437939167 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.75758547 1.2597536  1.910251   0.9228149 ]
+ [1.0321443  0.90897226 2.2151093  0.8416841 ]
+ [0.9088971  0.9103472  1.2164434  0.5760742 ]
+ [1.3006144  0.95556474 0.6467419  0.9833003 ]
+ [0.56323546 0.4368179  0.22489178 0.75413704]
+ [0.6615645  1.5747819  1.0673271  1.1014246 ]
+ [0.18863577 0.79105777 0.47777146 1.3320379 ]
+ [1.2289054  0.61430985 0.51770985 1.4454958 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.7300412  1.2492315  1.8676213  0.9144112 ]
+ [0.9844685  0.8985686  2.196625   0.8251535 ]
+ [0.89684623 0.9171408  1.2057747  0.5761286 ]
+ [1.28017    0.9717538  0.6445885  0.96445656]
+ [0.5705936  0.44266063 0.22051384 0.7509205 ]
+ [0.64136785 1.5579382  1.0486342  1.0925469 ]
+ [0.1884064  0.7925544  0.47777444 1.339554  ]
+ [1.210482   0.6084606  0.5187012  1.4434339 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=1, device_count=0 store_on_device=True ]
+[ RUN      ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=1, device_count=1 store_on_device=False ]
+I0705 12:35:56.780241 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.01584850437939167 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.75758547 1.2597536  1.910251   0.9228149 ]
+ [1.0321443  0.90897226 2.2151093  0.8416841 ]
+ [0.9088971  0.9103472  1.2164434  0.5760742 ]
+ [1.3006144  0.95556474 0.6467419  0.9833003 ]
+ [0.56323546 0.4368179  0.22489178 0.75413704]
+ [0.6615645  1.5747819  1.0673271  1.1014246 ]
+ [0.18863577 0.79105777 0.47777146 1.3320379 ]
+ [1.2289054  0.61430985 0.51770985 1.4454958 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.7300412  1.2492315  1.8676213  0.9144112 ]
+ [0.9844685  0.8985686  2.196625   0.8251535 ]
+ [0.89684623 0.9171408  1.2057747  0.5761286 ]
+ [1.28017    0.9717538  0.6445885  0.96445656]
+ [0.5705936  0.44266063 0.22051384 0.7509205 ]
+ [0.64136785 1.5579382  1.0486342  1.0925469 ]
+ [0.1884064  0.7925544  0.47777444 1.339554  ]
+ [1.210482   0.6084606  0.5187012  1.4434339 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=1, device_count=1 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=1, device_count=1 store_on_device=True ]
+I0705 12:36:21.430753 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.01584850437939167 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.75758547 1.2597536  1.910251   0.9228149 ]
+ [1.0321443  0.90897226 2.2151093  0.8416841 ]
+ [0.9088971  0.9103472  1.2164434  0.5760742 ]
+ [1.3006144  0.95556474 0.6467419  0.9833003 ]
+ [0.56323546 0.4368179  0.22489178 0.75413704]
+ [0.6615645  1.5747819  1.0673271  1.1014246 ]
+ [0.18863577 0.79105777 0.47777146 1.3320379 ]
+ [1.2289054  0.61430985 0.51770985 1.4454958 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.7300412  1.2492315  1.8676213  0.9144112 ]
+ [0.9844685  0.8985686  2.196625   0.8251535 ]
+ [0.89684623 0.9171408  1.2057747  0.5761286 ]
+ [1.28017    0.9717538  0.6445885  0.96445656]
+ [0.5705936  0.44266063 0.22051384 0.7509205 ]
+ [0.64136785 1.5579382  1.0486342  1.0925469 ]
+ [0.1884064  0.7925544  0.47777444 1.339554  ]
+ [1.210482   0.6084606  0.5187012  1.4434339 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=1, device_count=1 store_on_device=True ]
+[ RUN      ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=1, device_count=2 store_on_device=False ]
+I0705 12:36:38.322831 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.015848500654101372 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.75758547 1.2597536  1.910251   0.9228149 ]
+ [1.0321443  0.90897226 2.2151093  0.8416841 ]
+ [0.9088971  0.9103472  1.2164434  0.5760742 ]
+ [1.3006144  0.95556474 0.6467419  0.9833003 ]
+ [0.56323546 0.4368179  0.22489178 0.75413704]
+ [0.6615645  1.5747819  1.0673271  1.1014246 ]
+ [0.18863577 0.79105777 0.47777146 1.3320379 ]
+ [1.2289054  0.61430985 0.51770985 1.4454958 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.7300412  1.2492316  1.8676213  0.91441125]
+ [0.98446846 0.8985686  2.196625   0.8251535 ]
+ [0.8968462  0.9171408  1.2057747  0.5761286 ]
+ [1.28017    0.9717538  0.6445884  0.96445656]
+ [0.5705936  0.44266063 0.22051384 0.7509205 ]
+ [0.641368   1.5579383  1.0486342  1.0925469 ]
+ [0.18840641 0.7925544  0.47777438 1.339554  ]
+ [1.210482   0.6084606  0.5187012  1.4434336 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=1, device_count=2 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=2, device_count=1 store_on_device=True ]
+I0705 12:36:48.377345 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.015848496928811073 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.75758547 1.2597536  1.910251   0.9228149 ]
+ [1.0321443  0.90897226 2.2151093  0.8416841 ]
+ [0.9088971  0.9103472  1.2164434  0.5760742 ]
+ [1.3006144  0.95556474 0.6467419  0.9833003 ]
+ [0.56323546 0.4368179  0.22489178 0.75413704]
+ [0.6615645  1.5747819  1.0673271  1.1014246 ]
+ [0.18863577 0.79105777 0.47777146 1.3320379 ]
+ [1.2289054  0.61430985 0.51770985 1.4454958 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.73004115 1.2492316  1.8676213  0.91441125]
+ [0.98446846 0.8985686  2.196625   0.8251535 ]
+ [0.8968462  0.9171408  1.2057747  0.5761286 ]
+ [1.28017    0.9717537  0.6445884  0.96445656]
+ [0.5705936  0.44266063 0.2205138  0.7509205 ]
+ [0.641368   1.5579382  1.0486343  1.0925469 ]
+ [0.1884064  0.7925544  0.47777438 1.339554  ]
+ [1.2104821  0.6084606  0.51870126 1.443434  ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=2, device_count=1 store_on_device=True ]
+[ RUN      ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=2, device_count=2 store_on_device=False ]
+I0705 12:37:05.669701 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.015848496928811073 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.75758547 1.2597536  1.910251   0.9228149 ]
+ [1.0321443  0.90897226 2.2151093  0.8416841 ]
+ [0.9088971  0.9103472  1.2164434  0.5760742 ]
+ [1.3006144  0.95556474 0.6467419  0.9833003 ]
+ [0.56323546 0.4368179  0.22489178 0.75413704]
+ [0.6615645  1.5747819  1.0673271  1.1014246 ]
+ [0.18863577 0.79105777 0.47777146 1.3320379 ]
+ [1.2289054  0.61430985 0.51770985 1.4454958 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.73004115 1.2492316  1.8676213  0.91441125]
+ [0.98446846 0.8985686  2.196625   0.8251535 ]
+ [0.8968462  0.9171408  1.2057747  0.5761286 ]
+ [1.28017    0.9717537  0.6445884  0.96445656]
+ [0.5705936  0.44266063 0.2205138  0.7509205 ]
+ [0.641368   1.5579382  1.0486343  1.0925469 ]
+ [0.1884064  0.7925544  0.47777438 1.339554  ]
+ [1.2104821  0.6084606  0.51870126 1.443434  ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=2, device_count=2 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=4, device_count=0 store_on_device=False ]
+I0705 12:37:12.000533 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.015848498791456223 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.75758547 1.2597536  1.910251   0.9228149 ]
+ [1.0321443  0.90897226 2.2151093  0.8416841 ]
+ [0.9088971  0.9103472  1.2164434  0.5760742 ]
+ [1.3006144  0.95556474 0.6467419  0.9833003 ]
+ [0.56323546 0.4368179  0.22489178 0.75413704]
+ [0.6615645  1.5747819  1.0673271  1.1014246 ]
+ [0.18863577 0.79105777 0.47777146 1.3320379 ]
+ [1.2289054  0.61430985 0.51770985 1.4454958 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.7300412  1.2492317  1.8676213  0.91441125]
+ [0.98446846 0.8985686  2.196625   0.8251535 ]
+ [0.8968462  0.9171408  1.2057747  0.5761286 ]
+ [1.28017    0.9717537  0.6445885  0.96445656]
+ [0.5705936  0.4426606  0.2205138  0.7509205 ]
+ [0.64136785 1.5579383  1.0486342  1.0925469 ]
+ [0.18840641 0.7925544  0.47777444 1.339554  ]
+ [1.210482   0.6084606  0.51870126 1.4434339 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=4, device_count=0 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=4, device_count=1 store_on_device=False ]
+I0705 12:37:20.024853 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.015848496928811073 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.75758547 1.2597536  1.910251   0.9228149 ]
+ [1.0321443  0.90897226 2.2151093  0.8416841 ]
+ [0.9088971  0.9103472  1.2164434  0.5760742 ]
+ [1.3006144  0.95556474 0.6467419  0.9833003 ]
+ [0.56323546 0.4368179  0.22489178 0.75413704]
+ [0.6615645  1.5747819  1.0673271  1.1014246 ]
+ [0.18863577 0.79105777 0.47777146 1.3320379 ]
+ [1.2289054  0.61430985 0.51770985 1.4454958 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.73004115 1.2492316  1.8676213  0.91441125]
+ [0.98446846 0.8985686  2.196625   0.8251535 ]
+ [0.8968462  0.9171408  1.2057747  0.5761286 ]
+ [1.2801701  0.9717537  0.6445884  0.96445656]
+ [0.5705936  0.44266063 0.2205138  0.7509205 ]
+ [0.64136785 1.5579382  1.0486343  1.0925469 ]
+ [0.1884064  0.7925544  0.47777438 1.339554  ]
+ [1.2104821  0.6084606  0.51870126 1.443434  ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=4, device_count=1 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=4, device_count=2 store_on_device=True ]
+/Users/Darren/Desktop/SchoolYear/2020Summer/GSoC_TensorFlow/GitHub/TensorFlow_GSoC/neural-tangents/neural_tangents/utils/batch.py:490: UserWarning: Batch size is reduced from requested 4 to effective 2 to fit the dataset.
+  warnings.warn(
+I0705 12:37:32.009379 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.015848496928811073 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.75758547 1.2597536  1.910251   0.9228149 ]
+ [1.0321443  0.90897226 2.2151093  0.8416841 ]
+ [0.9088971  0.9103472  1.2164434  0.5760742 ]
+ [1.3006144  0.95556474 0.6467419  0.9833003 ]
+ [0.56323546 0.4368179  0.22489178 0.75413704]
+ [0.6615645  1.5747819  1.0673271  1.1014246 ]
+ [0.18863577 0.79105777 0.47777146 1.3320379 ]
+ [1.2289054  0.61430985 0.51770985 1.4454958 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.73004115 1.2492316  1.8676213  0.91441125]
+ [0.98446846 0.8985686  2.196625   0.8251535 ]
+ [0.8968462  0.9171408  1.2057747  0.5761286 ]
+ [1.28017    0.9717537  0.6445884  0.96445656]
+ [0.5705936  0.44266063 0.2205138  0.7509205 ]
+ [0.641368   1.5579382  1.0486343  1.0925469 ]
+ [0.1884064  0.7925544  0.47777438 1.339554  ]
+ [1.2104821  0.6084606  0.51870126 1.443434  ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_monte_carlo_vs_analytic_ntk_[batch_size=4, device_count=2 store_on_device=True ]
+[ RUN      ] MonteCarloTest.test_sample_once_batch_[batch_size=1, device_count=0 store_on_device=False get=nngp ]
+[       OK ] MonteCarloTest.test_sample_once_batch_[batch_size=1, device_count=0 store_on_device=False get=nngp ]
+[ RUN      ] MonteCarloTest.test_sample_once_batch_[batch_size=1, device_count=0 store_on_device=True get=nngp ]
+[       OK ] MonteCarloTest.test_sample_once_batch_[batch_size=1, device_count=0 store_on_device=True get=nngp ]
+[ RUN      ] MonteCarloTest.test_sample_once_batch_[batch_size=1, device_count=1 store_on_device=False get=nngp ]
+[       OK ] MonteCarloTest.test_sample_once_batch_[batch_size=1, device_count=1 store_on_device=False get=nngp ]
+[ RUN      ] MonteCarloTest.test_sample_once_batch_[batch_size=1, device_count=1 store_on_device=True get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_sample_once_batch_[batch_size=1, device_count=1 store_on_device=True get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_sample_once_batch_[batch_size=1, device_count=2 store_on_device=True get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_sample_once_batch_[batch_size=1, device_count=2 store_on_device=True get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_sample_once_batch_[batch_size=2, device_count=0 store_on_device=False get=nngp ]
+[       OK ] MonteCarloTest.test_sample_once_batch_[batch_size=2, device_count=0 store_on_device=False get=nngp ]
+[ RUN      ] MonteCarloTest.test_sample_once_batch_[batch_size=2, device_count=1 store_on_device=True get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_sample_once_batch_[batch_size=2, device_count=1 store_on_device=True get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_sample_once_batch_[batch_size=4, device_count=0 store_on_device=False get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_sample_once_batch_[batch_size=4, device_count=0 store_on_device=False get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_sample_once_batch_[batch_size=4, device_count=0 store_on_device=True get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_sample_once_batch_[batch_size=4, device_count=0 store_on_device=True get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_sample_once_batch_[batch_size=4, device_count=1 store_on_device=False get=('nngp', 'ntk') ]
+[       OK ] MonteCarloTest.test_sample_once_batch_[batch_size=4, device_count=1 store_on_device=False get=('nngp', 'ntk') ]
+[ RUN      ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=1, device_count=0 store_on_device=False ]
+I0705 12:41:57.784327 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.0076412418857216835 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.8830531  1.0521117  1.4740505  0.964298  ]
+ [0.9870842  0.85385936 1.5692466  0.888561  ]
+ [0.9127208  0.8439616  1.0901041  0.73804903]
+ [1.0855389  0.8518783  0.78533167 0.9294198 ]
+ [0.67352223 0.55323803 0.50132877 0.76919514]
+ [0.8742338  1.2374573  1.1164377  1.0971274 ]
+ [0.4847713  0.7564455  0.67558604 1.0772316 ]
+ [0.97575104 0.6273715  0.6447979  1.0722687 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.8843523  1.055807   1.4639041  0.964463  ]
+ [0.99231154 0.85186327 1.5523703  0.878809  ]
+ [0.9175987  0.84924525 1.0851624  0.738266  ]
+ [1.0796115  0.847193   0.7837462  0.933181  ]
+ [0.6735569  0.55357766 0.50350493 0.7725019 ]
+ [0.8897452  1.2379377  1.1122102  1.0956123 ]
+ [0.49007338 0.7569613  0.668422   1.0938386 ]
+ [0.9703057  0.61689913 0.6325376  1.0793767 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=1, device_count=0 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=1, device_count=0 store_on_device=True ]
+I0705 12:44:32.380858 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.0076412418857216835 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.8830531  1.0521117  1.4740505  0.964298  ]
+ [0.9870842  0.85385936 1.5692466  0.888561  ]
+ [0.9127208  0.8439616  1.0901041  0.73804903]
+ [1.0855389  0.8518783  0.78533167 0.9294198 ]
+ [0.67352223 0.55323803 0.50132877 0.76919514]
+ [0.8742338  1.2374573  1.1164377  1.0971274 ]
+ [0.4847713  0.7564455  0.67558604 1.0772316 ]
+ [0.97575104 0.6273715  0.6447979  1.0722687 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.8843523  1.055807   1.4639041  0.964463  ]
+ [0.99231154 0.85186327 1.5523703  0.878809  ]
+ [0.9175987  0.84924525 1.0851624  0.738266  ]
+ [1.0796115  0.847193   0.7837462  0.933181  ]
+ [0.6735569  0.55357766 0.50350493 0.7725019 ]
+ [0.8897452  1.2379377  1.1122102  1.0956123 ]
+ [0.49007338 0.7569613  0.668422   1.0938386 ]
+ [0.9703057  0.61689913 0.6325376  1.0793767 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=1, device_count=0 store_on_device=True ]
+[ RUN      ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=1, device_count=1 store_on_device=False ]
+I0705 12:47:31.016000 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.0076412418857216835 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.8830531  1.0521117  1.4740505  0.964298  ]
+ [0.9870842  0.85385936 1.5692466  0.888561  ]
+ [0.9127208  0.8439616  1.0901041  0.73804903]
+ [1.0855389  0.8518783  0.78533167 0.9294198 ]
+ [0.67352223 0.55323803 0.50132877 0.76919514]
+ [0.8742338  1.2374573  1.1164377  1.0971274 ]
+ [0.4847713  0.7564455  0.67558604 1.0772316 ]
+ [0.97575104 0.6273715  0.6447979  1.0722687 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.8843523  1.055807   1.4639041  0.964463  ]
+ [0.99231154 0.85186327 1.5523703  0.878809  ]
+ [0.9175987  0.84924525 1.0851624  0.738266  ]
+ [1.0796115  0.847193   0.7837462  0.933181  ]
+ [0.6735569  0.55357766 0.50350493 0.7725019 ]
+ [0.8897452  1.2379377  1.1122102  1.0956123 ]
+ [0.49007338 0.7569613  0.668422   1.0938386 ]
+ [0.9703057  0.61689913 0.6325376  1.0793767 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=1, device_count=1 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=1, device_count=1 store_on_device=True ]
+I0705 12:50:24.005841 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.0076412418857216835 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.8830531  1.0521117  1.4740505  0.964298  ]
+ [0.9870842  0.85385936 1.5692466  0.888561  ]
+ [0.9127208  0.8439616  1.0901041  0.73804903]
+ [1.0855389  0.8518783  0.78533167 0.9294198 ]
+ [0.67352223 0.55323803 0.50132877 0.76919514]
+ [0.8742338  1.2374573  1.1164377  1.0971274 ]
+ [0.4847713  0.7564455  0.67558604 1.0772316 ]
+ [0.97575104 0.6273715  0.6447979  1.0722687 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.8843523  1.055807   1.4639041  0.964463  ]
+ [0.99231154 0.85186327 1.5523703  0.878809  ]
+ [0.9175987  0.84924525 1.0851624  0.738266  ]
+ [1.0796115  0.847193   0.7837462  0.933181  ]
+ [0.6735569  0.55357766 0.50350493 0.7725019 ]
+ [0.8897452  1.2379377  1.1122102  1.0956123 ]
+ [0.49007338 0.7569613  0.668422   1.0938386 ]
+ [0.9703057  0.61689913 0.6325376  1.0793767 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=1, device_count=1 store_on_device=True ]
+[ RUN      ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=1, device_count=2 store_on_device=False ]
+I0705 12:51:13.006220 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.007641250267624855 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.8830531  1.0521117  1.4740505  0.964298  ]
+ [0.9870842  0.85385936 1.5692466  0.888561  ]
+ [0.9127208  0.8439616  1.0901041  0.73804903]
+ [1.0855389  0.8518783  0.78533167 0.9294198 ]
+ [0.67352223 0.55323803 0.50132877 0.76919514]
+ [0.8742338  1.2374573  1.1164377  1.0971274 ]
+ [0.4847713  0.7564455  0.67558604 1.0772316 ]
+ [0.97575104 0.6273715  0.6447979  1.0722687 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.88435227 1.055807   1.4639041  0.9644629 ]
+ [0.99231154 0.8518633  1.5523702  0.8788089 ]
+ [0.9175988  0.84924525 1.0851626  0.738266  ]
+ [1.0796115  0.84719306 0.7837461  0.93318105]
+ [0.6735569  0.55357766 0.5035049  0.7725019 ]
+ [0.88974524 1.2379378  1.11221    1.0956123 ]
+ [0.49007338 0.7569611  0.6684219  1.0938386 ]
+ [0.9703059  0.61689913 0.63253754 1.0793766 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=1, device_count=2 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=2, device_count=1 store_on_device=True ]
+I0705 12:51:31.480818 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.007641226518899202 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.8830531  1.0521117  1.4740505  0.964298  ]
+ [0.9870842  0.85385936 1.5692466  0.888561  ]
+ [0.9127208  0.8439616  1.0901041  0.73804903]
+ [1.0855389  0.8518783  0.78533167 0.9294198 ]
+ [0.67352223 0.55323803 0.50132877 0.76919514]
+ [0.8742338  1.2374573  1.1164377  1.0971274 ]
+ [0.4847713  0.7564455  0.67558604 1.0772316 ]
+ [0.97575104 0.6273715  0.6447979  1.0722687 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.8843523  1.0558071  1.4639043  0.9644631 ]
+ [0.99231154 0.8518633  1.5523703  0.878809  ]
+ [0.9175987  0.8492451  1.0851624  0.73826593]
+ [1.0796115  0.847193   0.7837462  0.93318105]
+ [0.6735569  0.55357766 0.5035049  0.7725019 ]
+ [0.8897452  1.2379376  1.1122102  1.0956123 ]
+ [0.49007338 0.7569613  0.668422   1.0938386 ]
+ [0.9703057  0.61689913 0.63253766 1.0793766 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=2, device_count=1 store_on_device=True ]
+[ RUN      ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=2, device_count=2 store_on_device=False ]
+I0705 12:51:45.237355 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.007641226518899202 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.8830531  1.0521117  1.4740505  0.964298  ]
+ [0.9870842  0.85385936 1.5692466  0.888561  ]
+ [0.9127208  0.8439616  1.0901041  0.73804903]
+ [1.0855389  0.8518783  0.78533167 0.9294198 ]
+ [0.67352223 0.55323803 0.50132877 0.76919514]
+ [0.8742338  1.2374573  1.1164377  1.0971274 ]
+ [0.4847713  0.7564455  0.67558604 1.0772316 ]
+ [0.97575104 0.6273715  0.6447979  1.0722687 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.8843523  1.0558071  1.4639043  0.9644631 ]
+ [0.99231154 0.8518633  1.5523703  0.878809  ]
+ [0.9175987  0.8492451  1.0851624  0.73826593]
+ [1.0796115  0.847193   0.7837462  0.93318105]
+ [0.6735569  0.55357766 0.5035049  0.7725019 ]
+ [0.8897452  1.2379376  1.1122102  1.0956123 ]
+ [0.49007338 0.7569613  0.668422   1.0938386 ]
+ [0.9703057  0.61689913 0.63253766 1.0793766 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=2, device_count=2 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=4, device_count=0 store_on_device=False ]
+I0705 12:51:51.349920 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.007641224190592766 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.8830531  1.0521117  1.4740505  0.964298  ]
+ [0.9870842  0.85385936 1.5692466  0.888561  ]
+ [0.9127208  0.8439616  1.0901041  0.73804903]
+ [1.0855389  0.8518783  0.78533167 0.9294198 ]
+ [0.67352223 0.55323803 0.50132877 0.76919514]
+ [0.8742338  1.2374573  1.1164377  1.0971274 ]
+ [0.4847713  0.7564455  0.67558604 1.0772316 ]
+ [0.97575104 0.6273715  0.6447979  1.0722687 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.8843523  1.055807   1.4639043  0.9644631 ]
+ [0.99231166 0.85186327 1.5523703  0.8788089 ]
+ [0.9175988  0.8492451  1.0851626  0.73826593]
+ [1.0796114  0.84719294 0.7837462  0.9331809 ]
+ [0.6735568  0.55357766 0.50350493 0.7725019 ]
+ [0.88974524 1.2379376  1.1122103  1.0956123 ]
+ [0.49007338 0.7569612  0.668422   1.0938385 ]
+ [0.9703056  0.6168992  0.6325376  1.0793766 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=4, device_count=0 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=4, device_count=1 store_on_device=False ]
+I0705 12:51:59.473328 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.007641221396625042 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.8830531  1.0521117  1.4740505  0.964298  ]
+ [0.9870842  0.85385936 1.5692466  0.888561  ]
+ [0.9127208  0.8439616  1.0901041  0.73804903]
+ [1.0855389  0.8518783  0.78533167 0.9294198 ]
+ [0.67352223 0.55323803 0.50132877 0.76919514]
+ [0.8742338  1.2374573  1.1164377  1.0971274 ]
+ [0.4847713  0.7564455  0.67558604 1.0772316 ]
+ [0.97575104 0.6273715  0.6447979  1.0722687 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.8843523  1.055807   1.4639043  0.9644631 ]
+ [0.99231154 0.85186315 1.5523703  0.878809  ]
+ [0.9175987  0.8492451  1.0851626  0.73826593]
+ [1.0796115  0.847193   0.78374624 0.9331809 ]
+ [0.6735568  0.55357766 0.5035049  0.7725019 ]
+ [0.8897452  1.2379377  1.1122102  1.0956123 ]
+ [0.49007338 0.7569613  0.668422   1.0938386 ]
+ [0.9703057  0.61689913 0.6325376  1.0793766 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=4, device_count=1 store_on_device=False ]
+[ RUN      ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=4, device_count=2 store_on_device=True ]
+I0705 12:52:16.244805 4816354752 test_utils.py:63] XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+PASSED with 0.007641226518899202 relative error: 
+---------------------------------------------
+EXPECTED: 
+[[0.8830531  1.0521117  1.4740505  0.964298  ]
+ [0.9870842  0.85385936 1.5692466  0.888561  ]
+ [0.9127208  0.8439616  1.0901041  0.73804903]
+ [1.0855389  0.8518783  0.78533167 0.9294198 ]
+ [0.67352223 0.55323803 0.50132877 0.76919514]
+ [0.8742338  1.2374573  1.1164377  1.0971274 ]
+ [0.4847713  0.7564455  0.67558604 1.0772316 ]
+ [0.97575104 0.6273715  0.6447979  1.0722687 ]]
+---------------------------------------------
+ACTUAL: 
+[[0.8843523  1.0558071  1.4639043  0.9644631 ]
+ [0.99231154 0.8518633  1.5523703  0.878809  ]
+ [0.9175987  0.8492451  1.0851624  0.73826593]
+ [1.0796115  0.847193   0.7837462  0.93318105]
+ [0.6735569  0.55357766 0.5035049  0.7725019 ]
+ [0.8897452  1.2379376  1.1122102  1.0956123 ]
+ [0.49007338 0.7569613  0.668422   1.0938386 ]
+ [0.9703057  0.61689913 0.63253766 1.0793766 ]]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+[       OK ] MonteCarloTest.test_sample_vs_analytic_nngp_[batch_size=4, device_count=2 store_on_device=True ]
+----------------------------------------------------------------------
+Ran 50 tests in 1826.829s
+
+OK

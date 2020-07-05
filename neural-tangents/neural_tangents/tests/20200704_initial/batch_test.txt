@@ -1,0 +1,119 @@
+Running tests under Python 3.8.0: /Library/Frameworks/Python.framework/Versions/3.8/bin/python3.8
+[ RUN      ] BatchTest.testAnalyticKernelComposeAutomatic_on_device=False_batch_size=2
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+  warnings.warn('No GPU/TPU found, falling back to CPU.')
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/lax/lax.py:5591: UserWarning: Explicitly requested dtype <class 'jax.numpy.lax_numpy.float64'> requested in astype is not available, and will be truncated to dtype float32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/google/jax#current-gotchas for more.
+  warnings.warn(msg.format(dtype, fun_name , truncated_dtype))
+/Users/Darren/Desktop/SchoolYear/2020Summer/GSoC_TensorFlow/GitHub/TensorFlow_GSoC/neural-tangents/neural_tangents/utils/batch.py:490: UserWarning: Batch size is reduced from requested 2 to effective 1 to fit the dataset.
+  warnings.warn(
+[       OK ] BatchTest.testAnalyticKernelComposeAutomatic_on_device=False_batch_size=2
+[ RUN      ] BatchTest.testAnalyticKernelComposeAutomatic_on_device=False_batch_size=8
+/Users/Darren/Desktop/SchoolYear/2020Summer/GSoC_TensorFlow/GitHub/TensorFlow_GSoC/neural-tangents/neural_tangents/utils/batch.py:490: UserWarning: Batch size is reduced from requested 8 to effective 4 to fit the dataset.
+  warnings.warn(
+/Users/Darren/Desktop/SchoolYear/2020Summer/GSoC_TensorFlow/GitHub/TensorFlow_GSoC/neural-tangents/neural_tangents/utils/batch.py:490: UserWarning: Batch size is reduced from requested 8 to effective 1 to fit the dataset.
+  warnings.warn(
+[       OK ] BatchTest.testAnalyticKernelComposeAutomatic_on_device=False_batch_size=8
+[ RUN      ] BatchTest.testAnalyticKernelComposeAutomatic_on_device=True_batch_size=2
+[       OK ] BatchTest.testAnalyticKernelComposeAutomatic_on_device=True_batch_size=2
+[ RUN      ] BatchTest.testAnalyticKernelComposeAutomatic_on_device=True_batch_size=8
+[       OK ] BatchTest.testAnalyticKernelComposeAutomatic_on_device=True_batch_size=8
+[ RUN      ] BatchTest.testAnalyticKernelComposeParallel
+[       OK ] BatchTest.testAnalyticKernelComposeParallel
+[ RUN      ] BatchTest.testAnalyticKernelComposeSerial_on_device=False_batch_size=2
+[       OK ] BatchTest.testAnalyticKernelComposeSerial_on_device=False_batch_size=2
+[ RUN      ] BatchTest.testAnalyticKernelComposeSerial_on_device=False_batch_size=8
+/Users/Darren/Desktop/SchoolYear/2020Summer/GSoC_TensorFlow/GitHub/TensorFlow_GSoC/neural-tangents/neural_tangents/utils/batch.py:490: UserWarning: Batch size is reduced from requested 8 to effective 2 to fit the dataset.
+  warnings.warn(
+[       OK ] BatchTest.testAnalyticKernelComposeSerial_on_device=False_batch_size=8
+[ RUN      ] BatchTest.testAnalyticKernelComposeSerial_on_device=True_batch_size=2
+[       OK ] BatchTest.testAnalyticKernelComposeSerial_on_device=True_batch_size=2
+[ RUN      ] BatchTest.testAnalyticKernelComposeSerial_on_device=True_batch_size=8
+[       OK ] BatchTest.testAnalyticKernelComposeSerial_on_device=True_batch_size=8
+[ RUN      ] BatchTest.testAutomatic_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_empirical_logits_3_batch_size=8
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/numpy/lax_numpy.py:1531: FutureWarning: jax.numpy reductions won't accept lists and tuples in future versions, only scalars and ndarrays
+  warnings.warn(msg, category=FutureWarning)
+[       OK ] BatchTest.testAutomatic_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_empirical_logits_3_batch_size=8
+[ RUN      ] BatchTest.testAutomatic_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_theoretical_pytree_batch_size=2
+[       OK ] BatchTest.testAutomatic_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_theoretical_pytree_batch_size=2
+[ RUN      ] BatchTest.testAutomatic_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_empirical_logits_2_batch_size=8
+[       OK ] BatchTest.testAutomatic_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_empirical_logits_2_batch_size=8
+[ RUN      ] BatchTest.testAutomatic_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_batch_size=8
+[       OK ] BatchTest.testAutomatic_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_batch_size=8
+[ RUN      ] BatchTest.testAutomatic_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_pytree_batch_size=8
+[       OK ] BatchTest.testAutomatic_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_pytree_batch_size=8
+[ RUN      ] BatchTest.testAutomatic_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_1_batch_size=2
+[       OK ] BatchTest.testAutomatic_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_1_batch_size=2
+[ RUN      ] BatchTest.testAutomatic_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_2_batch_size=2
+[       OK ] BatchTest.testAutomatic_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_2_batch_size=2
+[ RUN      ] BatchTest.testAutomatic_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_theoretical_pytree_batch_size=8
+[       OK ] BatchTest.testAutomatic_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_theoretical_pytree_batch_size=8
+[ RUN      ] BatchTest.testAutomatic_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_empirical_logits_3_batch_size=8
+[       OK ] BatchTest.testAutomatic_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_empirical_logits_3_batch_size=8
+[ RUN      ] BatchTest.testAutomatic_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_theoretical_batch_size=2
+[       OK ] BatchTest.testAutomatic_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_theoretical_batch_size=2
+[ RUN      ] BatchTest.testComposition_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_empirical_logits_3_batch_size=8
+[       OK ] BatchTest.testComposition_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_empirical_logits_3_batch_size=8
+[ RUN      ] BatchTest.testComposition_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_theoretical_pytree_batch_size=2
+[       OK ] BatchTest.testComposition_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_theoretical_pytree_batch_size=2
+[ RUN      ] BatchTest.testComposition_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_empirical_logits_2_batch_size=8
+[       OK ] BatchTest.testComposition_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_empirical_logits_2_batch_size=8
+[ RUN      ] BatchTest.testComposition_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_batch_size=8
+[       OK ] BatchTest.testComposition_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_batch_size=8
+[ RUN      ] BatchTest.testComposition_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_pytree_batch_size=8
+[       OK ] BatchTest.testComposition_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_pytree_batch_size=8
+[ RUN      ] BatchTest.testComposition_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_1_batch_size=2
+[       OK ] BatchTest.testComposition_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_1_batch_size=2
+[ RUN      ] BatchTest.testComposition_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_2_batch_size=2
+[       OK ] BatchTest.testComposition_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_2_batch_size=2
+[ RUN      ] BatchTest.testComposition_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_theoretical_pytree_batch_size=8
+[       OK ] BatchTest.testComposition_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_theoretical_pytree_batch_size=8
+[ RUN      ] BatchTest.testComposition_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_empirical_logits_3_batch_size=8
+[       OK ] BatchTest.testComposition_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_empirical_logits_3_batch_size=8
+[ RUN      ] BatchTest.testComposition_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_theoretical_batch_size=2
+[       OK ] BatchTest.testComposition_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_theoretical_batch_size=2
+[ RUN      ] BatchTest.testParallel_train_shape=(2, 4)_test_shape=(2, 4)_network=FLAT_empirical_logits_1
+[       OK ] BatchTest.testParallel_train_shape=(2, 4)_test_shape=(2, 4)_network=FLAT_empirical_logits_1
+[ RUN      ] BatchTest.testParallel_train_shape=(2, 4)_test_shape=(2, 4)_network=FLAT_empirical_logits_2
+[       OK ] BatchTest.testParallel_train_shape=(2, 4)_test_shape=(2, 4)_network=FLAT_empirical_logits_2
+[ RUN      ] BatchTest.testParallel_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_empirical_logits_3
+[       OK ] BatchTest.testParallel_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_empirical_logits_3
+[ RUN      ] BatchTest.testParallel_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_theoretical
+[       OK ] BatchTest.testParallel_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_theoretical
+[ RUN      ] BatchTest.testParallel_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_empirical_logits_1
+[       OK ] BatchTest.testParallel_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_empirical_logits_1
+[ RUN      ] BatchTest.testParallel_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical
+[       OK ] BatchTest.testParallel_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical
+[ RUN      ] BatchTest.testParallel_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_pytree
+[       OK ] BatchTest.testParallel_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_pytree
+[ RUN      ] BatchTest.testParallel_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_2
+[       OK ] BatchTest.testParallel_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_2
+[ RUN      ] BatchTest.testParallel_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_empirical_logits_2
+[       OK ] BatchTest.testParallel_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_empirical_logits_2
+[ RUN      ] BatchTest.testParallel_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_theoretical
+[       OK ] BatchTest.testParallel_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_theoretical
+[ RUN      ] BatchTest.testSerial_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_empirical_logits_3_batch_size=8
+[       OK ] BatchTest.testSerial_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_empirical_logits_3_batch_size=8
+[ RUN      ] BatchTest.testSerial_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_theoretical_pytree_batch_size=2
+[       OK ] BatchTest.testSerial_train_shape=(4, 3, 3, 3)_test_shape=(2, 3, 3, 3)_network=INTERMEDIATE_CONV_theoretical_pytree_batch_size=2
+[ RUN      ] BatchTest.testSerial_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_empirical_logits_2_batch_size=8
+[       OK ] BatchTest.testSerial_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_empirical_logits_2_batch_size=8
+[ RUN      ] BatchTest.testSerial_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_batch_size=8
+[       OK ] BatchTest.testSerial_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_batch_size=8
+[ RUN      ] BatchTest.testSerial_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_pytree_batch_size=8
+[       OK ] BatchTest.testSerial_train_shape=(4, 8)_test_shape=(2, 8)_network=FLAT_theoretical_pytree_batch_size=8
+[ RUN      ] BatchTest.testSerial_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_1_batch_size=2
+[       OK ] BatchTest.testSerial_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_1_batch_size=2
+[ RUN      ] BatchTest.testSerial_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_2_batch_size=2
+[       OK ] BatchTest.testSerial_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_2_batch_size=2
+[ RUN      ] BatchTest.testSerial_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_theoretical_pytree_batch_size=8
+[       OK ] BatchTest.testSerial_train_shape=(8, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_theoretical_pytree_batch_size=8
+[ RUN      ] BatchTest.testSerial_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_empirical_logits_3_batch_size=8
+[       OK ] BatchTest.testSerial_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_empirical_logits_3_batch_size=8
+[ RUN      ] BatchTest.testSerial_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_theoretical_batch_size=2
+[       OK ] BatchTest.testSerial_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_theoretical_batch_size=2
+[ RUN      ] BatchTest.test_jit_or_pmap_broadcast
+[       OK ] BatchTest.test_jit_or_pmap_broadcast
+----------------------------------------------------------------------
+Ran 50 tests in 655.443s
+
+OK

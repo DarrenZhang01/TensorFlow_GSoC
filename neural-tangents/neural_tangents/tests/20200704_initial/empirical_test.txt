@@ -1,0 +1,57 @@
+Running tests under Python 3.8.0: /Library/Frameworks/Python.framework/Versions/3.8/bin/python3.8
+[ RUN      ] EmpiricalTest.testAxes_diagonal_axes=()_trace_axes=()
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+  warnings.warn('No GPU/TPU found, falling back to CPU.')
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/numpy/lax_numpy.py:1531: FutureWarning: jax.numpy reductions won't accept lists and tuples in future versions, only scalars and ndarrays
+  warnings.warn(msg, category=FutureWarning)
+[       OK ] EmpiricalTest.testAxes_diagonal_axes=()_trace_axes=()
+[ RUN      ] EmpiricalTest.testAxes_diagonal_axes=()_trace_axes=(-2, -4)
+[       OK ] EmpiricalTest.testAxes_diagonal_axes=()_trace_axes=(-2, -4)
+[ RUN      ] EmpiricalTest.testAxes_diagonal_axes=()_trace_axes=(0, -1)
+[       OK ] EmpiricalTest.testAxes_diagonal_axes=()_trace_axes=(0, -1)
+[ RUN      ] EmpiricalTest.testAxes_diagonal_axes=(0, 1)_trace_axes=(1,)
+[  SKIPPED ] EmpiricalTest.testAxes_diagonal_axes=(0, 1)_trace_axes=(1,)
+[ RUN      ] EmpiricalTest.testAxes_diagonal_axes=(0, 1, 2)_trace_axes=(-1, -2)
+[  SKIPPED ] EmpiricalTest.testAxes_diagonal_axes=(0, 1, 2)_trace_axes=(-1, -2)
+[ RUN      ] EmpiricalTest.testAxes_diagonal_axes=(0, 1, 2, 3)_trace_axes=(-2, -4)
+[  SKIPPED ] EmpiricalTest.testAxes_diagonal_axes=(0, 1, 2, 3)_trace_axes=(-2, -4)
+[ RUN      ] EmpiricalTest.testAxes_diagonal_axes=(0, 1, 2, 3)_trace_axes=(0,)
+[  SKIPPED ] EmpiricalTest.testAxes_diagonal_axes=(0, 1, 2, 3)_trace_axes=(0,)
+[ RUN      ] EmpiricalTest.testAxes_diagonal_axes=(0, 1, 2, 3)_trace_axes=(1, 2, 3)
+[  SKIPPED ] EmpiricalTest.testAxes_diagonal_axes=(0, 1, 2, 3)_trace_axes=(1, 2, 3)
+[ RUN      ] EmpiricalTest.testAxes_diagonal_axes=(0, 1, 2, 3)_trace_axes=(3, 1, 2, 0)
+[  SKIPPED ] EmpiricalTest.testAxes_diagonal_axes=(0, 1, 2, 3)_trace_axes=(3, 1, 2, 0)
+[ RUN      ] EmpiricalTest.testAxes_diagonal_axes=(0,)_trace_axes=(-1,)
+[       OK ] EmpiricalTest.testAxes_diagonal_axes=(0,)_trace_axes=(-1,)
+[ RUN      ] EmpiricalTest.testLinearization_(3, 3)
+[       OK ] EmpiricalTest.testLinearization_(3, 3)
+[ RUN      ] EmpiricalTest.testLinearization_(4, 4)
+[       OK ] EmpiricalTest.testLinearization_(4, 4)
+[ RUN      ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4)_test_shape=(2, 4)_network=FLAT_empirical_logits_1
+[       OK ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4)_test_shape=(2, 4)_network=FLAT_empirical_logits_1
+[ RUN      ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4)_test_shape=(2, 4)_network=FLAT_empirical_logits_2
+[       OK ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4)_test_shape=(2, 4)_network=FLAT_empirical_logits_2
+[ RUN      ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4)_test_shape=(2, 4)_network=FLAT_empirical_logits_3
+[       OK ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4)_test_shape=(2, 4)_network=FLAT_empirical_logits_3
+[ RUN      ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=CONV_empirical_logits_1
+[       OK ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=CONV_empirical_logits_1
+[ RUN      ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=CONV_empirical_logits_2
+[       OK ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=CONV_empirical_logits_2
+[ RUN      ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=POOLING_empirical_logits_2
+[       OK ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=POOLING_empirical_logits_2
+[ RUN      ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 8)_test_shape=(6, 8)_network=FLAT_empirical_logits_1
+[       OK ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 8)_test_shape=(6, 8)_network=FLAT_empirical_logits_1
+[ RUN      ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 8)_test_shape=(6, 8)_network=FLAT_empirical_logits_3
+[       OK ] EmpiricalTest.testNTKAgainstDirect_train_shape=(4, 8)_test_shape=(6, 8)_network=FLAT_empirical_logits_3
+[ RUN      ] EmpiricalTest.testNTKAgainstDirect_train_shape=(6, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_3
+[       OK ] EmpiricalTest.testNTKAgainstDirect_train_shape=(6, 4, 4, 3)_test_shape=(2, 4, 4, 3)_network=FLAT_empirical_logits_3
+[ RUN      ] EmpiricalTest.testNTKAgainstDirect_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_empirical_logits_3
+[       OK ] EmpiricalTest.testNTKAgainstDirect_train_shape=(8, 8)_test_shape=(16, 8)_network=FLAT_empirical_logits_3
+[ RUN      ] EmpiricalTest.testTaylorExpansion_(3, 3)
+[       OK ] EmpiricalTest.testTaylorExpansion_(3, 3)
+[ RUN      ] EmpiricalTest.testTaylorExpansion_(4, 4)
+[       OK ] EmpiricalTest.testTaylorExpansion_(4, 4)
+----------------------------------------------------------------------
+Ran 24 tests in 424.763s
+
+OK (skipped=6)

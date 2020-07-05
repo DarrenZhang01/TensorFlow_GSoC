@@ -1,0 +1,119 @@
+Running tests under Python 3.8.0: /Library/Frameworks/Python.framework/Versions/3.8/bin/python3.8
+[ RUN      ] PredictTest.testGpInference
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/lib/xla_bridge.py:125: UserWarning: No GPU/TPU found, falling back to CPU.
+  warnings.warn('No GPU/TPU found, falling back to CPU.')
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/lax/lax.py:5591: UserWarning: Explicitly requested dtype <class 'jax.numpy.lax_numpy.float64'> requested in astype is not available, and will be truncated to dtype float32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/google/jax#current-gotchas for more.
+  warnings.warn(msg.format(dtype, fun_name , truncated_dtype))
+[       OK ] PredictTest.testGpInference
+[ RUN      ] PredictTest.testGradientDescentMseEnsembleGet_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[       OK ] PredictTest.testGradientDescentMseEnsembleGet_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[ RUN      ] PredictTest.testGradientDescentMseEnsembleGet_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2
+[       OK ] PredictTest.testGradientDescentMseEnsembleGet_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2
+[ RUN      ] PredictTest.testGradientDescentMseEnsembleGet_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1
+[       OK ] PredictTest.testGradientDescentMseEnsembleGet_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1
+[ RUN      ] PredictTest.testGradientDescentMseEnsembleGet_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2
+[       OK ] PredictTest.testGradientDescentMseEnsembleGet_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2
+[ RUN      ] PredictTest.testGradientDescentMseEnsembleTrain
+[       OK ] PredictTest.testGradientDescentMseEnsembleTrain
+[ RUN      ] PredictTest.testInfiniteTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1_get=('ntk', 'nngp')
+[       OK ] PredictTest.testInfiniteTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1_get=('ntk', 'nngp')
+[ RUN      ] PredictTest.testInfiniteTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1_get=nngp
+[       OK ] PredictTest.testInfiniteTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1_get=nngp
+[ RUN      ] PredictTest.testInfiniteTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1_get=ntk
+[       OK ] PredictTest.testInfiniteTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1_get=ntk
+[ RUN      ] PredictTest.testInfiniteTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2_get=('ntk', 'nngp')
+[       OK ] PredictTest.testInfiniteTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2_get=('ntk', 'nngp')
+[ RUN      ] PredictTest.testInfiniteTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2_get=nngp
+[       OK ] PredictTest.testInfiniteTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2_get=nngp
+[ RUN      ] PredictTest.testInfiniteTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1_get=('ntk', 'nngp')
+[       OK ] PredictTest.testInfiniteTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1_get=('ntk', 'nngp')
+[ RUN      ] PredictTest.testInfiniteTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1_get=nngp
+[       OK ] PredictTest.testInfiniteTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1_get=nngp
+[ RUN      ] PredictTest.testInfiniteTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_get=('ntk', 'nngp')
+[       OK ] PredictTest.testInfiniteTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_get=('ntk', 'nngp')
+[ RUN      ] PredictTest.testInfiniteTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_get=nngp
+[       OK ] PredictTest.testInfiniteTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_get=nngp
+[ RUN      ] PredictTest.testInfiniteTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_get=ntk
+[       OK ] PredictTest.testInfiniteTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_get=ntk
+[ RUN      ] PredictTest.testMaxLearningRate_train=(4, 8)_network=FLAT_logits=1_empirical
+[       OK ] PredictTest.testMaxLearningRate_train=(4, 8)_network=FLAT_logits=1_empirical
+[ RUN      ] PredictTest.testMaxLearningRate_train=(4, 8)_network=FLAT_logits=1_theoretical
+[       OK ] PredictTest.testMaxLearningRate_train=(4, 8)_network=FLAT_logits=1_theoretical
+[ RUN      ] PredictTest.testMaxLearningRate_train=(4, 8)_network=FLAT_logits=2_empirical
+[       OK ] PredictTest.testMaxLearningRate_train=(4, 8)_network=FLAT_logits=2_empirical
+[ RUN      ] PredictTest.testMaxLearningRate_train=(6, 4, 4, 3)_network=FLAT_logits=1_empirical
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/numpy/lax_numpy.py:1531: FutureWarning: jax.numpy reductions won't accept lists and tuples in future versions, only scalars and ndarrays
+  warnings.warn(msg, category=FutureWarning)
+[       OK ] PredictTest.testMaxLearningRate_train=(6, 4, 4, 3)_network=FLAT_logits=1_empirical
+[ RUN      ] PredictTest.testMaxLearningRate_train=(6, 4, 4, 3)_network=FLAT_logits=1_theoretical
+[       OK ] PredictTest.testMaxLearningRate_train=(6, 4, 4, 3)_network=FLAT_logits=1_theoretical
+[ RUN      ] PredictTest.testMaxLearningRate_train=(6, 4, 4, 3)_network=FLAT_logits=2_empirical
+[       OK ] PredictTest.testMaxLearningRate_train=(6, 4, 4, 3)_network=FLAT_logits=2_empirical
+[ RUN      ] PredictTest.testMaxLearningRate_train=(6, 4, 4, 3)_network=FLAT_logits=2_theoretical
+[       OK ] PredictTest.testMaxLearningRate_train=(6, 4, 4, 3)_network=FLAT_logits=2_theoretical
+[ RUN      ] PredictTest.testMaxLearningRate_train=(8, 8)_network=FLAT_logits=1_empirical
+[       OK ] PredictTest.testMaxLearningRate_train=(8, 8)_network=FLAT_logits=1_empirical
+[ RUN      ] PredictTest.testMaxLearningRate_train=(8, 8)_network=FLAT_logits=1_theoretical
+[       OK ] PredictTest.testMaxLearningRate_train=(8, 8)_network=FLAT_logits=1_theoretical
+[ RUN      ] PredictTest.testMaxLearningRate_train=(8, 8)_network=FLAT_logits=2_theoretical
+[       OK ] PredictTest.testMaxLearningRate_train=(8, 8)_network=FLAT_logits=2_theoretical
+[ RUN      ] PredictTest.testNTKGDPrediction_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1_theoretical_momentum=None_lr=0.0002_loss=mse_analytic_t=5
+[       OK ] PredictTest.testNTKGDPrediction_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1_theoretical_momentum=None_lr=0.0002_loss=mse_analytic_t=5
+[ RUN      ] PredictTest.testNTKGDPrediction_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2_theoretical_momentum=None_lr=0.0002_loss=mse_analytic_t=5
+[       OK ] PredictTest.testNTKGDPrediction_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2_theoretical_momentum=None_lr=0.0002_loss=mse_analytic_t=5
+[ RUN      ] PredictTest.testNTKGDPrediction_train=(6, 4, 4, 3)_test=(2, 4, 4, 3)_network=FLAT_logits=1_theoretical_momentum=None_lr=0.0002_loss=mse_t=5
+[       OK ] PredictTest.testNTKGDPrediction_train=(6, 4, 4, 3)_test=(2, 4, 4, 3)_network=FLAT_logits=1_theoretical_momentum=None_lr=0.0002_loss=mse_t=5
+[ RUN      ] PredictTest.testNTKGDPrediction_train=(6, 4, 4, 3)_test=(2, 4, 4, 3)_network=FLAT_logits=2_empirical_momentum=0.9_lr=0.0002_loss=mse_t=5
+[       OK ] PredictTest.testNTKGDPrediction_train=(6, 4, 4, 3)_test=(2, 4, 4, 3)_network=FLAT_logits=2_empirical_momentum=0.9_lr=0.0002_loss=mse_t=5
+[ RUN      ] PredictTest.testNTKGDPrediction_train=(6, 4, 4, 3)_test=(2, 4, 4, 3)_network=FLAT_logits=2_empirical_momentum=None_lr=0.0002_loss=mse_analytic_t=5
+[       OK ] PredictTest.testNTKGDPrediction_train=(6, 4, 4, 3)_test=(2, 4, 4, 3)_network=FLAT_logits=2_empirical_momentum=None_lr=0.0002_loss=mse_analytic_t=5
+[ RUN      ] PredictTest.testNTKGDPrediction_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1_empirical_momentum=0.9_lr=0.0002_loss=mse_t=5
+[       OK ] PredictTest.testNTKGDPrediction_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1_empirical_momentum=0.9_lr=0.0002_loss=mse_t=5
+[ RUN      ] PredictTest.testNTKGDPrediction_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_empirical_momentum=0.9_lr=0.0002_loss=mse_analytic_t=5
+[  SKIPPED ] PredictTest.testNTKGDPrediction_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_empirical_momentum=0.9_lr=0.0002_loss=mse_analytic_t=5
+[ RUN      ] PredictTest.testNTKGDPrediction_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_empirical_momentum=0.9_lr=0.0002_loss=mse_t=5
+[       OK ] PredictTest.testNTKGDPrediction_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_empirical_momentum=0.9_lr=0.0002_loss=mse_t=5
+[ RUN      ] PredictTest.testNTKGDPrediction_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_empirical_momentum=None_lr=0.0002_loss=mse_analytic_t=5
+[       OK ] PredictTest.testNTKGDPrediction_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_empirical_momentum=None_lr=0.0002_loss=mse_analytic_t=5
+[ RUN      ] PredictTest.testNTKGDPrediction_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_empirical_momentum=None_lr=0.0002_loss=mse_t=5
+[       OK ] PredictTest.testNTKGDPrediction_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2_empirical_momentum=None_lr=0.0002_loss=mse_t=5
+[ RUN      ] PredictTest.testNTKMeanCovPrediction_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[       OK ] PredictTest.testNTKMeanCovPrediction_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[ RUN      ] PredictTest.testNTK_NTKNNGPAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/lax/lax.py:5591: UserWarning: Explicitly requested dtype float64 requested in asarray is not available, and will be truncated to dtype float32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/google/jax#current-gotchas for more.
+  warnings.warn(msg.format(dtype, fun_name , truncated_dtype))
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/jax/lax/lax.py:5591: UserWarning: Explicitly requested dtype float64 requested in array is not available, and will be truncated to dtype float32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/google/jax#current-gotchas for more.
+  warnings.warn(msg.format(dtype, fun_name , truncated_dtype))
+[       OK ] PredictTest.testNTK_NTKNNGPAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[ RUN      ] PredictTest.testNTK_NTKNNGPAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2
+[       OK ] PredictTest.testNTK_NTKNNGPAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2
+[ RUN      ] PredictTest.testNTK_NTKNNGPAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1
+[       OK ] PredictTest.testNTK_NTKNNGPAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1
+[ RUN      ] PredictTest.testNTK_NTKNNGPAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2
+[       OK ] PredictTest.testNTK_NTKNNGPAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2
+[ RUN      ] PredictTest.testPredCovPosDef_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[       OK ] PredictTest.testPredCovPosDef_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[ RUN      ] PredictTest.testPredCovPosDef_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2
+[       OK ] PredictTest.testPredCovPosDef_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2
+[ RUN      ] PredictTest.testPredCovPosDef_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1
+[       OK ] PredictTest.testPredCovPosDef_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1
+[ RUN      ] PredictTest.testPredCovPosDef_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2
+[       OK ] PredictTest.testPredCovPosDef_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2
+[ RUN      ] PredictTest.testPredictND
+[       OK ] PredictTest.testPredictND
+[ RUN      ] PredictTest.testPredictOnCPU
+[       OK ] PredictTest.testPredictOnCPU
+[ RUN      ] PredictTest.testTrainedEnsemblePredCov_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[       OK ] PredictTest.testTrainedEnsemblePredCov_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[ RUN      ] PredictTest.testZeroTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[       OK ] PredictTest.testZeroTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=1
+[ RUN      ] PredictTest.testZeroTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2
+[       OK ] PredictTest.testZeroTimeAgreement_train=(4, 8)_test=(6, 8)_network=FLAT_logits=2
+[ RUN      ] PredictTest.testZeroTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1
+[       OK ] PredictTest.testZeroTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=1
+[ RUN      ] PredictTest.testZeroTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2
+[       OK ] PredictTest.testZeroTimeAgreement_train=(8, 8)_test=(16, 8)_network=FLAT_logits=2
+----------------------------------------------------------------------
+Ran 52 tests in 1533.094s
+
+OK (skipped=1)

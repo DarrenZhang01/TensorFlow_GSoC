@@ -21,7 +21,7 @@ import dataclasses
 from jax.api import jit
 from jax.api import vmap
 from jax.lib import xla_bridge
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 import jax.test_util as jtu
 from .kernel import Kernel
 import numpy as onp

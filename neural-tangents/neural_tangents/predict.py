@@ -31,7 +31,7 @@ import collections
 from jax import lax
 from jax.api import grad
 from jax.experimental import ode
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 import jax.scipy as sp
 from jax.tree_util import tree_map
 from neural_tangents.utils import utils, dataclasses

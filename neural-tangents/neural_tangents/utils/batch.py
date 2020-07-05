@@ -50,7 +50,7 @@ from jax.api import jit
 from jax.api import pmap
 from jax.interpreters.pxla import ShardedDeviceArray
 from jax.lib import xla_bridge
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 from jax.tree_util import tree_all
 from jax.tree_util import tree_map
 from jax.tree_util import tree_multimap

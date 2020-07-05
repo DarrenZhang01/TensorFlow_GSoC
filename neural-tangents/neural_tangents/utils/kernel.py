@@ -18,7 +18,7 @@
 import operator as op
 from typing import Dict, Tuple, Optional, Callable, Any
 
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 from neural_tangents.utils import dataclasses
 from neural_tangents.utils import utils
 

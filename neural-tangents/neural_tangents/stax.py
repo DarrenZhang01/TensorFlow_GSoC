@@ -74,7 +74,7 @@ import warnings
 import frozendict
 from jax import lax
 from jax import linear_util as lu
-from jax import numpy as np
+from trax.tf_numpy import numpy as np
 from jax import ops
 from jax import random
 from jax.abstract_arrays import ShapedArray
@@ -3240,7 +3240,7 @@ def _check_is_implemented(
 def _mean_and_var(
     x: Optional[np.ndarray],
     axis: Axes = None,
-    dtype: np.dtype = None,
+    dtype: np.dtypes = None,
     out: None = None,
     ddof: int = 0,
     keepdims: bool = False,

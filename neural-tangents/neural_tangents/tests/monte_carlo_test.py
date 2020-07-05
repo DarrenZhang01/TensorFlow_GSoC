@@ -18,7 +18,7 @@ from absl.testing import absltest
 from jax import test_util as jtu
 from jax.config import config as jax_config
 from jax.lib import xla_bridge
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 import jax.random as random
 from neural_tangents import stax
 from neural_tangents.utils import batch

@@ -29,7 +29,7 @@ from jax.api import grad
 from jax.api import jit
 from jax.experimental import optimizers
 from jax.experimental.stax import logsoftmax
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 import neural_tangents as nt
 from neural_tangents import stax
 from examples import datasets

@@ -16,7 +16,7 @@
 """
 
 
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 
 
 def _accuracy(y, y_hat):

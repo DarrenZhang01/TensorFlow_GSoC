@@ -20,7 +20,7 @@ By default, this example does inference on a small CIFAR10 subset.
 import time
 from absl import app
 from absl import flags
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 import neural_tangents as nt
 from neural_tangents import stax
 from examples import datasets

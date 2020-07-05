@@ -17,6 +17,7 @@
 
 import string
 
+import math
 import random as prandom
 import functools
 import itertools
@@ -27,7 +28,7 @@ from jax import ops
 from jax import test_util as jtu
 from jax.config import config as jax_config
 from jax.lib import xla_bridge
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 import jax.random as random
 from neural_tangents import stax
 from neural_tangents.utils import monte_carlo
@@ -929,7 +930,7 @@ class ActivationTest(test_utils.NeuralTangentsTestCase):
                           for abc in itertools.product(
                               [1., 2., 0.3],
                               [1., 1.5, 0.3],
-                              [0., -np.pi/4., np.pi/2.])))
+                              [0., -math.pi/4., math.pi/2.])))
   def test_activation(self, same_inputs, model, phi_name, get, abc):
     a, b, c = abc
     if phi_name == 'Sin':

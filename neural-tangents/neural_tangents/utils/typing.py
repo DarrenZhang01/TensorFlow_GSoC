@@ -16,7 +16,7 @@
 
 from typing import Tuple, Callable, Union, List, Any, Optional, Sequence, \
   Generator
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 from neural_tangents.utils.kernel import Kernel
 
 

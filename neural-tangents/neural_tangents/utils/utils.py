@@ -24,7 +24,7 @@ from .typing import Axes, PyTree
 from . import dataclasses
 from jax import lax
 from jax.lib import xla_bridge
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 from jax.tree_util import tree_all, tree_map
 from .kernel import Kernel
 import numpy as onp

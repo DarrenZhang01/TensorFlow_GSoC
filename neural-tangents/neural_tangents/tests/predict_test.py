@@ -26,7 +26,7 @@ from jax.config import config
 from jax.experimental import optimizers
 from jax.flatten_util import ravel_pytree
 from jax.lib import xla_bridge
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 import jax.random as random
 from neural_tangents import predict
 from neural_tangents import stax

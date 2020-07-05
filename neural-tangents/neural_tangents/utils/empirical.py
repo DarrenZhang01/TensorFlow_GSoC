@@ -33,7 +33,7 @@ from jax.api import eval_shape
 from jax.api import jacobian
 from jax.api import jvp
 from jax.api import vjp
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 from jax.tree_util import tree_multimap
 from jax.tree_util import tree_reduce
 from neural_tangents.utils import utils

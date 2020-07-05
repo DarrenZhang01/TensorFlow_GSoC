@@ -31,7 +31,7 @@ import operator
 from typing import Union, Tuple, Generator, Set, Iterable, Optional
 
 from jax import random
-import jax.numpy as np
+from trax.tf_numpy import numpy as np
 from jax.tree_util import tree_map
 from jax.tree_util import tree_multimap
 from neural_tangents.utils import batch

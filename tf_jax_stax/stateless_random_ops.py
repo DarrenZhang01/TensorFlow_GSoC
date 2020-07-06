@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Stateless random ops which take seed as a tensor input."""
-
 """
+Stateless random ops which take seed as a tensor input.
+
 This file is from:
 <https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/ops/stateless_random_ops.py>
 

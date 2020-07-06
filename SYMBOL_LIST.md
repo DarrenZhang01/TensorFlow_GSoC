@@ -6,11 +6,11 @@
     * [`jax.lax.add`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.add.html#jax.lax.add) (`trax.tf_numpy.numpy.add`)
     * [`jax.lax.cond`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.cond.html) (`tf.cond`)
     * [`jax.lax.conv_general_dilated`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.conv_general_dilated.html#jax.lax.conv_general_dilated) ([TF `conv_general_dilated`](https://github.com/DarrenZhang01/TensorFlow_GSoC/blob/master/tf_jax_stax/tf_conv_general.py))
-    * \*[`jax.lax.dot_general`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.dot_general.html#jax.lax.dot_general)
-    * [`jax.lax.padtype_to_pads`](https://jax.readthedocs.io/en/latest/_modules/jax/lax/lax.html)
+    * [`jax.lax.dot_general`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.dot_general.html#jax.lax.dot_general) ([TF `dot_general`](https://github.com/DarrenZhang01/TensorFlow_GSoC/blob/master/tf_dot_general/tf_dot_general.py))
+    * [`jax.lax.padtype_to_pads`](https://jax.readthedocs.io/en/latest/_modules/jax/lax/lax.html) ([TF `lax`](https://github.com/DarrenZhang01/TensorFlow_GSoC/blob/master/tf_jax_stax/tf_lax.py))
     * [`jax.lax.reduce_window`](https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.reduce_window.html#jax.lax.reduce_window) ([TF `reduce_window`](https://github.com/DarrenZhang01/TensorFlow_GSoC/blob/master/tf_jax_stax/tf_reduce_window.py))
-    * [`jax.lax.reduce_window_shape_tuple`](https://jax.readthedocs.io/en/latest/_modules/jax/lax/lax.html)
-    * [`jax.lax._reduce_window_sum`](https://jax.readthedocs.io/en/latest/_modules/jax/lax/lax.html)
+    * [`jax.lax.reduce_window_shape_tuple`](https://jax.readthedocs.io/en/latest/_modules/jax/lax/lax.html) ([TF `lax`](https://github.com/DarrenZhang01/TensorFlow_GSoC/blob/master/tf_jax_stax/tf_lax.py))
+    * \*[`jax.lax._reduce_window_sum`](https://jax.readthedocs.io/en/latest/_modules/jax/lax/lax.html)
 
 2. `jax.linear_util`
     * [`jax.linear_util.wrap_init`](https://github.com/google/jax/blob/master/jax/linear_util.py) ([here](https://github.com/DarrenZhang01/TensorFlow_GSoC/tree/master/utilities))

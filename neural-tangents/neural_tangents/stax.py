@@ -76,7 +76,7 @@ import frozendict
 from tf_lax import padtype_to_pads, reduce_window_shape_tuple
 from tf_conv_general import conv_general_dilated
 from tf_reduce_window import reduce_window
-from tf_dot_general import dot_general
+from tf_dot_general import tf_dot_general
 from jax import linear_util as lu
 from trax.tf_numpy import numpy as np
 from jax import ops

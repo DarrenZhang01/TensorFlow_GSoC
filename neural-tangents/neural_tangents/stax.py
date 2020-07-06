@@ -72,14 +72,19 @@ from typing import Union, Tuple, Callable, Iterable, Dict, List, Optional
 import warnings
 
 import frozendict
-from jax import lax
+# from jax import lax
+from tf_lax import padtype_to_pads, reduce_window_shape_tuple
+from tf_conv_general import conv_general_dilated
+from tf_reduce_window import reduce_window
+from tf_dot_general import dot_general_dilated
 from jax import linear_util as lu
 from trax.tf_numpy import numpy as np
 from jax import ops
 from jax import random
 from jax.abstract_arrays import ShapedArray
 from jax.api_util import flatten_fun
-import jax.experimental.stax as ostax
+# import jax.experimental.stax as ostax
+import tf_jax_stax as ostax
 import jax.interpreters.partial_eval as pe
 from jax.lib import xla_bridge
 from jax.scipy.special import erf
@@ -650,7 +655,7 @@ def _GeneralConv(
       inputs = _same_pad_for_filter_shape(inputs, filter_shape, strides,
                                           spatial_axes, 'wrap')
 
-    return norm * lax.conv_general_dilated(
+    return norm * conv_general_dilated(
         inputs,
         W,
         strides,
@@ -943,7 +948,7 @@ def _Pool(
       del dims, strides, padding  # Unused.
       return lambda outputs, inputs, spec: outputs / np.prod(window_shape)
 
-    pool_fn = ostax._pooling_layer(lax.add, 0., rescaler)
+    pool_fn = ostax._pooling_layer(np.add, 0., rescaler)
     init_fn, apply_fn = pool_fn(window_shape, strides, padding.name, spec)
 
   @_requires(batch_axis=batch_axis,
@@ -1824,7 +1829,7 @@ def _cov_diag_batch_full_spatial(x: np.ndarray,
                                  batch_axis: int,
                                  channel_axis: int) -> np.ndarray:
   x = np.moveaxis(x, (batch_axis, channel_axis), (0, -1))
-  ret = lax.dot_general(x, x, (((x.ndim - 1,), (x.ndim - 1,)), ((0,), (0,))))
+  ret = dot_general(x, x, (((x.ndim - 1,), (x.ndim - 1,)), ((0,), (0,))))
   ret = utils.zip_axes(ret, 1)
   return ret
 
@@ -2887,7 +2892,7 @@ def _same_pad_for_filter_shape(
     to `x` over `axes` outputs an array of the same shape as `x`.
   """
   axes_shape = tuple(np.size(x, axis) for axis in axes)
-  axes_pads = lax.padtype_to_pads(axes_shape, filter_shape, strides,
+  axes_pads = padtype_to_pads(axes_shape, filter_shape, strides,
                                   Padding.SAME.name)
 
   pads = [(0, 0),] * x.ndim
@@ -2993,7 +2998,7 @@ def _conv_kernel_full_spatial(
 
     rhs = np.broadcast_to(rhs, rhs_shape)
 
-    mat = lax.conv_general_dilated(
+    mat = conv_general_dilated(
         lhs=mat,
         rhs=rhs,
         window_strides=(stride_i, stride_i),
@@ -3046,7 +3051,8 @@ def _conv_kernel_diagonal_spatial(
   filter_size = functools.reduce(op.mul, filter_shape, 1)
   filter_shape = (1,) * batch_ndim + filter_shape
   strides = (1,) * batch_ndim + strides
-  mat = lax._reduce_window_sum(mat, filter_shape, strides, padding.name)
+  mat = reduce_window(mat, None, np.add, filter_shape, strides, padding.name, "SUM")
+  # mat = lax._reduce_window_sum(mat, filter_shape, strides, padding.name)
   mat /= filter_size
   return mat
 
@@ -3092,7 +3098,8 @@ def _conv_kernel_over_spatial(
   filter_size = utils.size_at(filter_shape)
   filter_shape = (1,) * batch_ndim + filter_shape
   strides = (1,) * batch_ndim + strides
-  mat = lax._reduce_window_sum(mat, filter_shape, strides, padding.name)
+  mat = reduce_window(mat, None, np.add, filter_shape, strides, padding.name, "SUM")
+  # mat = lax._reduce_window_sum(mat, filter_shape, strides, padding.name)
   mat /= filter_size
   return mat
 
@@ -3144,7 +3151,7 @@ def _pool_kernel(
   window_shape = (1,) * batch_ndim + _double_tuple(window_shape)
   strides = (1,) * batch_ndim + _double_tuple(strides)
 
-  nngp_out = lax.reduce_window(mat, 0., lax.add, window_shape, strides,
+  nngp_out = reduce_window(mat, 0., np.add, window_shape, strides,
                                padding.name)
 
   if pool_type == Pooling.AVG:
@@ -3152,7 +3159,7 @@ def _pool_kernel(
       # `SAME` padding in `jax.experimental.stax.AvgPool` normalizes by actual
       # window size, which is smaller at the edges.
       one = np.ones_like(mat, mat.dtype)
-      window_sizes = lax.reduce_window(one, 0., lax.add, window_shape, strides,
+      window_sizes = reduce_window(one, 0., np.add, window_shape, strides,
                                        padding.name)
       nngp_out /= window_sizes
     else:
@@ -3365,7 +3372,7 @@ def _pool_mask(
     strides.insert(i, 1)
 
   # Get the output shape.
-  out_shape = lax.reduce_window_shape_tuple(
+  out_shape = reduce_window_shape_tuple(
       mask.shape,
       window_shape,
       strides,
@@ -3374,7 +3381,7 @@ def _pool_mask(
 
   # If shapes don't match, stride through the mask.
   if mask.shape != out_shape:
-    pads = lax.padtype_to_pads(mask.shape, window_shape, strides, padding.name)
+    pads = padtype_to_pads(mask.shape, window_shape, strides, padding.name)
     slices = ()
     for i in range(mask.ndim):
       start = - pads[i][0] + (window_shape[i] - 1) // 2

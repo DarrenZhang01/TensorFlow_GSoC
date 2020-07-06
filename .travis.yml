@@ -9,7 +9,7 @@ install:
   - git clone https://github.com/DarrenZhang01/TensorFlow_GSoC.git
   - cd TensorFlow_GSoC
   - pip install -e neural-tangents
-  - cp tf_jax_stax/* neural-tangents/neural_tangents/
+  - cp tf_jax_stax/*.py neural-tangents/neural_tangents/
   - cp tf_dot_general/tf_dot_general.py neural-tangents/neural_tangents/
 script:
   - for f in tests/*.py; do python $f; done

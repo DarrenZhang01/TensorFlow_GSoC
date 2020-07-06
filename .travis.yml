@@ -5,12 +5,12 @@ python:
   - "3.8"
 install:
   - pip install --upgrade pip
-  - pip install numpy jaxlib jax tensorflow tensorflow-datasets matplotlib trax --upgrade
+  - pip install numpy jaxlib jax tensorflow tensorflow-datasets matplotlib trax more-itertools --upgrade
   - git clone https://github.com/DarrenZhang01/TensorFlow_GSoC.git
   - cd TensorFlow_GSoC
   - pip install -e neural-tangents
-  - cp tf_jax_stax/*.py /home/travis/build/DarrenZhang01/TensorFlow_GSoC/TensorFlow_GSoC/neural-tangents/neural_tangents/
-  - cp tf_dot_general/tf_dot_general.py /home/travis/build/DarrenZhang01/TensorFlow_GSoC/TensorFlow_GSoC/neural-tangents/neural_tangents/
+  - cp tf_jax_stax/*.py neural-tangents/neural_tangents/tests/
+  - cp tf_dot_general/tf_dot_general.py neural-tangents/neural_tangents/tests/
 
 script:
   - for f in tests/*.py; do python $f; done

@@ -347,8 +347,10 @@ def get_masked_array(x: ArrayOrList,
 
   if x is None:
     mask = None
+  else:
+    x = np.array(x)
 
-  elif isinstance(x, MaskedArray):
+  if isinstance(x, MaskedArray):
     x, mask = x.astuple()
 
   elif isinstance(x, np.ndarray):

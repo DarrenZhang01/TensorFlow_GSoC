@@ -63,8 +63,12 @@ Example:
   >>>  y_test_ntk = predict_fn(x_test=x_test, get='ntk')
 """
 
+# TODO(Zhibo Zhang): Use TF pi to replace math.pi when the TF pi API is mature.
+#     Note: TF Numpy `mean` method is currently in the lack of `out` parameter
+#           support, so I temporarily remove that input.
 
 import enum
+import math
 import functools
 import operator as op
 import string
@@ -2260,7 +2264,7 @@ def _sin(x, a, b, c, **kwargs):
 
 
 def _rbf(x, gamma, **kwargs):
-  return np.sqrt(2) * np.sin(np.sqrt(2 * gamma) * x + np.pi/4)
+  return np.sqrt(2) * np.sin(np.sqrt(2 * gamma) * x + math.pi/4)
 
 
 def _arccos(x, do_backprop):
@@ -2357,8 +2361,8 @@ def _get_ab_relu_kernel(ker_mat, prod, a, b, do_backprop, ntk=None):
   cosines = ker_mat / _safe_sqrt(prod)
   angles = _arccos(cosines, do_backprop)
 
-  dot_sigma = (a**2 + b**2 - (a - b)**2 * angles / np.pi) / 2
-  ker_mat = ((a - b)**2 * _sqrt(prod - ker_mat**2, do_backprop) / (2 * np.pi) +
+  dot_sigma = (a**2 + b**2 - (a - b)**2 * angles / math.pi) / 2
+  ker_mat = ((a - b)**2 * _sqrt(prod - ker_mat**2, do_backprop) / (2 * math.pi) +
              dot_sigma * ker_mat)
 
   if ntk is not None:
@@ -2422,9 +2426,9 @@ def _get_erf_kernel(
     do_backprop: bool,
     ntk: np.ndarray = None) -> Tuple[np.ndarray, Optional[np.ndarray]]:
   if ntk is not None:
-    dot_sigma = 4 / (np.pi * np.sqrt(prod - 4 * ker_mat**2))
+    dot_sigma = 4 / (math.pi * np.sqrt(prod - 4 * ker_mat**2))
     ntk *= dot_sigma
-  ker_mat = _arcsin(2 * ker_mat / np.sqrt(prod), do_backprop) * 2 / np.pi
+  ker_mat = _arcsin(2 * ker_mat / np.sqrt(prod), do_backprop) * 2 / math.pi
 
 
   return ker_mat, ntk
@@ -2445,9 +2449,9 @@ def _transform_kernels_erf_non_scaled(k: Kernel, do_backprop: bool) -> Kernel:
   nngp, ntk = _get_erf_kernel(nngp, prod12, do_backprop, ntk=ntk)
 
   if k.diagonal_batch and k.diagonal_spatial:
-    cov1 = np.arcsin(2 * cov1 / _cov1_denom) * 2 / np.pi
+    cov1 = np.arcsin(2 * cov1 / _cov1_denom) * 2 / math.pi
     if cov2 is not None:
-      cov2 = np.arcsin(2 * cov2 / _cov2_denom) * 2 / np.pi
+      cov2 = np.arcsin(2 * cov2 / _cov2_denom) * 2 / math.pi
   else:
     cov1, _ = _get_erf_kernel(cov1, prod11, do_backprop)
     if cov2 is not None:
@@ -2471,13 +2475,13 @@ def _get_gelu_kernel(nngp: np.ndarray,
   ratio = nngp / _safe_sqrt(prod_plus_1)
   new_nngp = (nngp**2 + prod * delta_squared) / (prod_plus_1 * delta)
   new_nngp += nngp * _arcsin(ratio, do_backprop)
-  new_nngp /= 2 * np.pi
+  new_nngp /= 2 * math.pi
   new_nngp += 0.25 * nngp
 
   if ntk is not None:
-    second_term = 0.25 + _arcsin(ratio, do_backprop) / (2 * np.pi)
+    second_term = 0.25 + _arcsin(ratio, do_backprop) / (2 * math.pi)
     first_term = 1 / delta_squared + (1 - prod) / prod_plus_1 + 1
-    first_term *= nngp / delta / (2. * np.pi)
+    first_term *= nngp / delta / (2. * math.pi)
     dot_sigma = first_term + second_term
     ntk *= dot_sigma
   return new_nngp, ntk
@@ -2486,7 +2490,7 @@ def _get_gelu_kernel(nngp: np.ndarray,
 def _get_gelu_nngp_diag(nngp_diag: np.ndarray, do_backprop: bool) -> np.ndarray:
   new_diag = nngp_diag / ((nngp_diag + 1.) * np.sqrt(1. + 2.* nngp_diag))
   new_diag += _arcsin(nngp_diag/(nngp_diag + 1), do_backprop) / 2
-  new_diag /= np.pi
+  new_diag /= math.pi
   new_diag += 0.25
   new_diag *= nngp_diag
   return new_diag
@@ -3260,7 +3264,7 @@ def _mean_and_var(
     return x, var
 
   if mask is None:
-    mean = np.mean(x, axis, dtype, out, keepdims)
+    mean = np.mean(x, axis, dtype, keepdims)
     if get_var:
       var = np.var(x, axis, dtype, out, ddof, keepdims)
 

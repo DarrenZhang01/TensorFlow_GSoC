@@ -23,7 +23,7 @@ import functools
 import itertools
 import logging
 from absl.testing import absltest
-from jax.api import jit
+from trax.tf_numpy.extensions import jit
 from jax import ops
 from jax import test_util as jtu
 from jax.config import config as jax_config

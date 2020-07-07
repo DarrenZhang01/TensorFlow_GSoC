@@ -82,9 +82,12 @@ from tf_conv_general import conv_general_dilated
 from tf_reduce_window import reduce_window
 from tf_dot_general import tf_dot_general as dot_general
 from jax import linear_util as lu
+import tensorflow as tf
 from trax.tf_numpy import numpy as np
+from stateless_random_ops import split
+from tensorflow.random import normal
+from tensorflow.random import stateless_uniform
 from jax import ops
-from jax import random
 from jax.abstract_arrays import ShapedArray
 from jax.api_util import flatten_fun
 # import jax.experimental.stax as ostax
@@ -408,12 +411,14 @@ def Dense(
     _channel_axis = channel_axis % len(input_shape)
     output_shape = (input_shape[:_channel_axis] + (out_dim,)
                     + input_shape[_channel_axis + 1:])
-    rng1, rng2 = random.split(rng)
-    W = random.normal(rng1, (input_shape[_channel_axis], out_dim))
+    rng1, rng2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+    rng1 = stateless_uniform(shape=[], seed=rng1, minval=None, maxval=None, dtype=tf.int32)
+    rng2 = stateless_uniform(shape=[], seed=rng2, minval=None, maxval=None, dtype=tf.int32)
+    W = normal(shape=(input_shape[_channel_axis], out_dim), seed=rng1)
 
     b_shape = [1] * len(input_shape)
     b_shape[channel_axis] = out_dim
-    b = random.normal(rng2, b_shape)
+    b = normal(shape=b_shape, seed=rng2)
 
     return output_shape, (W, b)
 
@@ -625,8 +630,8 @@ def _GeneralConv(
                                      filter_shape,
                                      strides,
                                      init_padding.name,
-                                     random.normal,
-                                     random.normal)
+                                     normal,
+                                     normal)
 
   def standard_init_fn(rng, input_shape):
     output_shape, (W, b) = ntk_init_fn(rng, input_shape)
@@ -1472,9 +1477,9 @@ def GlobalSelfAttention(
     output_shape = (input_shape[:_channel_axis] + (n_chan_out,) +
                     input_shape[_channel_axis + 1:])
 
-    rng_Q, rng_K, rng_V, rng_O, rng_b = random.split(rng, 5)
+    rng_Q, rng_K, rng_V, rng_O, rng_b = split(rng, 5)
 
-    rand = random.normal
+    rand = normal
     key_matrices = rand(rng_K, shape=(n_heads, n_chan_in, n_chan_key))
     val_matrices = rand(rng_V, shape=(n_heads, n_chan_in, n_chan_val))
     W_out = rand(rng_O, shape=(n_chan_val * n_heads, n_chan_out))

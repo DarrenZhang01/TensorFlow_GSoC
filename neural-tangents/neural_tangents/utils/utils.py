@@ -22,7 +22,8 @@ import types
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Sized, Tuple, Union
 from .typing import Axes, PyTree
 from . import dataclasses
-from jax import lax
+# from jax import lax
+from tf_dot_general import tf_dot_general as dot_general
 from jax.lib import xla_bridge
 from trax.tf_numpy import numpy as np
 from jax.tree_util import tree_all, tree_map
@@ -358,7 +359,7 @@ def get_masked_array(x: ArrayOrList,
       mask = None
     else:
       id_fn = lambda m: m
-      mask = lax.cond(np.isnan(mask_constant),
+      mask = np.cond(np.isnan(mask_constant),
                       np.isnan(x), id_fn,
                       x == mask_constant, id_fn)
   else:
@@ -396,9 +397,9 @@ def dot_general(lhs: np.ndarray,
                 contracting_dims: Axes,
                 batch_dims: Axes,
                 precision=None) -> np.ndarray:
-  """`jax.lax.dot_general` with preserved dims order and shared lhs / rhs dims.
+  """`dot_general` with preserved dims order and shared lhs / rhs dims.
 
-  Precisely, returns `jax.lax.dot_general(lhs, rhs, dimension_numbers)` where
+  Precisely, returns `dot_general(lhs, rhs, dimension_numbers)` where
   `dimension_numbers == ((contracting_dims, contracting_dims),
                          (batch_dims, batch_dims))`,
   but allows arbitrary dimension order and preserves it in the output. See XLA's
@@ -430,7 +431,7 @@ def dot_general(lhs: np.ndarray,
   else:
     rhs = np.moveaxis(rhs, batch_dims, leading_batch_dims)
 
-  prod = lax.dot_general(lhs, rhs, dimension_numbers, precision)
+  prod = dot_general(lhs, rhs, dimension_numbers, precision)
   prod = zip_axes(prod, n_batch_dims)
 
   res_batch_dims = get_res_batch_dims(contracting_dims, batch_dims)

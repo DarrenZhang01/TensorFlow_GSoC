@@ -74,6 +74,7 @@ import operator as op
 import string
 from typing import Union, Tuple, Callable, Iterable, Dict, List, Optional
 import warnings
+import sys
 
 import frozendict
 # from jax import lax
@@ -84,6 +85,7 @@ from tf_dot_general import tf_dot_general as dot_general
 from jax import linear_util as lu
 import tensorflow as tf
 from trax.tf_numpy import numpy as np
+import numpy as onp
 from stateless_random_ops import split
 from tensorflow.random import normal
 from tensorflow.random import stateless_uniform
@@ -408,6 +410,7 @@ def Dense(
   parameterization = parameterization.lower()
 
   def ntk_init_fn(rng, input_shape):
+    tf.print("type of rng: {}".format(rng), output_stream=sys.stdout)
     _channel_axis = channel_axis % len(input_shape)
     output_shape = (input_shape[:_channel_axis] + (out_dim,)
                     + input_shape[_channel_axis + 1:])

@@ -74,26 +74,14 @@ import operator as op
 import string
 from typing import Union, Tuple, Callable, Iterable, Dict, List, Optional
 import warnings
-import sys
-
 import frozendict
 # from jax import lax
-from tf_lax import padtype_to_pads, reduce_window_shape_tuple
-from tf_conv_general import conv_general_dilated
-from tf_reduce_window import reduce_window
-from tf_dot_general import tf_dot_general as dot_general
 from jax import linear_util as lu
-import tensorflow as tf
-from trax.tf_numpy import numpy as np
 import numpy as onp
-from stateless_random_ops import split
-from tensorflow.random import normal
-from tensorflow.random import stateless_uniform
 from jax import ops
 from jax.abstract_arrays import ShapedArray
 from jax.api_util import flatten_fun
 # import jax.experimental.stax as ostax
-import tf_jax_stax as ostax
 import jax.interpreters.partial_eval as pe
 from jax.lib import xla_bridge
 from jax.scipy.special import erf
@@ -104,6 +92,16 @@ from neural_tangents.utils.typing import InitFn, AnalyticKernelFn, \
   LayerKernelFn, InternalLayer, Layer, Kernels, Shapes, Axes
 
 
+from tensorflow.random import normal
+from tensorflow.random import stateless_uniform
+from stateless_random_ops import split
+import tf_jax_stax as ostax
+import tensorflow as tf
+from trax.tf_numpy import numpy as np
+from tf_lax import padtype_to_pads, reduce_window_shape_tuple
+from tf_conv_general import conv_general_dilated
+from tf_reduce_window import reduce_window
+from tf_dot_general import tf_dot_general as dot_general
 # Enums
 
 
@@ -410,7 +408,6 @@ def Dense(
   parameterization = parameterization.lower()
 
   def ntk_init_fn(rng, input_shape):
-    tf.print("type of rng: {}".format(rng), output_stream=sys.stdout)
     _channel_axis = channel_axis % len(input_shape)
     output_shape = (input_shape[:_channel_axis] + (out_dim,)
                     + input_shape[_channel_axis + 1:])

@@ -24,22 +24,24 @@ import functools
 import itertools
 import logging
 from absl.testing import absltest
-from trax.tf_numpy.extensions import jit
 from jax import ops
 from jax import test_util as jtu
 from jax.config import config as jax_config
 from jax.lib import xla_bridge
-from trax.tf_numpy import numpy as np
-from stateless_random_ops import split as tf_random_split
-from tensorflow.random import normal
-from tensorflow.random import stateless_uniform
-from tensorflow.random import Generator as tf_rng
 from neural_tangents import stax
 from neural_tangents.utils import monte_carlo
 from neural_tangents.utils import test_utils
 import numpy as onp
 from typing import Tuple
 
+
+from trax.tf_numpy.extensions import jit
+from trax.tf_numpy import numpy as np
+from stateless_random_ops import split as tf_random_split
+from tensorflow.random import normal
+from tensorflow.random import stateless_uniform
+from tensorflow.random import Generator as tf_rng
+import sys
 
 jax_config.parse_flags_with_absl()
 
@@ -860,7 +862,7 @@ class ActivationTest(test_utils.NeuralTangentsTestCase):
     if platform == 'cpu' and 'conv' in model:
       raise absltest.SkipTest('Not running CNNs on CPU to save time.')
 
-    key = stateless_uniform(shape=[], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+    key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
     key, split = tf_random_split(key)
     key = stateless_uniform(shape=[], seed=key, minval=None, maxval=None, dtype=tf.int32)
     split = stateless_uniform(shape=[], seed=split, minval=None, maxval=None, dtype=tf.int32)
@@ -899,6 +901,7 @@ class ActivationTest(test_utils.NeuralTangentsTestCase):
     init_fn, apply_fn, kernel_fn = stax.serial(
         *[affine, activation_fn]*depth, readout)
     analytic_kernel = kernel_fn(X0_1, X0_2, get)
+    split = stateless_uniform(shape=[2], seed=[split, split], minval=None, maxval=None, dtype=tf.int32)
     mc_kernel_fn = monte_carlo.monte_carlo_kernel_fn(
         init_fn, apply_fn, split, num_samplings)
     empirical_kernel = mc_kernel_fn(X0_1, X0_2, get)
@@ -998,6 +1001,8 @@ class ABReluTest(test_utils.NeuralTangentsTestCase):
 
     # Test that ABRelu(0, 1) == ReLU
     init_fn, apply_relu, kernel_fn_relu = stax.serial(fc, stax.Relu())
+    key_ = [key, key] if key.shape == [] else key
+    key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
     _, params = init_fn(key, input_shape=(-1, 7))
 
     X0_2 = None if same_inputs else normal((9, 7), seed=key)
@@ -1023,6 +1028,8 @@ class ABReluTest(test_utils.NeuralTangentsTestCase):
 
     # Test that ABRelu(a, a) == a * Identity
     init_fn, apply_id, kernel_fn_id = stax.serial(fc, stax.Identity())
+    key_ = [key, key] if key.shape == [] else key
+    key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
     _, params = init_fn(key, input_shape=(-1, 7))
 
     for a in [-5, -1, -0.5, 0, 0.5, 1, 5]:
@@ -1051,6 +1058,8 @@ class ABReluTest(test_utils.NeuralTangentsTestCase):
             fc, stax.LeakyRelu(a))
         _, apply_ab_relu, kernel_fn_ab_relu = stax.serial(fc, stax.ABRelu(a, 1))
 
+        key_ = [key, key] if key.shape == [] else key
+        key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
         _, params = init_fn(key, input_shape=(-1, 7))
         X1_1_leaky_relu = apply_leaky_relu(params, X0_1)
         X1_1_ab_relu = apply_ab_relu(params, X0_1)
@@ -1071,6 +1080,8 @@ class ABReluTest(test_utils.NeuralTangentsTestCase):
     init_fn, apply_leaky_relu, kernel_fn_abs = stax.serial(fc, stax.Abs())
     _, apply_ab_relu, kernel_fn_ab_relu = stax.serial(fc, stax.ABRelu(-1, 1))
 
+    key_ = [key, key] if key.shape == [] else key
+    key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
     _, params = init_fn(key, input_shape=(-1, 7))
     X1_1_abs = apply_leaky_relu(params, X0_1)
     X1_1_ab_relu = apply_ab_relu(params, X0_1)
@@ -1115,6 +1126,8 @@ class FlattenTest(test_utils.NeuralTangentsTestCase):
                                                   stax.Relu(),
                                                   stax.Dense(1024, 2., 0.5))
 
+    key_ = [key, key] if key.shape == [] else key
+    key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
     kernel_fc_mc = monte_carlo.monte_carlo_kernel_fn(init_fc, apply_fc, key,
                                                      200)
     kernel_bot_mc = monte_carlo.monte_carlo_kernel_fn(init_bot, apply_bot, key,
@@ -1701,7 +1714,8 @@ class MaskingTest(test_utils.NeuralTangentsTestCase):
       if mask_constant is not None:
         mask_shape = [1 if i in mask_axis else s
                       for i, s in enumerate(x.shape)]
-        mask = stateless_uniform(shape=mask_shape, seed=[key, key], minval=0, maxval=1) < p
+        key_ = [key, key] if key.shape == [] else key
+        mask = stateless_uniform(shape=mask_shape, seed=key_, minval=0, maxval=1) < p
         x = np.where(mask, mask_constant, x)
       return x
 

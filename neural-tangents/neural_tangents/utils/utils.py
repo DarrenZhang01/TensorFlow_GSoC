@@ -23,12 +23,14 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Size
 from .typing import Axes, PyTree
 from . import dataclasses
 # from jax import lax
-from tf_dot_general import tf_dot_general as dot_general
 from jax.lib import xla_bridge
-from trax.tf_numpy import numpy as np
 from jax.tree_util import tree_all, tree_map
 from .kernel import Kernel
 import numpy as onp
+
+from tf_dot_general import tf_dot_general as dot_general
+from trax.tf_numpy import numpy as np
+import tensorflow as tf
 
 
 def canonicalize_get(get):
@@ -359,7 +361,7 @@ def get_masked_array(x: ArrayOrList,
       mask = None
     else:
       id_fn = lambda m: m
-      mask = np.cond(np.isnan(mask_constant),
+      mask = tf.cond(np.isnan(mask_constant),
                       np.isnan(x), id_fn,
                       x == mask_constant, id_fn)
   else:

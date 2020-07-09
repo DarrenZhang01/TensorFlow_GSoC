@@ -67,6 +67,7 @@ Example:
 #     Note: TF Numpy `mean` method is currently in the lack of `out` parameter
 #           support, so I temporarily remove that input.
 
+import sys
 import enum
 import math
 import functools
@@ -82,7 +83,7 @@ from jax import ops
 from jax.abstract_arrays import ShapedArray
 from jax.api_util import flatten_fun
 # import jax.experimental.stax as ostax
-import jax.interpreters.partial_eval as pe
+# import jax.interpreters.partial_eval as pe
 from jax.lib import xla_bridge
 from jax.scipy.special import erf
 from jax.tree_util import tree_map, tree_flatten, tree_unflatten
@@ -98,6 +99,7 @@ from stateless_random_ops import split
 import tf_jax_stax as ostax
 import tensorflow as tf
 from trax.tf_numpy import numpy as np
+from trax.tf_numpy.extensions import eval_on_shapes
 from tf_lax import padtype_to_pads, reduce_window_shape_tuple
 from tf_conv_general import conv_general_dilated
 from tf_reduce_window import reduce_window
@@ -2087,7 +2089,9 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   closed_init_fn = functools.partial(init_fn, input_shape=shape)
   _, in_tree = tree_flatten(((akey,), {}))
   fun, out_tree = flatten_fun(lu.wrap_init(closed_init_fn), in_tree)
-  out = pe.abstract_eval_fun(fun.call_wrapped, akey)
+  out = eval_on_shapes(fun.call_wrapped)(akey)
+  # tf.print("let's see what f is: {}".format(f_), output_stream=sys.stdout)
+  # out = f_(5)
   out_shape = tree_unflatten(out_tree(), out)[0]
   out_shape = tree_map(lambda x: int(x.val), out_shape)
   return out_shape

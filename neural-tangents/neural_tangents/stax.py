@@ -93,6 +93,7 @@ from neural_tangents.utils.typing import InitFn, AnalyticKernelFn, \
   LayerKernelFn, InternalLayer, Layer, Kernels, Shapes, Axes
 
 
+from trax import fastmath
 from tensorflow.random import normal
 from tensorflow.random import stateless_uniform
 from stateless_random_ops import split
@@ -414,6 +415,7 @@ def Dense(
     output_shape = (input_shape[:_channel_axis] + (out_dim,)
                     + input_shape[_channel_axis + 1:])
     rng1, rng2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+    # rng1, rng2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
     rng1 = stateless_uniform(shape=[], seed=rng1, minval=None, maxval=None, dtype=tf.int32)
     rng2 = stateless_uniform(shape=[], seed=rng2, minval=None, maxval=None, dtype=tf.int32)
     W = normal(shape=(input_shape[_channel_axis], out_dim), seed=rng1)
@@ -2085,7 +2087,8 @@ def _inputs_to_kernel(
 
 def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   """Statically, abstractly, evaluate the init_fn to get shape information."""
-  akey = ShapedArray((2,), np.uint32)
+  akey = tf.TensorSpec((2,), tf.uint32)
+  # akey = ShapedArray((2,), np.uint32)
   closed_init_fn = functools.partial(init_fn, input_shape=shape)
   _, in_tree = tree_flatten(((akey,), {}))
   fun, out_tree = flatten_fun(lu.wrap_init(closed_init_fn), in_tree)

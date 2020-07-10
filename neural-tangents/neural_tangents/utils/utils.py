@@ -19,6 +19,7 @@ import functools
 import inspect
 import operator
 import types
+import math
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Sized, Tuple, Union
 from .typing import Axes, PyTree
 from . import dataclasses
@@ -28,6 +29,7 @@ from jax.tree_util import tree_all, tree_map
 from .kernel import Kernel
 import numpy as onp
 
+import sys
 from tf_dot_general import tf_dot_general as dot_general
 from trax.tf_numpy import numpy as np
 import tensorflow as tf
@@ -360,10 +362,10 @@ def get_masked_array(x: ArrayOrList,
     if mask_constant is None:
       mask = None
     else:
-      mask = tf.cond(np.isnan(mask_constant),
-                      lambda x: np.isnan(x),
-                      lambda x: x == mask_constant,
-                      x)
+      tf.print("mask constant is: {}".format(mask_constant), output_stream=sys.stdout)
+      choice_a = lambda x: tf.math.is_nan(x)
+      choice_b = lambda x: x == mask_constant
+      mask = choice_a(x) if math.isnan(mask_constant[0]) else choice_b(x)
   else:
     raise TypeError(x, type(x))
 

@@ -414,7 +414,9 @@ def Dense(
     _channel_axis = channel_axis % len(input_shape)
     output_shape = (input_shape[:_channel_axis] + (out_dim,)
                     + input_shape[_channel_axis + 1:])
-    rng1, rng2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+    rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+    rng1 = rngs[0]
+    rng2 = rngs[1]
     # rng1, rng2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
     rng1 = stateless_uniform(shape=[], seed=rng1, minval=None, maxval=None, dtype=tf.int32)
     rng2 = stateless_uniform(shape=[], seed=rng2, minval=None, maxval=None, dtype=tf.int32)

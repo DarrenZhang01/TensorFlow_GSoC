@@ -362,7 +362,6 @@ def get_masked_array(x: ArrayOrList,
     if mask_constant is None:
       mask = None
     else:
-      tf.print("mask constant is: {}".format(mask_constant), output_stream=sys.stdout)
       choice_a = lambda x: tf.math.is_nan(x)
       choice_b = lambda x: x == mask_constant
       mask = choice_a(x) if math.isnan(mask_constant[0]) else choice_b(x)

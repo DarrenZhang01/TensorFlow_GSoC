@@ -94,9 +94,11 @@ from neural_tangents.utils.typing import InitFn, AnalyticKernelFn, \
 
 
 from trax import fastmath
-from tensorflow.random import normal
+# from tensorflow.random import normal
 from tensorflow.random import stateless_uniform
+from tensorflow.random import stateless_normal as normal
 from stateless_random_ops import split
+# from stateless_random_ops import stateless_random_normal as normal
 import tf_jax_stax as ostax
 import tensorflow as tf
 from trax.tf_numpy import numpy as np
@@ -417,11 +419,7 @@ def Dense(
     rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
     rng1 = rngs[0]
     rng2 = rngs[1]
-    # rng1, rng2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
-    rng1 = stateless_uniform(shape=[], seed=rng1, minval=None, maxval=None, dtype=tf.int32)
-    rng2 = stateless_uniform(shape=[], seed=rng2, minval=None, maxval=None, dtype=tf.int32)
     W = normal(shape=(input_shape[_channel_axis], out_dim), seed=rng1)
-
     b_shape = [1] * len(input_shape)
     b_shape[channel_axis] = out_dim
     b = normal(shape=b_shape, seed=rng2)
@@ -2095,8 +2093,6 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   _, in_tree = tree_flatten(((akey,), {}))
   fun, out_tree = flatten_fun(lu.wrap_init(closed_init_fn), in_tree)
   out = eval_on_shapes(fun.call_wrapped)(akey)
-  # tf.print("let's see what f is: {}".format(f_), output_stream=sys.stdout)
-  # out = f_(5)
   out_shape = tree_unflatten(out_tree(), out)[0]
   out_shape = tree_map(lambda x: int(x.val), out_shape)
   return out_shape

@@ -103,6 +103,7 @@ import tf_jax_stax as ostax
 import tensorflow as tf
 from trax.tf_numpy import numpy as np
 from trax.tf_numpy.extensions import eval_on_shapes
+from trax import fastmath
 from tf_lax import padtype_to_pads, reduce_window_shape_tuple
 from tf_conv_general import conv_general_dilated
 from tf_reduce_window import reduce_window
@@ -2092,9 +2093,23 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   closed_init_fn = functools.partial(init_fn, input_shape=shape)
   _, in_tree = tree_flatten(((akey,), {}))
   fun, out_tree = flatten_fun(lu.wrap_init(closed_init_fn), in_tree)
-  out = eval_on_shapes(fun.call_wrapped)(akey)
+  out = None
+  with fastmath.use_backend("tf"):
+    out = fastmath.abstract_eval(fun.call_wrapped)(akey)
+  # out = eval_on_shapes(fun.call_wrapped)(akey)
+  tf.print("after shape inference: {}".format(out), output_stream=sys.stdout)
   out_shape = tree_unflatten(out_tree(), out)[0]
-  out_shape = tree_map(lambda x: int(x.val), out_shape)
+  tf.print("what is the output shape: {}".format(out_shape), output_stream=sys.stdout)
+  # XXX Find a better way to avoid using ShapedArray
+  # out_shape = ShapedArray(out_shape[2].shape, out_shape[2].dtype)
+  def transform(x):
+    tf.print("what is x: {}".format(x), output_stream=sys.stdout)
+    try:
+      return int(x.shape)
+    except TypeError:
+      tf.print("what is x: {}".format(x.shape), output_stream=sys.stdout)
+  # out_shape = tree_map(lambda x: int(x.shape), out_shape)
+  out_shape = tree_map(transform, out_shape)
   return out_shape
 
 

@@ -425,11 +425,11 @@ def Dense(
     b_shape[channel_axis] = out_dim
     b = normal(shape=b_shape, seed=rng2)
 
-    return output_shape, (W, b)
+    return np.zeros(output_shape), (W, b)
 
   def standard_init_fn(rng, input_shape):
     output_shape, (W, b) = ntk_init_fn(rng, input_shape)
-    return output_shape, (W * W_std / np.sqrt(input_shape[channel_axis]),
+    return np.zeros(output_shape), (W * W_std / np.sqrt(input_shape[channel_axis]),
                           b * b_std)
 
   if parameterization == 'ntk':
@@ -641,7 +641,7 @@ def _GeneralConv(
   def standard_init_fn(rng, input_shape):
     output_shape, (W, b) = ntk_init_fn(rng, input_shape)
     norm = W_std / np.sqrt(input_total_dim(input_shape))
-    return output_shape, (W * norm, b * b_std)
+    return np.zeros(output_shape), (W * norm, b * b_std)
 
   if parameterization == 'ntk':
     init_fn = ntk_init_fn
@@ -1072,7 +1072,7 @@ def _GlobalPool(
     non_spatial_axes = (batch_axis % ndim, channel_axis % ndim)
     output_shape = tuple(input_shape[i] for i in range(ndim)
                          if i in non_spatial_axes)
-    return output_shape, ()
+    return np.zeros(output_shape), ()
 
   def apply_fn(params, inputs, mask=None, **kwargs):
     non_spatial_axes = (batch_axis % inputs.ndim, channel_axis % inputs.ndim)
@@ -1160,7 +1160,7 @@ def Flatten(batch_axis: int = 0, batch_axis_out: int = 0) -> InternalLayer:
 
   def init_fn(rng, input_shape):
     output_shape = get_output_shape(input_shape)
-    return output_shape, ()
+    return np.zeros(output_shape), ()
 
   def apply_fn(params, inputs, **kwargs):
     output_shape = get_output_shape(inputs.shape)
@@ -2095,6 +2095,7 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   fun, out_tree = flatten_fun(lu.wrap_init(closed_init_fn), in_tree)
   out = None
   with fastmath.use_backend("tf"):
+    # out = fastmath.abstract_eval(fun.call_wrapped)(akey)
     out = fastmath.abstract_eval(fun.call_wrapped)(akey)
   # out = eval_on_shapes(fun.call_wrapped)(akey)
   tf.print("after shape inference: {}".format(out), output_stream=sys.stdout)
@@ -2110,7 +2111,7 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
       tf.print("what is x: {}".format(x.shape), output_stream=sys.stdout)
   # out_shape = tree_map(lambda x: int(x.shape), out_shape)
   out_shape = tree_map(transform, out_shape)
-  return out_shape
+  return out
 
 
 def _set_shapes(

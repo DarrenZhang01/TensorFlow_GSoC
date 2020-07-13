@@ -2095,23 +2095,19 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   fun, out_tree = flatten_fun(lu.wrap_init(closed_init_fn), in_tree)
   out = None
   with fastmath.use_backend("tf"):
-    # out = fastmath.abstract_eval(fun.call_wrapped)(akey)
     out = fastmath.abstract_eval(fun.call_wrapped)(akey)
-  # out = eval_on_shapes(fun.call_wrapped)(akey)
   tf.print("after shape inference: {}".format(out), output_stream=sys.stdout)
   out_shape = tree_unflatten(out_tree(), out)[0]
-  tf.print("what is the output shape: {}".format(out_shape), output_stream=sys.stdout)
-  # XXX Find a better way to avoid using ShapedArray
-  # out_shape = ShapedArray(out_shape[2].shape, out_shape[2].dtype)
-  def transform(x):
-    tf.print("what is x: {}".format(x), output_stream=sys.stdout)
-    try:
-      return int(x.shape)
-    except TypeError:
-      tf.print("what is x: {}".format(x.shape), output_stream=sys.stdout)
-  # out_shape = tree_map(lambda x: int(x.shape), out_shape)
-  out_shape = tree_map(transform, out_shape)
-  return out
+  # tf.print("what is the output shape: {}".format(out_shape), output_stream=sys.stdout)
+  # def transform(x):
+  #   tf.print("what is x: {}".format(x), output_stream=sys.stdout)
+  #   try:
+  #     return int(x.shape)
+  #   except TypeError:
+  #     tf.print("what is x: {}".format(x.shape), output_stream=sys.stdout)
+  # # out_shape = tree_map(lambda x: int(x.shape), out_shape)
+  # out_shape = tree_map(transform, out_shape)
+  return out_shape
 
 
 def _set_shapes(

@@ -53,7 +53,9 @@ def Dense(out_dim, W_init=rni, b_init=rni):
   """Layer constructor function for a dense (fully-connected) layer."""
   def init_fun(rng, input_shape):
     output_shape = input_shape[:-1] + (out_dim,)
-    k1, k2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+    keys = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+    k1 = keys[0]
+    k2 = keys[1]
     # convert the two keys from shape (2,) into a scalar
     k1 = stateless_uniform(shape=[], seed=k1, minval=None, maxval=None, dtype=tf.int32)
     k2 = stateless_uniform(shape=[], seed=k2, minval=None, maxval=None, dtype=tf.int32)
@@ -83,7 +85,9 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
         input_shape, kernel_shape, strides, padding, dimension_numbers)
     bias_shape = [out_chan if c == 'C' else 1 for c in out_spec]
     bias_shape = tuple(itertools.dropwhile(lambda x: x == 1, bias_shape))
-    k1, k2 = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+    keys = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+    k1 = keys[0]
+    k2 = keys[1]
     # convert the two keys from shape (2,) into a scalar
     k1 = stateless_uniform(shape=[], seed=k1, minval=None, maxval=None, dtype=tf.int32)
     k2 = stateless_uniform(shape=[], seed=k2, minval=None, maxval=None, dtype=tf.int32)

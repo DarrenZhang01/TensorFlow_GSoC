@@ -421,6 +421,8 @@ def Dense(
     input_dim = None
     if isinstance(input_shape, tuple):
       input_dim = len(input_shape)
+    elif isinstance(input_shape, tf.TensorShape):
+      input_dim = len(input_shape.as_list())
     else:
       input_dim = len(input_shape.shape)
     _channel_axis = channel_axis % input_dim
@@ -2098,7 +2100,6 @@ def _inputs_to_kernel(
 def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   """Statically, abstractly, evaluate the init_fn to get shape information."""
   akey = tf.TensorSpec((2,), tf.uint32)
-  # akey = ShapedArray((2,), np.uint32)
   closed_init_fn = functools.partial(init_fn, input_shape=shape)
   _, in_tree = tree_flatten(((akey,), {}))
   fun, out_tree = flatten_fun(lu.wrap_init(closed_init_fn), in_tree)
@@ -2107,15 +2108,6 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
     out = fastmath.abstract_eval(fun.call_wrapped)(akey)
   tf.print("after shape inference: {}".format(out), output_stream=sys.stdout)
   out_shape = tree_unflatten(out_tree(), out)[0]
-  # tf.print("what is the output shape: {}".format(out_shape), output_stream=sys.stdout)
-  # def transform(x):
-  #   tf.print("what is x: {}".format(x), output_stream=sys.stdout)
-  #   try:
-  #     return int(x.shape)
-  #   except TypeError:
-  #     tf.print("what is x: {}".format(x.shape), output_stream=sys.stdout)
-  # # out_shape = tree_map(lambda x: int(x.shape), out_shape)
-  # out_shape = tree_map(transform, out_shape)
   return out_shape
 
 

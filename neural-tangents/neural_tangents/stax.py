@@ -429,7 +429,7 @@ def Dense(
 
   def standard_init_fn(rng, input_shape):
     output_shape, (W, b) = ntk_init_fn(rng, input_shape)
-    return np.zeros(output_shape), (W * W_std / np.sqrt(input_shape[channel_axis]),
+    return output_shape, (W * W_std / np.sqrt(input_shape[channel_axis]),
                           b * b_std)
 
   if parameterization == 'ntk':
@@ -641,7 +641,7 @@ def _GeneralConv(
   def standard_init_fn(rng, input_shape):
     output_shape, (W, b) = ntk_init_fn(rng, input_shape)
     norm = W_std / np.sqrt(input_total_dim(input_shape))
-    return np.zeros(output_shape), (W * norm, b * b_std)
+    return output_shape, (W * norm, b * b_std)
 
   if parameterization == 'ntk':
     init_fn = ntk_init_fn
@@ -1072,7 +1072,7 @@ def _GlobalPool(
     non_spatial_axes = (batch_axis % ndim, channel_axis % ndim)
     output_shape = tuple(input_shape[i] for i in range(ndim)
                          if i in non_spatial_axes)
-    return np.zeros(output_shape), ()
+    return output_shape, ()
 
   def apply_fn(params, inputs, mask=None, **kwargs):
     non_spatial_axes = (batch_axis % inputs.ndim, channel_axis % inputs.ndim)
@@ -1160,7 +1160,7 @@ def Flatten(batch_axis: int = 0, batch_axis_out: int = 0) -> InternalLayer:
 
   def init_fn(rng, input_shape):
     output_shape = get_output_shape(input_shape)
-    return np.zeros(output_shape), ()
+    return output_shape, ()
 
   def apply_fn(params, inputs, **kwargs):
     output_shape = get_output_shape(inputs.shape)

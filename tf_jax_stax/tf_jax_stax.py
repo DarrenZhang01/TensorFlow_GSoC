@@ -31,11 +31,11 @@ from tf_lax import *
 import numpy as onp
 # from tensorflow.random import Generator as G
 from stateless_random_ops import split
+from stateless_random_ops import stateless_random_normal as rn
 from tensorflow.random import stateless_uniform
 
 from tensorflow.nn import (relu, log_softmax, softmax, softplus, sigmoid, elu,
                     leaky_relu, selu)
-from tensorflow import random_normal_initializer as rni
 from tensorflow import zeros_initializer as zi
 from tensorflow import ones_initializer as oi
 
@@ -49,7 +49,7 @@ from tensorflow import ones_initializer as oi
 #   apply_fun: takes params, inputs, and an rng key and applies the layer.
 
 
-def Dense(out_dim, W_init=rni, b_init=rni):
+def Dense(out_dim, W_init=rn, b_init=rn):
   """Layer constructor function for a dense (fully-connected) layer."""
   def init_fun(rng, input_shape):
     output_shape = input_shape[:-1] + (out_dim,)
@@ -59,8 +59,8 @@ def Dense(out_dim, W_init=rni, b_init=rni):
     # convert the two keys from shape (2,) into a scalar
     k1 = stateless_uniform(shape=[], seed=k1, minval=None, maxval=None, dtype=tf.int32)
     k2 = stateless_uniform(shape=[], seed=k2, minval=None, maxval=None, dtype=tf.int32)
-    W = W_init(seed=k1)((input_shape[-1], out_dim))
-    b = b_init(seed=k2)((out_dim,),)
+    W = W_init(seed=k1, shape=(input_shape[-1], out_dim))
+    b = b_init(seed=k2, shape=(out_dim,))
     return output_shape, (W.numpy(), b.numpy())
   def apply_fun(params, inputs, **kwargs):
     W, b = params
@@ -69,8 +69,8 @@ def Dense(out_dim, W_init=rni, b_init=rni):
 
 
 def GeneralConv(dimension_numbers, out_chan, filter_shape,
-                strides=None, padding='VALID', W_init=rni,
-                b_init=rni):
+                strides=None, padding='VALID', W_init=rn,
+                b_init=rn):
   """Layer construction function for a general convolution layer."""
   lhs_spec, rhs_spec, out_spec = dimension_numbers
   one = (1,) * len(filter_shape)
@@ -91,7 +91,7 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
     # convert the two keys from shape (2,) into a scalar
     k1 = stateless_uniform(shape=[], seed=k1, minval=None, maxval=None, dtype=tf.int32)
     k2 = stateless_uniform(shape=[], seed=k2, minval=None, maxval=None, dtype=tf.int32)
-    W = W_init(seed=k1)(kernel_shape)
+    W = W_init(seed=k1, shape=kernel_shape)
     b = b_init(stddev=1e-6, seed=k2)(bias_shape)
     return output_shape, (W.numpy(), b.numpy())
   def apply_fun(params, inputs, **kwargs):
@@ -103,8 +103,8 @@ Conv = functools.partial(GeneralConv, ('NHWC', 'HWIO', 'NHWC'))
 
 
 # def GeneralConvTranspose(dimension_numbers, out_chan, filter_shape,
-#                          strides=None, padding='VALID', W_init=rni,
-#                          b_init=rni):
+#                          strides=None, padding='VALID', W_init=rn,
+#                          b_init=rn):
 #   """Layer construction function for a general transposed-convolution layer."""
 #   lhs_spec, rhs_spec, out_spec = dimension_numbers
 #   one = (1,) * len(filter_shape)
@@ -328,7 +328,9 @@ def serial(*layers):
   def init_fun(rng, input_shape):
     params = []
     for init_fun in init_funs:
-      rng, layer_rng = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+      keys = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
+      rng = keys[0]
+      layer_rng = keys[1]
       input_shape, param = init_fun(layer_rng, input_shape)
       params.append(param)
     return input_shape, params

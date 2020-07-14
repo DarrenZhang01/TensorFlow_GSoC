@@ -182,7 +182,11 @@ def _requires(**static_reqs):
                                  f'Please recompute the input kernel with '
                                  f'`{key} == {v}`.')
             elif key in ('batch_axis', 'channel_axis'):
-              ndim = len(k.shape1)
+              ndim = None
+              if isinstance(k.shape1, tuple):
+                ndim = len(k.shape1)
+              else:
+                ndim = len(k.shape1.shape)
               v_kernel = getattr(k, key)
               v_pos = v % ndim
               if v_kernel != v_pos:
@@ -414,7 +418,12 @@ def Dense(
   parameterization = parameterization.lower()
 
   def ntk_init_fn(rng, input_shape):
-    _channel_axis = channel_axis % len(input_shape)
+    input_dim = None
+    if isinstance(input_shape, tuple):
+      input_dim = len(input_shape)
+    else:
+      input_dim = len(input_shape.shape)
+    _channel_axis = channel_axis % input_dim
     output_shape = (input_shape[:_channel_axis] + (out_dim,)
                     + input_shape[_channel_axis + 1:])
     rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)

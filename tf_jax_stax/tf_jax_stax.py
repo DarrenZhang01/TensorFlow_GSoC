@@ -342,7 +342,7 @@ def serial(*layers):
     else:
       rngs = (None,) * nlayers
     for fun, param, rng in zip(apply_funs, params, rngs):
-      inputs = fun(param, inputs, rng=rng.numpy(), **kwargs)
+      inputs = fun(param, inputs, rng=rng, **kwargs)
     return inputs
   return init_fun, apply_fun
 

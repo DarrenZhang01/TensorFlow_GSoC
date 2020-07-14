@@ -1003,7 +1003,7 @@ class ABReluTest(test_utils.NeuralTangentsTestCase):
     init_fn, apply_relu, kernel_fn_relu = stax.serial(fc, stax.Relu())
     key_ = [key, key] if key.shape == [] else key
     key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
-    _, params = init_fn(key, input_shape=(-1, 7))
+    _, params = init_fn(key, input_shape=X0_1.shape)
 
     X0_2 = None if same_inputs else normal((9, 7), seed=key)
 
@@ -1030,7 +1030,7 @@ class ABReluTest(test_utils.NeuralTangentsTestCase):
     init_fn, apply_id, kernel_fn_id = stax.serial(fc, stax.Identity())
     key_ = [key, key] if key.shape == [] else key
     key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
-    _, params = init_fn(key, input_shape=(-1, 7))
+    _, params = init_fn(key, input_shape=X0_1.shape)
 
     for a in [-5, -1, -0.5, 0, 0.5, 1, 5]:
       with self.subTest(a=a):
@@ -1060,7 +1060,7 @@ class ABReluTest(test_utils.NeuralTangentsTestCase):
 
         key_ = [key, key] if key.shape == [] else key
         key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
-        _, params = init_fn(key, input_shape=(-1, 7))
+        _, params = init_fn(key, input_shape=X0_1.shape)
         X1_1_leaky_relu = apply_leaky_relu(params, X0_1)
         X1_1_ab_relu = apply_ab_relu(params, X0_1)
         self.assertAllClose(X1_1_leaky_relu, X1_1_ab_relu)
@@ -1082,7 +1082,7 @@ class ABReluTest(test_utils.NeuralTangentsTestCase):
 
     key_ = [key, key] if key.shape == [] else key
     key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
-    _, params = init_fn(key, input_shape=(-1, 7))
+    _, params = init_fn(key, input_shape=X0_1.shape)
     X1_1_abs = apply_leaky_relu(params, X0_1)
     X1_1_ab_relu = apply_ab_relu(params, X0_1)
     self.assertAllClose(X1_1_abs, X1_1_ab_relu)

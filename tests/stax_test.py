@@ -896,8 +896,11 @@ class ActivationTest(test_utils.NeuralTangentsTestCase):
 
     init_fn, apply_fn, kernel_fn = stax.serial(
         *[affine, activation_fn]*depth, readout)
-    analytic_kernel = kernel_fn(X0_1, X0_2, get)
-    split = stateless_uniform(shape=[2], seed=[split, split], minval=None, maxval=None, dtype=tf.int32)
+    try:
+      analytic_kernel = kernel_fn(X0_1, X0_2, get)
+    except ValueError:
+      tf.print("X0_1 is: {}, X0_2: {}".format(X0_1, X0_2), output_stream=sys.stdout)
+    split = stateless_uniform(shape=[2], seed=split, minval=None, maxval=None, dtype=tf.int32)
     mc_kernel_fn = monte_carlo.monte_carlo_kernel_fn(
         init_fn, apply_fn, split, num_samplings)
     empirical_kernel = mc_kernel_fn(X0_1, X0_2, get)

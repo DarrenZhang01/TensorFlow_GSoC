@@ -30,7 +30,8 @@ from functools import partial
 import operator
 from typing import Union, Tuple, Generator, Set, Iterable, Optional
 
-from jax import random
+# from jax import random
+from stateless_random_ops import split as tf_split
 from trax.tf_numpy import numpy as np
 from jax.tree_util import tree_map
 from jax.tree_util import tree_multimap
@@ -55,7 +56,7 @@ def _sample_once_kernel_fn(kernel_fn: EmpiricalKernelFn,
       key: PRNGKey,
       get: Get,
       **apply_fn_kwargs):
-    init_key, dropout_key1, dropout_key2 = random.split(key, 3)
+    init_key, dropout_key1, dropout_key2 = tf_split(key, 3)
     keys = np.where(utils.x1_is_x2(x1, x2), dropout_key1,
                     np.stack([dropout_key1, dropout_key2]))
     _, params = init_fn(init_key, x1.shape)
@@ -79,7 +80,7 @@ def _sample_many_kernel_fn(
     _key = key
     ker_sampled = None
     for n in range(1, max(n_samples) + 1):
-      _key, split = random.split(_key)
+      _key, split = tf_split(_key)
       one_sample = kernel_fn_sample_once(x1, x2, split, get, **apply_fn_kwargs)
       if ker_sampled is None:
         ker_sampled = one_sample

@@ -26,6 +26,7 @@ import jax.test_util as jtu
 from .kernel import Kernel
 import numpy as onp
 
+import tensorflow as tf
 
 def _jit_vmap(f):
   return jit(vmap(f))
@@ -102,8 +103,42 @@ class NeuralTangentsTestCase(jtu.JaxTestCase):
       canonicalize_dtypes=True):
     if isinstance(x, Kernel):
       self.assertIsInstance(y, Kernel)
-      x_dict = dataclasses.asdict(x)
-      y_dict = dataclasses.asdict(y)
+      x_dict = {
+        "nngp": x.nngp,
+        "ntk": x.ntk,
+        "cov1": x.cov1,
+        "cov2": x.cov2,
+        "x1_is_x2": x.x1_is_x2,
+        "is_gaussian": x.is_gaussian,
+        "is_input": x.is_input,
+        "diagonal_batch": x.diagonal_batch,
+        "diagonal_spatial": x.diagonal_spatial,
+        "shape1": x.shape1,
+        "shape2": x.shape2,
+        "batch_axis": x.batch_axis,
+        "channel_axis": x.channel_axis,
+        "mask1": x.mask1,
+        "mask2": x.mask2
+      }
+      y_dict = {
+        "nngp": y.nngp,
+        "ntk": y.ntk,
+        "cov1": y.cov1,
+        "cov2": y.cov2,
+        "x1_is_x2": y.x1_is_x2,
+        "is_gaussian": y.is_gaussian,
+        "is_input": y.is_input,
+        "diagonal_batch": y.diagonal_batch,
+        "diagonal_spatial": y.diagonal_spatial,
+        "shape1": y.shape1,
+        "shape2": y.shape2,
+        "batch_axis": y.batch_axis,
+        "channel_axis": y.channel_axis,
+        "mask1": y.mask1,
+        "mask2": y.mask2
+      }
+      # x_dict = dataclasses.asdict(x)
+      # y_dict = dataclasses.asdict(y)
       for field in dataclasses.fields(Kernel):
         is_pytree_node = field.metadata.get('pytree_node', True)
         if is_pytree_node:

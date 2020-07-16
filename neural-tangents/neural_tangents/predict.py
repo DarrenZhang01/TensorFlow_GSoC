@@ -28,10 +28,7 @@ that closed-form kernels currently only support a single `channel_axis`).
 
 
 import collections
-from jax import lax
-from jax.api import grad
 from jax.experimental import ode
-from trax.tf_numpy import numpy as np
 import jax.scipy as sp
 from jax.tree_util import tree_map
 from neural_tangents.utils import utils, dataclasses
@@ -39,6 +36,9 @@ import scipy as osp
 from neural_tangents.utils.typing import KernelFn, Axes, Get
 from typing import Union, Tuple, Callable, Iterable, Optional, Dict
 from functools import lru_cache
+
+from trax.tf_numpy.extensions import grad
+from trax.tf_numpy import numpy as np
 
 
 """Alias for optional arrays or scalars."""

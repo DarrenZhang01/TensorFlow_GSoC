@@ -584,7 +584,7 @@ def _get_jit_or_pmap_broadcast() -> Callable[[Callable, int], Callable]:
       _key = key + \
           tuple(args_other.items()) + \
           tuple(kwargs.items())
-      if _key in cache:
+      if _key.ref() in cache:
         _f = cache[_key]
       else:
         # Define a `np.ndarray`-only function as a closure over other arguments.

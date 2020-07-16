@@ -71,7 +71,27 @@ def _output_to_dict(output):
     return output
 
   if isinstance(output, Kernel):
-    return output.asdict()
+    # Avoid directly converting the Kernel object to the directionary since
+    # TF Tensor does not allow deep copy.
+    out_dict = {
+      "nngp": output.nngp,
+      "ntk": output.ntk,
+      "cov1": output.cov1,
+      "cov2": output.cov2,
+      "x1_is_x2": output.x1_is_x2,
+      "is_gaussian": output.is_gaussian,
+      "is_reversed": output.is_reversed,
+      "is_input": output.is_input,
+      "diagonal_batch": output.diagonal_batch,
+      "diagonal_spatial": output.diagonal_spatial,
+      "shape1": output.shape1,
+      "shape2": output.shape2,
+      "batch_axis": output.batch_axis,
+      "channel_axis": output.channel_axis,
+      "mask1": output.mask1,
+      "mask2": output.mask2
+    }
+    return out_dict
 
   if hasattr(output, '_asdict'):
     return output._asdict()

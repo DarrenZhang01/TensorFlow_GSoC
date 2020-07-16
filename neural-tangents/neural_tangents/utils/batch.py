@@ -46,11 +46,8 @@ from typing import Callable, Tuple, Union, Iterable, Dict, Any, TypeVar
 from functools import partial
 import warnings
 from jax.api import device_put, devices
-from jax.api import jit
-from jax.api import pmap
 from jax.interpreters.pxla import ShardedDeviceArray
 from jax.lib import xla_bridge
-from trax.tf_numpy import numpy as np
 from jax.tree_util import tree_all
 from jax.tree_util import tree_map
 from jax.tree_util import tree_multimap
@@ -58,6 +55,11 @@ from neural_tangents.utils.kernel import Kernel
 from neural_tangents.utils import utils
 from neural_tangents.utils.typing import KernelFn
 import numpy as onp
+
+from trax.tf_numpy import numpy as np
+from trax.tf_numpy.extensions import jit, pmap
+import tensorflow as tf
+import sys
 
 
 def batch(kernel_fn: KernelFn,
@@ -584,6 +586,7 @@ def _get_jit_or_pmap_broadcast() -> Callable[[Callable, int], Callable]:
       _key = key + \
           tuple(args_other.items()) + \
           tuple(kwargs.items())
+      tf.print("_key.ref() is: {}".format(_key.ref()), output_stream=sys.stdout)
       if _key.ref() in cache:
         _f = cache[_key]
       else:

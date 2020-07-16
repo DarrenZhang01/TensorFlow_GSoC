@@ -18,8 +18,6 @@
 import logging
 
 import dataclasses
-from jax.api import jit
-from jax.api import vmap
 from jax.lib import xla_bridge
 from trax.tf_numpy import numpy as np
 import jax.test_util as jtu
@@ -27,6 +25,9 @@ from .kernel import Kernel
 import numpy as onp
 
 import tensorflow as tf
+from trax.tf_numpy.extensions import jit
+from tensorflow import vectorized_map as vmap
+
 
 def _jit_vmap(f):
   return jit(vmap(f))
@@ -110,6 +111,7 @@ class NeuralTangentsTestCase(jtu.JaxTestCase):
         "cov2": x.cov2,
         "x1_is_x2": x.x1_is_x2,
         "is_gaussian": x.is_gaussian,
+        "is_reversed": x.is_reversed,
         "is_input": x.is_input,
         "diagonal_batch": x.diagonal_batch,
         "diagonal_spatial": x.diagonal_spatial,
@@ -127,6 +129,7 @@ class NeuralTangentsTestCase(jtu.JaxTestCase):
         "cov2": y.cov2,
         "x1_is_x2": y.x1_is_x2,
         "is_gaussian": y.is_gaussian,
+        "is_reversed": y.is_reversed,
         "is_input": y.is_input,
         "diagonal_batch": y.diagonal_batch,
         "diagonal_spatial": y.diagonal_spatial,

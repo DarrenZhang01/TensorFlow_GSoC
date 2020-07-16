@@ -431,6 +431,7 @@ def Dense(
     rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
     rng1 = rngs[0]
     rng2 = rngs[1]
+    tf.print("the input shape is: {}".format((input_shape[_channel_axis], out_dim)), output_stream=sys.stdout)
     W = normal(shape=(input_shape[_channel_axis], out_dim), seed=rng1)
     b_shape = [1] * len(input_shape)
     b_shape[channel_axis] = out_dim
@@ -2039,7 +2040,9 @@ def _inputs_to_kernel(
     def flatten(x):
       if x is None:
         return x
-      return np.moveaxis(x, batch_axis, 0).reshape((x.shape[batch_axis], -1))
+      x = np.moveaxis(x, batch_axis, 0)
+      x = np.reshape(x, (x.shape[batch_axis], -1))
+      return x
 
     x1, x2 = flatten(x1), flatten(x2)
     batch_axis, channel_axis = 0, 1

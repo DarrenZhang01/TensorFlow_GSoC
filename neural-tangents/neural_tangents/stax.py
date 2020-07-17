@@ -3081,8 +3081,12 @@ def _conv_kernel_diagonal_spatial(
   filter_size = functools.reduce(op.mul, filter_shape, 1)
   filter_shape = (1,) * batch_ndim + filter_shape
   strides = (1,) * batch_ndim + strides
+  # Manually append a `channel` dimension to the input matrix `mat` such that
+  # it is of "N...C" format.
+  mat = np.expand_dims(mat, axis=mat.ndim)
+  # Combine the leading batch dimensions into one single batch dimension.
+  mat = np.reshape(mat, (-1,) + mat[batch_ndim:])
   mat = reduce_window(mat, None, np.add, filter_shape, strides, padding.name, "SUM")
-  # mat = lax._reduce_window_sum(mat, filter_shape, strides, padding.name)
   mat /= filter_size
   return mat
 

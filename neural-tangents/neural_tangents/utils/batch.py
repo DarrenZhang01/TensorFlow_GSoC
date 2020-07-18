@@ -586,8 +586,22 @@ def _get_jit_or_pmap_broadcast() -> Callable[[Callable, int], Callable]:
       _key = key + \
           tuple(args_other.items()) + \
           tuple(kwargs.items())
-      tf.print("_key.ref() is: {}".format(_key.ref()), output_stream=sys.stdout)
-      if _key.ref() in cache:
+
+      # If any of the instance inside `_key` is a tf.Tensor object, use `ref()`
+      # method to avoid directly hashing the TF Tensor.
+      _key = list(_key)
+      for i in range(len(_key)):
+        if isinstance(_key[i], tf.Tensor):
+          _key[i] = _key[i].ref()
+        elif isinstance(_key[i], tuple):
+          _key[i] = list(_key[i])
+          for j in range(len(_key[i])):
+            if isinstance(_key[i][j], tf.Tensor):
+              _key[i][j] = _key[i][j].ref()
+          _key[i] = tuple(_key[i])
+      _key = tuple(_key)
+
+      if _key in cache:
         _f = cache[_key]
       else:
         # Define a `np.ndarray`-only function as a closure over other arguments.

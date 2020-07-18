@@ -191,23 +191,28 @@ def _pooling_layer(reducer, init_val, pooling_type, rescaler=None):
     #   window_shape = window_shape[:i] + (1,) + window_shape[i:]
     #   strides = strides[:i] + (1,) + strides[i:]
 
-    dim = len(spec) - 2
+    dim = len(window_shape)
+    batch_dim, channel_dim = None, None
+    if spec is None:
+      batch_dim, channel_dim = 0, len(window_shape) + 1
+    else:
+      batch_dim, channel_dim = spec.index('N'), spec.index('C')
     window_shape = window_shape
     strides = strides
 
     def init_fun(rng, input_shape):
       # Move the batch and channel dimension of the input shape such
       # that it is of data format "NHWC"
-      shape = [input_shape[spec.index('N')]]
+      shape = [input_shape[batch_dim]]
       for i in range(len(input_shape)):
-        if i not in [spec.index('N'), spec.index('C')]:
+        if i not in [batch_dim, channel_dim]:
           shape.append(input_shape[i])
-      shape.append(input_shape[spec.index('C')])
+      shape.append(input_shape[channel_dim])
       out_shape = reduce_window_shape_tuple(shape, window_shape,
                                                 strides, padding)
       return out_shape, ()
     def apply_fun(params, inputs, **kwargs):
-      inputs = onp.moveaxis(inputs, (spec.index('N'), spec.index('C')), \
+      inputs = onp.moveaxis(inputs, (batch_dim, channel_dim), \
                           (0, dim + 1))
       output = reduce_window(inputs, init_val, reducer, window_shape,
                               strides, padding, pooling_type)

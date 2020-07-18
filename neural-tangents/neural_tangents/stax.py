@@ -431,8 +431,10 @@ def Dense(
     rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
     rng1 = rngs[0]
     rng2 = rngs[1]
-    tf.print("the input shape is: {}".format((input_shape[_channel_axis], out_dim)), output_stream=sys.stdout)
-    W = normal(shape=(input_shape[_channel_axis], out_dim), seed=rng1)
+    in_dim = input_shape[_channel_axis] if \
+        isinstance(input_shape[_channel_axis], int) else \
+        input_shape[_channel_axis].shape[0]
+    W = normal(shape=(in_dim, out_dim), seed=rng1)
     b_shape = [1] * len(input_shape)
     b_shape[channel_axis] = out_dim
     b = normal(shape=b_shape, seed=rng2)

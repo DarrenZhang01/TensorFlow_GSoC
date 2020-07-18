@@ -937,11 +937,14 @@ def _Pool(
 
   strides = strides or (1,) * len(window_shape)
   padding = Padding(padding)
+  pooling_type = None
 
   if pool_type == Pooling.AVG:
     pool_fn = ostax.AvgPool
+    pooling_type = "AVG"
   elif pool_type == Pooling.SUM:
     pool_fn = ostax.SumPool
+    pooling_type = "SUM"
   else:
     raise ValueError('Invalid pooling type {}'.format(pool_type))
 
@@ -974,7 +977,7 @@ def _Pool(
       del dims, strides, padding  # Unused.
       return lambda outputs, inputs, spec: outputs / np.prod(window_shape)
 
-    pool_fn = ostax._pooling_layer(np.add, 0., rescaler)
+    pool_fn = ostax._pooling_layer(np.add, 0., pooling_type, rescaler)
     init_fn, apply_fn = pool_fn(window_shape, strides, padding.name, spec)
 
   @_requires(batch_axis=batch_axis,

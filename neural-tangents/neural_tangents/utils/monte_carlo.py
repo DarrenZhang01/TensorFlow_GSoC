@@ -56,7 +56,10 @@ def _sample_once_kernel_fn(kernel_fn: EmpiricalKernelFn,
       key: PRNGKey,
       get: Get,
       **apply_fn_kwargs):
-    init_key, dropout_key1, dropout_key2 = tf_split(key, 3)
+    splits = tf_split(key, 3)
+    init_key = splits[0]
+    dropout_key1 = splits[1]
+    dropout_key2 = splits[2]
     keys = np.where(utils.x1_is_x2(x1, x2), dropout_key1,
                     np.stack([dropout_key1, dropout_key2]))
     _, params = init_fn(init_key, x1.shape)

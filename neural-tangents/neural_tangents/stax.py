@@ -124,6 +124,16 @@ class Pooling(enum.Enum):
   SUM = 'SUM'
 
 
+# Helper:
+#   Convert the shape to a standard tuple if it not already is.
+def shape_conversion(shape):
+  if isinstance(shape, tuple):
+    return shape
+  elif isinstance(shape, tf.TensorShape):
+    return tuple(shape.as_list())
+  else:
+    return shape.shape
+
 # Decorators
 
 
@@ -418,29 +428,20 @@ def Dense(
   parameterization = parameterization.lower()
 
   def ntk_init_fn(rng, input_shape):
-    input_dim = None
-    if isinstance(input_shape, tuple):
-      input_dim = len(input_shape)
-    elif isinstance(input_shape, tf.TensorShape):
-      input_dim = len(input_shape.as_list())
-    else:
-      input_dim = len(input_shape.shape)
-    _channel_axis = channel_axis % input_dim
+    input_shape = shape_conversion(input_shape)
+
+    _channel_axis = channel_axis % len(input_shape)
     output_shape = (input_shape[:_channel_axis] + (out_dim,)
                     + input_shape[_channel_axis + 1:])
     rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
     rng1 = rngs[0]
     rng2 = rngs[1]
-    in_dim = input_shape[_channel_axis] if \
-        isinstance(input_shape[_channel_axis], int) else \
-        input_shape[_channel_axis].shape[0]
+    in_dim = input_shape[_channel_axis]
     W = normal(shape=(in_dim, out_dim), seed=rng1)
-    b_shape = [1] * len(input_shape) if isinstance(input_shape, tuple) else \
-        [1] * len(input_shape.shape)
+    b_shape = [1] * len(input_shape)
     b_shape[channel_axis] = out_dim
     b = normal(shape=b_shape, seed=rng2)
-    out_shape = np.zeros(output_shape) if isinstance(output_shape, tuple) else \
-        np.zeros(output_shape.shape)
+    out_shape = np.zeros(output_shape)
 
     return out_shape, (W, b)
 
@@ -2719,14 +2720,10 @@ def _fan_in_kernel_fn(kernels: List[Kernel], axis: Optional[int]) -> Kernel:
 
   shape1, shape2 = kernels[0].shape1, kernels[0].shape2
 
-  # Since there is possibility that shape1 and shape2 are already concrete TF
-  # tensors (i.e., in NTK initialization, it returns a zero array of that size
-  # to deal with the limitation of TF `eval_on_shapes`), convert it to real shape
-  # in this case.
-  shape1 = shape1 if isinstance(shape1, tuple) else shape1.shape
-  shape2 = shape2 if isinstance(shape2, tuple) else shape2.shape
+  shape1 = shape_conversion(shape1)
+  shape2 = shape_conversion(shape2)
 
-  ndim = len(shape1) if isinstance(shape1, tuple) else len(shape1.shape)
+  ndim = len(shape1)
   axis = None if axis is None else axis % ndim
   batch_axis = kernels[0].batch_axis
   channel_axis = kernels[0].channel_axis

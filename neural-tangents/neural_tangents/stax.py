@@ -2719,7 +2719,7 @@ def _fan_in_kernel_fn(kernels: List[Kernel], axis: Optional[int]) -> Kernel:
 
   shape1, shape2 = kernels[0].shape1, kernels[0].shape2
 
-  ndim = len(shape1)
+  ndim = len(shape1) if isinstance(shape1, tuple) else len(shape1.shape)
   axis = None if axis is None else axis % ndim
   batch_axis = kernels[0].batch_axis
   channel_axis = kernels[0].channel_axis

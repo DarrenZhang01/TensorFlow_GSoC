@@ -2719,6 +2719,13 @@ def _fan_in_kernel_fn(kernels: List[Kernel], axis: Optional[int]) -> Kernel:
 
   shape1, shape2 = kernels[0].shape1, kernels[0].shape2
 
+  # Since there is possibility that shape1 and shape2 are already concrete TF
+  # tensors (i.e., in NTK initialization, it returns a zero array of that size
+  # to deal with the limitation of TF `eval_on_shapes`), convert it to real shape
+  # in this case.
+  shape1 = shape1 if isinstance(shape1, tuple) else shape1.shape
+  shape2 = shape2 if isinstance(shape2, tuple) else shape2.shape
+
   ndim = len(shape1) if isinstance(shape1, tuple) else len(shape1.shape)
   axis = None if axis is None else axis % ndim
   batch_axis = kernels[0].batch_axis

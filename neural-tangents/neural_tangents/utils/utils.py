@@ -384,7 +384,7 @@ def get_masked_array(x: ArrayOrList,
     else:
       choice_a = lambda x: tf.math.is_nan(x)
       choice_b = lambda x: x == mask_constant
-      mask = choice_a(x) if math.isnan(mask_constant[0]) else choice_b(x)
+      mask = choice_a(x) if math.isnan(mask_constant) else choice_b(x)
   else:
     raise TypeError(x, type(x))
 

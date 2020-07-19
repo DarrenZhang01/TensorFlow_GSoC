@@ -435,7 +435,8 @@ def Dense(
         isinstance(input_shape[_channel_axis], int) else \
         input_shape[_channel_axis].shape[0]
     W = normal(shape=(in_dim, out_dim), seed=rng1)
-    b_shape = [1] * len(input_shape)
+    b_shape = [1] * len(input_shape) if isinstance(input_shape, tuple) else \
+        [1] * len(input_shape.shape)
     b_shape[channel_axis] = out_dim
     b = normal(shape=b_shape, seed=rng2)
 

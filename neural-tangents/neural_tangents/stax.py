@@ -439,8 +439,10 @@ def Dense(
         [1] * len(input_shape.shape)
     b_shape[channel_axis] = out_dim
     b = normal(shape=b_shape, seed=rng2)
+    out_shape = np.zeros(output_shape) if isinstance(output_shape, tuple) else \
+        np.zeros(output_shape.shape)
 
-    return np.zeros(output_shape), (W, b)
+    return out_shape, (W, b)
 
   def standard_init_fn(rng, input_shape):
     output_shape, (W, b) = ntk_init_fn(rng, input_shape)

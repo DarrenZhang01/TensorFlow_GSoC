@@ -346,8 +346,8 @@ def serial(*layers):
       rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=nlayers)
     else:
       rngs = (None,) * nlayers
-    for fun, param, rng in zip(apply_funs, params, rngs):
-      inputs = fun(param, inputs, rng=rng, **kwargs)
+    for i in range(nlayers):
+      inputs = apply_funs[i](params[i], inputs, rng=rngs[i], **kwargs)
     return inputs
   return init_fun, apply_fun
 
@@ -371,8 +371,12 @@ def parallel(*layers):
   init_funs, apply_funs = zip(*layers)
   def init_fun(rng, input_shape):
     rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=nlayers)
-    return zip(*[init(rng.numpy(), shape) for init, rng, shape
-                 in zip(init_funs, rngs, input_shape)])
+    result = []
+    for i in range(nlayers):
+      result.append(init_funs[i](rngs[i], input_shape[i]))
+    return zip(*result)
+    # return zip(*[init(rng.numpy(), shape) for init, rng, shape
+    #              in zip(init_funs, rngs, input_shape)])
   def apply_fun(params, inputs, **kwargs):
     rng = kwargs.pop('rng', None)
     rngs = None

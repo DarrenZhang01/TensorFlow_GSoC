@@ -28,6 +28,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from trax.tf_numpy import numpy as tfnp
 from tf_lax import *
+from tf_shape_conversion import shape_conversion
 import numpy as onp
 # from tensorflow.random import Generator as G
 from stateless_random_ops import split
@@ -77,6 +78,7 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
   strides = strides or one
   # W_init = W_init or glorot_normal(rhs_spec.index('I'), rhs_spec.index('O'))
   def init_fun(rng, input_shape):
+    input_shape = shape_conversion(input_shape)
     filter_shape_iter = iter(filter_shape)
     kernel_shape = [out_chan if c == 'O' else
                     input_shape[lhs_spec.index('C')] if c == 'I' else
@@ -331,6 +333,7 @@ def serial(*layers):
   nlayers = len(layers)
   init_funs, apply_funs = zip(*layers)
   def init_fun(rng, input_shape):
+    input_shape = shape_conversion(input_shape)
     params = []
     for init_fun in init_funs:
       keys = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)

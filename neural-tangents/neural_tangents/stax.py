@@ -108,6 +108,7 @@ from tf_lax import padtype_to_pads, reduce_window_shape_tuple
 from tf_conv_general import conv_general_dilated
 from tf_reduce_window import reduce_window
 from tf_dot_general import tf_dot_general as dot_general
+from tf_shape_conversion import shape_conversion
 # Enums
 
 
@@ -123,22 +124,6 @@ class Pooling(enum.Enum):
   AVG = 'AVG'
   SUM = 'SUM'
 
-
-# Helper:
-#   Convert the shape to a standard tuple if it not already is.
-def shape_conversion(shape):
-  if isinstance(shape, tuple):
-    # Iterate through all the elements inside the tuple and convert the potential
-    # TF Tensor object into shape integers
-    shape = list(shape)
-    for i in range(len(shape)):
-      shape[i] = (shape[i],) if isinstance(shape[i], int) else shape[i].shape
-    output_shape = tuple([int_ for shape_ in shape for int_ in shape_])
-    return output_shape
-  elif isinstance(shape, tf.TensorShape):
-    return tuple(shape.as_list())
-  else:
-    return shape.shape
 
 # Decorators
 
@@ -1182,6 +1167,7 @@ def Flatten(batch_axis: int = 0, batch_axis_out: int = 0) -> InternalLayer:
     return channel_size, batch_size
 
   def init_fn(rng, input_shape):
+    input_shape = shape_conversion(input_shape)
     output_shape = get_output_shape(input_shape)
     return output_shape, ()
 

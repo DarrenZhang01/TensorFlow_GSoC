@@ -10,6 +10,7 @@ install:
   - cd TensorFlow_GSoC
   - pip install -e neural-tangents
   - cp tf_jax_stax/*.py tests/
+  - cp utils/*.py tests/
   - cp tf_dot_general/tf_dot_general.py tests/
 
 script:

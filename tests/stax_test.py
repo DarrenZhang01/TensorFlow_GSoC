@@ -35,6 +35,7 @@ import numpy as onp
 from typing import Tuple
 
 
+from tf_shape_conversion import shape_conversion
 from trax.tf_numpy.extensions import jit
 from trax.tf_numpy import numpy as np
 from stateless_random_ops import split as tf_random_split
@@ -815,9 +816,13 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
 
       if is_ntk:
         exact, shape1, shape2 = kernel_fn(x1, x2, ('ntk', 'shape1', 'shape2'))
+        shape1 = shape_conversion(shape1)
+        shape2 = shape_conversion(shape2)
         empirical = np.reshape(_get_empirical(num_samples, 'ntk'), exact.shape)
       else:
         exact, shape1, shape2 = kernel_fn(x1, x2, ('nngp', 'shape1', 'shape2'))
+        shape1 = shape_conversion(shape1)
+        shape2 = shape_conversion(shape2)
         empirical = _get_empirical(num_samples, 'nngp')
       test_utils.assert_close_matrices(self, exact, empirical, rtol)
       self.assertEqual(shape1, x1_out_shape)

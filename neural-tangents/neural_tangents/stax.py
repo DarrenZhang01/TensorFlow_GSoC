@@ -199,10 +199,10 @@ def _requires(**static_reqs):
                                  f'`{key} == {v}`.')
             elif key in ('batch_axis', 'channel_axis'):
               ndim = None
-              if isinstance(k.shape1, tuple):
-                ndim = len(k.shape1)
+              if isinstance(shape_conversion(k.shape1), tuple):
+                ndim = len(shape_conversion(k.shape1))
               else:
-                ndim = len(k.shape1.shape)
+                ndim = len(shape_conversion(k.shape1).shape)
               v_kernel = getattr(k, key)
               v_pos = v % ndim
               if v_kernel != v_pos:
@@ -293,13 +293,13 @@ def _supports_masking(remask_kernel: bool):
 
       def kernel_fn_with_masking(k: Kernels, **user_reqs):
         if isinstance(k, Kernel):
-          mask1 = mask_fn(k.mask1, k.shape1)
-          mask2 = mask_fn(k.mask2, k.shape2)
+          mask1 = mask_fn(k.mask1, shape_conversion(k.shape1))
+          mask2 = mask_fn(k.mask2, shape_conversion(k.shape1))
         elif isinstance(k, list):
           mask1 = mask_fn([k.mask1 for k in k],
-                          [k.shape1 for k in k])
+                          [shape_conversion(k.shape1) for k in k])
           mask2 = mask_fn([k.mask2 for k in k],
-                          [k.shape2 for k in k])
+                          [shape_conversion(k.shape1) for k in k])
         else:
           raise TypeError(type(Kernel), Kernel)
 
@@ -491,7 +491,7 @@ def Dense(
       if ntk is not None:
         ntk = nngp + W_std**2 * ntk
     elif parameterization == 'standard':
-      input_width = k.shape1[channel_axis]
+      input_width = shape_conversion(k.shape1)[channel_axis]
       if ntk is not None:
         ntk = input_width * nngp + 1. + W_std**2 * ntk
       cov1, nngp, cov2 = map(fc, (cov1, nngp, cov2))
@@ -749,7 +749,7 @@ def _GeneralConv(
       nngp_unscaled = conv_unscaled(nngp, 2)
       if ntk is not None:
         ntk = (
-            input_total_dim(k.shape1) * nngp_unscaled + 1. +
+            input_total_dim(shape_conversion(k.shape1)) * nngp_unscaled + 1. +
             W_std ** 2 * conv_unscaled(ntk, 2))
       nngp = _affine(nngp_unscaled, W_std, b_std)
 
@@ -1127,7 +1127,7 @@ def _GlobalPool(
     nngp = _pool(nngp, 2, mask12)
     ntk = _pool(ntk, 2, mask12)
 
-    ndim = len(k.shape1)
+    ndim = len(shape_conversion(k.shape1))
     batch_first = batch_axis % ndim < channel_axis % ndim
     return k.replace(cov1=cov1,
                      nngp=nngp,
@@ -1682,10 +1682,10 @@ def LayerNorm(
       raise NotImplementedError('LayerNorm only implemented for Gaussian '
                                 'inputs.')
 
-    ndim = len(k.shape1)
+    ndim = len(shape_conversion(k.shape1))
     _channel_axis = channel_axis % ndim
     _batch_axis = batch_axis % ndim
-    _axis = utils.canonicalize_axis(axis, k.shape1)
+    _axis = utils.canonicalize_axis(axis, shape_conversion(k.shape1))
 
     if _channel_axis not in _axis:
       raise ValueError(f'Normalisation over channels (axis {_channel_axis})'
@@ -1694,7 +1694,7 @@ def LayerNorm(
 
     _axis.remove(_channel_axis)
 
-    spatial_axes = tuple(i for i in range(len(k.shape1))
+    spatial_axes = tuple(i for i in range(len(shape_conversion(k.shape1)))
                          if i not in (_channel_axis, batch_axis))
 
     # Batch axis
@@ -2138,8 +2138,8 @@ def _set_shapes(
     shape1 = _propagate_shape(init_fn, in_kernel.shape1)
     shape2 = _propagate_shape(init_fn, in_kernel.shape2)
   elif isinstance(in_kernel, list):
-    shape1 = _propagate_shape(init_fn, [k.shape1 for k in in_kernel])
-    shape2 = _propagate_shape(init_fn, [k.shape2 for k in in_kernel])
+    shape1 = _propagate_shape(init_fn, [shape_conversion(k.shape1) for k in in_kernel])
+    shape2 = _propagate_shape(init_fn, [shape_conversion(k.shape1) for k in in_kernel])
   else:
     raise TypeError(f'Expected input kernel to be a `Kernel` or a list of '
                     f'`Kernel`s. Found {type(out_kernel)}.')
@@ -2764,7 +2764,7 @@ def _fan_in_kernel_fn(kernels: List[Kernel], axis: Optional[int]) -> Kernel:
 
   # Check shapes.
   if axis is None:
-    if not all([k.shape1 == shape1 and k.shape2 == shape2 for k in kernels]):
+    if not all([shape_conversion(k.shape1) == shape1 and shape_conversion(k.shape1) == shape2 for k in kernels]):
       raise ValueError('All shapes should be equal in `FanInSum`.')
 
   else:
@@ -2772,7 +2772,7 @@ def _fan_in_kernel_fn(kernels: List[Kernel], axis: Optional[int]) -> Kernel:
     new_shape2 = shape2[:axis] + shape2[axis + 1:]
     for k in kernels:
       k_shape1 = shape_conversion(k.shape1)[:axis] + shape_conversion(k.shape1)[axis + 1:]
-      k_shape2 = shape_conversion(k.shape2)[:axis] + shape_conversion(k.shape2)[axis + 1:]
+      k_shape2 = shape_conversion(k.shape1)[:axis] + shape_conversion(k.shape1)[axis + 1:]
       if k_shape1 != new_shape1 or k_shape2 != new_shape2:
         raise ValueError('Non-`axis` shapes should be equal in `FanInConcat`.')
 
@@ -2817,7 +2817,7 @@ def _fan_in_kernel_fn(kernels: List[Kernel], axis: Optional[int]) -> Kernel:
       }
   }
   axis = tensor_axis_to_kernel_axis[axis]
-  widths = [k.shape1[channel_axis] for k in kernels]
+  widths = [shape_conversion(k.shape1)[channel_axis] for k in kernels]
 
   cov1 = _concat_kernels([k.cov1 for k in kernels], axis,
                          diagonal_batch, diagonal_spatial, widths)

@@ -198,11 +198,7 @@ def _requires(**static_reqs):
                                  f'Please recompute the input kernel with '
                                  f'`{key} == {v}`.')
             elif key in ('batch_axis', 'channel_axis'):
-              ndim = None
-              if isinstance(shape_conversion(k.shape1), tuple):
-                ndim = len(shape_conversion(k.shape1))
-              else:
-                ndim = len(shape_conversion(k.shape1).shape)
+              ndim = len(shape_conversion(k.shape1))
               v_kernel = getattr(k, key)
               v_pos = v % ndim
               if v_kernel != v_pos:

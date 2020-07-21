@@ -91,7 +91,7 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
     k1 = keys[0]
     k2 = keys[1]
     W = W_init(seed=k1, shape=kernel_shape)
-    b = b_init(stddev=1e-6, seed=k2)(bias_shape)
+    b = b_init(stddev=1e-6, seed=k2, shape=bias_shape)
     return output_shape, (W.numpy(), b.numpy())
   def apply_fun(params, inputs, **kwargs):
     W, b = params

@@ -31,7 +31,9 @@ import operator
 from typing import Union, Tuple, Generator, Set, Iterable, Optional
 
 # from jax import random
+import tensorflow as tf
 from stateless_random_ops import split as tf_split
+from tensorflow.random import stateless_uniform
 from trax.tf_numpy import numpy as np
 from jax.tree_util import tree_map
 from jax.tree_util import tree_multimap
@@ -80,7 +82,7 @@ def _sample_many_kernel_fn(
       x2: Optional[np.ndarray],
       get: Get,
       **apply_fn_kwargs):
-    _key = key
+    _key = stateless_uniform(shape=[2], seed=key, minval=None, maxval=None, dtype=tf.int32)
     ker_sampled = None
     for n in range(1, max(n_samples) + 1):
       _key, split = tf_split(_key)

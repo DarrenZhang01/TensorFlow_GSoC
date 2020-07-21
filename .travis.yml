@@ -14,5 +14,6 @@ install:
   - cp tf_dot_general/tf_dot_general.py tests/
 
 script:
-  - for f in tests/*.py; do python $f; done
-  - python tf_dot_general/tf_dot_general_test.py
+  - python tests/stax_tests.py
+  # - for f in tests/*.py; do python $f; done
+  # - python tf_dot_general/tf_dot_general_test.py

@@ -85,7 +85,6 @@ from jax.api_util import flatten_fun
 # import jax.experimental.stax as ostax
 # import jax.interpreters.partial_eval as pe
 from jax.lib import xla_bridge
-from jax.scipy.special import erf
 from jax.tree_util import tree_map, tree_flatten, tree_unflatten
 from neural_tangents.utils import utils
 from neural_tangents.utils.kernel import Kernel
@@ -94,6 +93,7 @@ from neural_tangents.utils.typing import InitFn, AnalyticKernelFn, \
 
 
 from trax import fastmath
+from tensorflow.math import erf
 # from tensorflow.random import normal
 from tensorflow.random import stateless_uniform
 from tensorflow.random import stateless_normal as normal

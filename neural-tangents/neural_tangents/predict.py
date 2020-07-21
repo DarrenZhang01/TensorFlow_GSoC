@@ -37,6 +37,7 @@ from neural_tangents.utils.typing import KernelFn, Axes, Get
 from typing import Union, Tuple, Callable, Iterable, Optional, Dict
 from functools import lru_cache
 
+import tensorflow as tf
 from trax.tf_numpy.extensions import grad
 from trax.tf_numpy import numpy as np
 
@@ -759,7 +760,7 @@ def gradient_descent_mse_ensemble(
     k_dd = getattr(get_k_train_train((get,)), get)
     k_dd = _add_diagonal_regularizer(utils.make_2d(k_dd), diag_reg,
                                      diag_reg_absolute_scale)
-    return np.linalg.eigh(k_dd)
+    return tf.linalg.eigh(k_dd)
 
   @lru_cache(4)
   def predict_inf(get: Get):
@@ -844,7 +845,7 @@ def gradient_descent_mse_ensemble(
 
       # Training set.
       if k_td is None:
-        mean = np.einsum(
+        mean = tf.einsum(
             'ji,ti,ki,k...->tj...',
             evecs, -expm1(evals, t), evecs, y_train_flat,
             optimize=True)
@@ -853,7 +854,7 @@ def gradient_descent_mse_ensemble(
       else:
         neg_inv_expm1 = -inv_expm1(evals, t)
         ktd_g = utils.make_2d(getattr(k_td, g))
-        mean = np.einsum(
+        mean = tf.einsum(
             'lj,ji,ti,ki,k...->tl...',
             ktd_g, evecs, neg_inv_expm1, evecs, y_train_flat,
             optimize=True)

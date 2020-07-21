@@ -90,9 +90,6 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
     keys = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
     k1 = keys[0]
     k2 = keys[1]
-    # convert the two keys from shape (2,) into a scalar
-    k1 = stateless_uniform(shape=[], seed=k1, minval=None, maxval=None, dtype=tf.int32)
-    k2 = stateless_uniform(shape=[], seed=k2, minval=None, maxval=None, dtype=tf.int32)
     W = W_init(seed=k1, shape=kernel_shape)
     b = b_init(stddev=1e-6, seed=k2)(bias_shape)
     return output_shape, (W.numpy(), b.numpy())

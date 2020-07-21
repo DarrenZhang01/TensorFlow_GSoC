@@ -92,7 +92,7 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
     k2 = keys[1]
     W = W_init(seed=k1, shape=kernel_shape)
     b = b_init(stddev=1e-6, seed=k2, shape=bias_shape)
-    return output_shape, (W.numpy(), b.numpy())
+    return output_shape, (W, b)
   def apply_fun(params, inputs, **kwargs):
     W, b = params
     return conv_general_dilated(inputs, W, strides, padding, one, one,

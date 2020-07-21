@@ -203,7 +203,7 @@ def canonicalize_axis(axis: Axes,
   if hasattr(x, 'ndim'):
     ndim = x.ndim
   elif hasattr(x, '__len__'):
-    ndim = len(x)
+    ndim = len(x.shape)
   elif isinstance(x, int):
     ndim = x
   else:
@@ -271,7 +271,7 @@ def _zip_axes(x: np.ndarray,
     A `np.ndarray` with a new shape.
   """
   if end_axis == -1:
-    end_axis = x.ndim
+    end_axis = len(x.shape)
   half_ndim, ragged = divmod(end_axis - start_axis, 2)
   if ragged:
     raise ValueError(
@@ -383,7 +383,7 @@ def get_masked_array(x: ArrayOrList,
       mask = None
     else:
       choice_a = lambda x: tf.math.is_nan(x)
-      choice_b = lambda x: x == mask_constant
+      choice_b = lambda x: x.numpy() == mask_constant
       mask = choice_a(x) if math.isnan(mask_constant) else choice_b(x)
   else:
     raise TypeError(x, type(x))

@@ -2335,7 +2335,7 @@ def _get_diagonal(
 
   batch_ndim = 1 if diagonal_batch else 2
   start_axis = 2 - batch_ndim
-  end_axis = batch_ndim if diagonal_spatial else cov.ndim
+  end_axis = batch_ndim if diagonal_spatial else len(cov.shape)
   cov = utils.unzip_axes(cov, start_axis, end_axis)
   return utils.diagonal_between(cov, start_axis, end_axis)
 

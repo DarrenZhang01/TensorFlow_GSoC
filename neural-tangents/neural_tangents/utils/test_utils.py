@@ -26,6 +26,7 @@ import numpy as onp
 
 from absl.testing import parameterized
 import tensorflow as tf
+import sys
 from trax.tf_numpy.extensions import jit
 from tensorflow import vectorized_map as vmap
 
@@ -103,6 +104,8 @@ class NeuralTangentsTestCase(tf.test.TestCase, parameterized.TestCase):
       atol=None,
       rtol=None,
       canonicalize_dtypes=True):
+    atol = atol if atol is not None else 1e-06
+    rtol = rtol if rtol is not None else 1e-06
     if isinstance(x, Kernel):
       self.assertIsInstance(y, Kernel)
       x_dict = {
@@ -141,15 +144,13 @@ class NeuralTangentsTestCase(tf.test.TestCase, parameterized.TestCase):
         "mask1": y.mask1,
         "mask2": y.mask2
       }
-      # x_dict = dataclasses.asdict(x)
-      # y_dict = dataclasses.asdict(y)
       for field in dataclasses.fields(Kernel):
         is_pytree_node = field.metadata.get('pytree_node', True)
-        if is_pytree_node:
+        if is_pytree_node and not (x_dict[field.name] is None or y_dict[field.name] is None):
           super().assertAllClose(
               x_dict[field.name], y_dict[field.name], atol=atol, rtol=rtol)
         else:
           self.assertEqual(x_dict[field.name], y_dict[field.name])
     else:
       return super().assertAllClose(
-          x, y, atol=atol, rtol=rtol)
+          onp.array(x), onp.array(y), atol=atol, rtol=rtol)

@@ -24,6 +24,7 @@ import jax.test_util as jtu
 from .kernel import Kernel
 import numpy as onp
 
+from absl.testing import parameterized
 import tensorflow as tf
 from trax.tf_numpy.extensions import jit
 from tensorflow import vectorized_map as vmap
@@ -91,7 +92,7 @@ def assert_close_matrices(self, expected, actual, rtol):
     _log(relative_error, expected, actual, True)
 
 
-class NeuralTangentsTestCase(jtu.JaxTestCase):
+class NeuralTangentsTestCase(tf.test.TestCase, parameterized.TestCase):
 
   def assertAllClose(
       self,
@@ -146,11 +147,9 @@ class NeuralTangentsTestCase(jtu.JaxTestCase):
         is_pytree_node = field.metadata.get('pytree_node', True)
         if is_pytree_node:
           super().assertAllClose(
-              x_dict[field.name], y_dict[field.name], check_dtypes=check_dtypes,
-              atol=atol, rtol=rtol, canonicalize_dtypes=canonicalize_dtypes)
+              x_dict[field.name], y_dict[field.name], atol=atol, rtol=rtol)
         else:
           self.assertEqual(x_dict[field.name], y_dict[field.name])
     else:
       return super().assertAllClose(
-          x, y, check_dtypes=check_dtypes, atol=atol, rtol=rtol,
-          canonicalize_dtypes=canonicalize_dtypes)
+          x, y, atol=atol, rtol=rtol)

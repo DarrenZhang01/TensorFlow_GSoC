@@ -2106,7 +2106,6 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   out = None
   with fastmath.use_backend("tf"):
     out = fastmath.abstract_eval(fun.call_wrapped)(akey)
-  tf.print("after shape inference: {}".format(out), output_stream=sys.stdout)
   out_shape = tree_unflatten(out_tree(), out)[0]
   return out_shape
 

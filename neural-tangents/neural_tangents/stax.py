@@ -2126,22 +2126,35 @@ def _set_shapes(
                     f'`Kernel`s. Found {type(out_kernel)}.')
 
   if isinstance(out_kernel, Kernel):
-    out_kernel = out_kernel.replace(shape1=np.array(shape1.shape.as_list()), \
-        shape2=np.array(shape2.shape.as_list()))
+    shape1 = shape1 if isinstance(shape1, tuple) else shape1.shape.as_list()
+    shape2 = shape2 if isinstance(shape2, tuple) else shape2.shape.as_list()
+    out_kernel = out_kernel.replace(shape1=np.array(shape1), \
+        shape2=np.array(shape2))
+
+    if isinstance(out_kernel.cov1, tf.Tensor):
+      cov1 = out_kernel.cov1
+      out_kernel = out_kernel.replace(cov1=np.array(cov1))
+    if isinstance(out_kernel.cov2, tf.Tensor):
+      cov2 = out_kernel.cov2
+      out_kernel = out_kernel.replace(cov2=np.array(cov2))
+
   elif isinstance(out_kernel, list):
-    out_kernel = [k.replace(shape1=np.array(s1.shape.as_list()), \
-        shape2=np.array(s2.shape.as_list())) for k, s1, s2 in \
+    shape1 = [s if isinstance(s, tuple) else s.shape.as_list() for s in shape1]
+    shape2 = [s if isinstance(s, tuple) else s.shape.as_list() for s in shape2]
+    out_kernel = [k.replace(shape1=np.array(s1), \
+        shape2=np.array(s2)) for k, s1, s2 in \
         zip(out_kernel, shape1, shape2)]
+
+    for i in range(len(out_kernel)):
+      if isinstance(out_kernel[i].cov1, tf.Tensor):
+        cov1 = out_kernel[i].cov1
+        out_kernel[i] = out_kernel[i].replace(cov1=np.array(cov1))
+      if isinstance(out_kernel[i].cov2, tf.Tensor):
+        cov2 = out_kernel[i].cov2
+        out_kernel[i] = out_kernel[i].replace(cov2=np.array(cov2))
   else:
     raise TypeError(f'Expected output kernel to be a `Kernel` or a list of '
                     f'`Kernel`s. Found {type(out_kernel)}.')
-
-  if isinstance(out_kernel.cov1, tf.Tensor):
-    cov1 = out_kernel.cov1
-    out_kernel = out_kernel.replace(cov1=np.array(cov1))
-  if isinstance(out_kernel.cov2, tf.Tensor):
-    cov2 = out_kernel.cov2
-    out_kernel = out_kernel.replace(cov2=np.array(cov2))
 
   return out_kernel
 

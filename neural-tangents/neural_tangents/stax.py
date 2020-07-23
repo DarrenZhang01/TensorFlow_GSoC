@@ -2107,10 +2107,6 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   with fastmath.use_backend("tf"):
     out = fastmath.abstract_eval(fun.call_wrapped)(akey)
   out_shape = tree_unflatten(out_tree(), out)[0]
-  # tf.print("the output shape is: {}".format(out_shape), output_stream=sys.stdout)
-  # if isinstance(out_shape, (list, tf.Tensor)) or isinstance(out_shape, (tuple, tf.Tensor)):
-  #   return [np.array(shape.shape) for shape in out_shape]
-  # return np.array(out_shape.shape)
   return out_shape
 
 

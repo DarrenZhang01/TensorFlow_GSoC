@@ -104,6 +104,7 @@ class NeuralTangentsTestCase(tf.test.TestCase, parameterized.TestCase):
       atol=None,
       rtol=None,
       canonicalize_dtypes=True):
+    tf.print("what is x: {}".format(x), output_stream=sys.stdout)
     atol = atol if atol is not None else 1e-06
     rtol = rtol if rtol is not None else 1e-06
     if isinstance(x, Kernel):
@@ -150,7 +151,7 @@ class NeuralTangentsTestCase(tf.test.TestCase, parameterized.TestCase):
           super().assertAllClose(
               x_dict[field.name], y_dict[field.name], atol=atol, rtol=rtol)
         else:
-          self.assertEqual(x_dict[field.name], y_dict[field.name])
+          super().assertAllEqual(x_dict[field.name], y_dict[field.name])
     else:
       return super().assertAllClose(
           onp.array(x), onp.array(y), atol=atol, rtol=rtol)

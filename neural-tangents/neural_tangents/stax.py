@@ -2107,6 +2107,10 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   with fastmath.use_backend("tf"):
     out = fastmath.abstract_eval(fun.call_wrapped)(akey)
   out_shape = tree_unflatten(out_tree(), out)[0]
+  # tf.print("the output shape is: {}".format(out_shape), output_stream=sys.stdout)
+  # if isinstance(out_shape, (list, tf.Tensor)) or isinstance(out_shape, (tuple, tf.Tensor)):
+  #   return [np.array(shape.shape) for shape in out_shape]
+  # return np.array(out_shape.shape)
   return out_shape
 
 
@@ -2126,13 +2130,24 @@ def _set_shapes(
                     f'`Kernel`s. Found {type(out_kernel)}.')
 
   if isinstance(out_kernel, Kernel):
-    return out_kernel.replace(shape1=shape1, shape2=shape2)
+    out_kernel = out_kernel.replace(shape1=np.array(shape1.shape.as_list()), \
+        shape2=np.array(shape2.shape.as_list()))
   elif isinstance(out_kernel, list):
-    return [k.replace(shape1=s1, shape2=s2) for
-            k, s1, s2 in zip(out_kernel, shape1, shape2)]
+    out_kernel = [k.replace(shape1=np.array(s1.shape.as_list()), \
+        shape2=np.array(s2.shape.as_list())) for k, s1, s2 in \
+        zip(out_kernel, shape1, shape2)]
   else:
     raise TypeError(f'Expected output kernel to be a `Kernel` or a list of '
                     f'`Kernel`s. Found {type(out_kernel)}.')
+
+  if isinstance(out_kernel.cov1, tf.Tensor):
+    cov1 = out_kernel.cov1
+    out_kernel = out_kernel.replace(cov1=np.array(cov1))
+  if isinstance(out_kernel.cov2, tf.Tensor):
+    cov2 = out_kernel.cov2
+    out_kernel = out_kernel.replace(cov2=np.array(cov2))
+
+  return out_kernel
 
 
 def _fuse_reqs(kernel_fn_reqs, default_reqs, **user_reqs):

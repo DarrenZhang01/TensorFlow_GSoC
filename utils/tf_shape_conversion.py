@@ -22,10 +22,20 @@ Zhibo Zhang
 """
 
 import tensorflow as tf
+from trax.tf_numpy import numpy as np
+import numpy as onp
+import sys
 
 
 def shape_conversion(shape):
-  if isinstance(shape, tuple):
+  # tf.print("the shape is: {}".format(shape), output_stream=sys.stdout)
+  # out_shape = onp.array(shape) if isinstance(shape, np.ndarray) else shape
+  # return out_shape
+  if isinstance(shape, np.ndarray):
+    if not np.any(shape):
+      return shape.shape
+    return tuple(onp.array(shape))
+  elif isinstance(shape, tuple):
     # Iterate through all the elements inside the tuple and convert the potential
     # TF Tensor object into shape integers
     shape = list(shape)
@@ -36,4 +46,4 @@ def shape_conversion(shape):
   elif isinstance(shape, tf.TensorShape):
     return tuple(shape.as_list())
   else:
-    return shape.shape
+    return shape

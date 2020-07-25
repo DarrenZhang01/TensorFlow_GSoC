@@ -2128,8 +2128,8 @@ def _set_shapes(
   if isinstance(out_kernel, Kernel):
     shape1 = shape1 if isinstance(shape1, tuple) else shape1.shape.as_list()
     shape2 = shape2 if isinstance(shape2, tuple) else shape2.shape.as_list()
-    out_kernel = out_kernel.replace(shape1=np.array(shape1), \
-        shape2=np.array(shape2))
+    out_kernel = out_kernel.replace(shape1=tuple(shape1), \
+        shape2=tuple(shape2))
 
     if isinstance(out_kernel.cov1, tf.Tensor):
       cov1 = out_kernel.cov1

@@ -159,6 +159,17 @@ Conv = functools.partial(GeneralConv, ('NHWC', 'HWIO', 'NHWC'))
 
 def elementwise(fun, **fun_kwargs):
   """Layer that applies a scalar function elementwise on its inputs."""
+  # def init_fun(rng, input_shape):
+  #   try:
+  #     return (tfnp.zeros(input_shape), ())
+  #   except TypeError:
+  #     tf.print("in elementwise, {}".format(input_shape), output_stream=sys.stdout)
+  #     return (input_shape, ())
+  # def init_fun(rng, input_shape):
+  #   print(input_shape)
+  #   sys.exit(1)
+  #   input_shape = tuple([int(item) if isinstance(item, float) else item for item in list(input_shape)])
+  #   return (tfnp.zeros(input_shape), ())
   init_fun = lambda rng, input_shape: (tfnp.zeros(input_shape), ())
   apply_fun = lambda params, inputs, **kwargs: fun(inputs, **fun_kwargs)
   return init_fun, apply_fun
@@ -216,7 +227,8 @@ def _pooling_layer(reducer, init_val, pooling_type, rescaler=None):
       output = reduce_window(inputs, init_val, reducer, window_shape,
                               strides, padding, pooling_type)
       # return rescale(out, inputs, spec) if rescale else out
-      return output
+      # return output
+      return tfnp.array(output)
     return init_fun, apply_fun
   return PoolingLayer
 MaxPool = _pooling_layer(tfnp.max, -tfnp.inf, "MAX")
@@ -331,11 +343,13 @@ def serial(*layers):
   init_funs, apply_funs = zip(*layers)
   def init_fun(rng, input_shape):
     input_shape = shape_conversion(input_shape)
+    tf.print("the input shape: {}".format(input_shape), output_stream=sys.stdout)
     params = []
     for init_fun in init_funs:
       keys = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
       rng = keys[0]
       layer_rng = keys[1]
+      input_shape = shape_conversion(input_shape)
       input_shape, param = init_fun(layer_rng, input_shape)
       params.append(param)
     return input_shape, params

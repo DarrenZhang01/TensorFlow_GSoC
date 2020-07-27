@@ -337,7 +337,7 @@ def serial(*layers):
       rng = keys[0]
       layer_rng = keys[1]
       input_shape, param = init_fun(layer_rng, input_shape)
-      input_shape = input_shape.shape
+      input_shape = input_shape if isinstance(input_shape, tuple) else input_shape.shape
       params.append(param)
     return input_shape, params
   def apply_fun(params, inputs, **kwargs):

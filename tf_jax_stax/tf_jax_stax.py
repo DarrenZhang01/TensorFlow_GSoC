@@ -159,17 +159,6 @@ Conv = functools.partial(GeneralConv, ('NHWC', 'HWIO', 'NHWC'))
 
 def elementwise(fun, **fun_kwargs):
   """Layer that applies a scalar function elementwise on its inputs."""
-  # def init_fun(rng, input_shape):
-  #   try:
-  #     return (tfnp.zeros(input_shape), ())
-  #   except TypeError:
-  #     tf.print("in elementwise, {}".format(input_shape), output_stream=sys.stdout)
-  #     return (input_shape, ())
-  # def init_fun(rng, input_shape):
-  #   print(input_shape)
-  #   sys.exit(1)
-  #   input_shape = tuple([int(item) if isinstance(item, float) else item for item in list(input_shape)])
-  #   return (tfnp.zeros(input_shape), ())
   init_fun = lambda rng, input_shape: (tfnp.zeros(input_shape), ())
   apply_fun = lambda params, inputs, **kwargs: fun(inputs, **fun_kwargs)
   return init_fun, apply_fun

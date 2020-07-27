@@ -28,10 +28,6 @@ import sys
 
 
 def shape_conversion(shape):
-  # tf.print("the shape is: {}".format(shape), output_stream=sys.stdout)
-  # out_shape = onp.array(shape) if isinstance(shape, np.ndarray) else shape
-  # return out_shape
-  tf.print("what is this: {}".format(shape), output_stream=sys.stdout)
   if isinstance(shape, np.ndarray):
     return shape.shape
   elif isinstance(shape, tuple):

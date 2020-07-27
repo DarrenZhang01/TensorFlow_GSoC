@@ -331,15 +331,13 @@ def serial(*layers):
   nlayers = len(layers)
   init_funs, apply_funs = zip(*layers)
   def init_fun(rng, input_shape):
-    input_shape = shape_conversion(input_shape)
-    tf.print("the input shape: {}".format(input_shape), output_stream=sys.stdout)
     params = []
     for init_fun in init_funs:
       keys = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
       rng = keys[0]
       layer_rng = keys[1]
-      input_shape = shape_conversion(input_shape)
       input_shape, param = init_fun(layer_rng, input_shape)
+      input_shape = input_shape.shape
       params.append(param)
     return input_shape, params
   def apply_fun(params, inputs, **kwargs):

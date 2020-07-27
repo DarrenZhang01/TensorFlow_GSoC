@@ -2141,8 +2141,8 @@ def _set_shapes(
   elif isinstance(out_kernel, list):
     shape1 = [s if isinstance(s, tuple) else s.shape.as_list() for s in shape1]
     shape2 = [s if isinstance(s, tuple) else s.shape.as_list() for s in shape2]
-    out_kernel = [k.replace(shape1=np.array(s1), \
-        shape2=np.array(s2)) for k, s1, s2 in \
+    out_kernel = [k.replace(shape1=s1, \
+        shape2=s2) for k, s1, s2 in \
         zip(out_kernel, shape1, shape2)]
 
     for i in range(len(out_kernel)):

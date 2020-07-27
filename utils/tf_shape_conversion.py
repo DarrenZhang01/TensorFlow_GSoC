@@ -31,12 +31,9 @@ def shape_conversion(shape):
   # tf.print("the shape is: {}".format(shape), output_stream=sys.stdout)
   # out_shape = onp.array(shape) if isinstance(shape, np.ndarray) else shape
   # return out_shape
+  tf.print("what is this: {}".format(shape), output_stream=sys.stdout)
   if isinstance(shape, np.ndarray):
-    # If this ndarray only contains zeros, then it is certain that it is
-    # wrapped by a np.array(shape) operation
-    if not np.any(shape):
-      return shape.shape
-    return tuple(onp.array(shape))
+    return shape.shape
   elif isinstance(shape, tuple):
     # Iterate through all the elements inside the tuple and convert the potential
     # TF Tensor object into shape integers

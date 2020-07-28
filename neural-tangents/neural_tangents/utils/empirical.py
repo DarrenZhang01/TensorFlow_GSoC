@@ -29,7 +29,7 @@ refer to individual functions' docstrings for details.
 
 import operator
 from typing import Union, Callable, Optional, Tuple, Dict
-from jax.api import eval_shape
+# from jax.api import eval_shape
 from jax.api import jacobian
 from jax.api import jvp
 from jax.api import vjp
@@ -39,6 +39,9 @@ from jax.tree_util import tree_reduce
 from neural_tangents.utils import utils
 from neural_tangents.utils.typing import ApplyFn, EmpiricalKernelFn, PyTree, PRNGKey, Axes
 
+import tensorflow as tf
+from trax.tf_numpy import numpy as np
+from trax.tf_numpy.extensions import eval_on_shapes
 
 def linearize(f: Callable[..., np.ndarray],
               params: PyTree) -> Callable[..., np.ndarray]:
@@ -228,7 +231,7 @@ def empirical_implicit_ntk_fn(f: ApplyFn,
     # depend on its coefficients), it is more efficient to substitute fx_dummy
     # for the outputs of the network. fx_dummy has the same shape as the output
     # of the network on a single piece of input data.
-    fx2_struct = eval_shape(f2, params)
+    fx2_struct = eval_on_shapes(f2)(params)
     fx_dummy = np.ones(fx2_struct.shape, fx2_struct.dtype)
 
     ntk = jacobian(delta_vjp_jvp)(fx_dummy)
@@ -340,7 +343,7 @@ def empirical_direct_ntk_fn(f: ApplyFn,
       jac_fn2 = jacobian(f2)
       j2 = jac_fn2(params)
 
-    fx1 = eval_shape(f1, params)
+    fx1 = eval_on_shapes(f1)(params)
     ntk = sum_and_contract(j1, j2, fx1.ndim)
     return ntk / utils.size_at(fx1, trace_axes)
 

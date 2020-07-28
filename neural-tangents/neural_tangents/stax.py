@@ -1169,7 +1169,7 @@ def Flatten(batch_axis: int = 0, batch_axis_out: int = 0) -> InternalLayer:
   def init_fn(rng, input_shape):
     input_shape = shape_conversion(input_shape)
     output_shape = get_output_shape(input_shape)
-    return output_shape, ()
+    return np.zeros(output_shape), ()
 
   def apply_fn(params, inputs, **kwargs):
     output_shape = get_output_shape(inputs.shape)
@@ -1509,7 +1509,7 @@ def GlobalSelfAttention(
     else:
       query_matrices = rand(rng_Q, shape=(n_heads, n_chan_in, n_chan_key))
 
-    return output_shape, (query_matrices, key_matrices, val_matrices, W_out, b)
+    return np.zeros(output_shape), (query_matrices, key_matrices, val_matrices, W_out, b)
 
   def apply_fn(params, inputs, mask=None, **kwargs):
     query_matrices, key_matrices, val_matrices, W_out, b = params
@@ -2107,6 +2107,7 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   with fastmath.use_backend("tf"):
     out = fastmath.abstract_eval(fun.call_wrapped)(akey)
   out_shape = tree_unflatten(out_tree(), out)[0]
+  tf.print("out_shape is: {}, input shape: {}, init_fn: {}".format(out_shape, shape, init_fn.__name__), output_stream=sys.stdout)
   return out_shape
 
 

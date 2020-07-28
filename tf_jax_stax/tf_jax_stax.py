@@ -62,7 +62,7 @@ def Dense(out_dim, W_init=rn, b_init=rn):
     k2 = stateless_uniform(shape=[], seed=k2, minval=None, maxval=None, dtype=tf.int32)
     W = W_init(seed=k1, shape=(input_shape[-1], out_dim))
     b = b_init(seed=k2, shape=(out_dim,))
-    return output_shape, (W.numpy(), b.numpy())
+    return tfnp.zeros(output_shape), (W.numpy(), b.numpy())
   def apply_fun(params, inputs, **kwargs):
     W, b = params
     return tfnp.dot(inputs, W) + b
@@ -92,7 +92,7 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
     k2 = keys[1]
     W = W_init(seed=k1, shape=kernel_shape)
     b = b_init(stddev=1e-6, seed=k2, shape=bias_shape)
-    return output_shape, (W, b)
+    return tfnp.zeros(output_shape), (W, b)
   def apply_fun(params, inputs, **kwargs):
     W, b = params
     return conv_general_dilated(inputs, W, strides, padding, one, one,
@@ -209,7 +209,7 @@ def _pooling_layer(reducer, init_val, pooling_type, rescaler=None):
       shape.append(input_shape[channel_dim])
       out_shape = reduce_window_shape_tuple(shape, window_shape,
                                                 strides, padding)
-      return out_shape, ()
+      return tfnp.zeros(out_shape), ()
     def apply_fun(params, inputs, **kwargs):
       inputs = onp.moveaxis(inputs, (batch_dim, channel_dim), \
                           (0, dim + 1))
@@ -249,7 +249,7 @@ def Flatten():
   """Layer construction function for flattening all but the leading dim."""
   def init_fun(rng, input_shape):
     output_shape = input_shape[0], functools.reduce(op.mul, input_shape[1:], 1)
-    return output_shape, ()
+    return tfnp.zeros(output_shape), ()
   def apply_fun(params, inputs, **kwargs):
     return tfnp.reshape(inputs, (inputs.shape[0], -1))
   return init_fun, apply_fun
@@ -258,7 +258,7 @@ Flatten = Flatten()
 
 def Identity():
   """Layer construction function for an identity layer."""
-  init_fun = lambda rng, input_shape: (input_shape, ())
+  init_fun = lambda rng, input_shape: (tfnp.zeros(input_shape), ())
   apply_fun = lambda params, inputs, **kwargs: inputs
   return init_fun, apply_fun
 Identity = Identity()
@@ -266,14 +266,14 @@ Identity = Identity()
 
 def FanOut(num):
   """Layer construction function for a fan-out layer."""
-  init_fun = lambda rng, input_shape: ([input_shape] * num, ())
+  init_fun = lambda rng, input_shape: ([tfnp.zeros(input_shape)] * num, ())
   apply_fun = lambda params, inputs, **kwargs: [inputs] * num
   return init_fun, apply_fun
 
 
 def FanInSum():
   """Layer construction function for a fan-in sum layer."""
-  init_fun = lambda rng, input_shape: (input_shape[0], ())
+  init_fun = lambda rng, input_shape: (tfnp.zeros(input_shape[0]), ())
   apply_fun = lambda params, inputs, **kwargs: sum(inputs)
   return init_fun, apply_fun
 FanInSum = FanInSum()
@@ -285,7 +285,7 @@ def FanInConcat(axis=-1):
     ax = axis % len(input_shape[0])
     concat_size = sum(shape[ax] for shape in input_shape)
     out_shape = input_shape[0][:ax] + (concat_size,) + input_shape[0][ax+1:]
-    return out_shape, ()
+    return tfnp.zeros(out_shape), ()
   def apply_fun(params, inputs, **kwargs):
     return tfnp.concatenate(inputs, axis)
   return init_fun, apply_fun
@@ -294,7 +294,7 @@ def FanInConcat(axis=-1):
 def Dropout(rate, mode='train'):
   """Layer construction function for a dropout layer with given rate."""
   def init_fun(rng, input_shape):
-    return input_shape, ()
+    return tfnp.zeros(input_shape), ()
   def apply_fun(params, inputs, **kwargs):
     rng = kwargs.get('rng', None)
     if rng is None:
@@ -339,7 +339,7 @@ def serial(*layers):
       input_shape, param = init_fun(layer_rng, input_shape)
       input_shape = input_shape if isinstance(input_shape, tuple) else input_shape.shape
       params.append(param)
-    return input_shape, params
+    return tfnp.zeros(input_shape), params
   def apply_fun(params, inputs, **kwargs):
     rng = kwargs.pop('rng', None)
     rngs = None
@@ -374,7 +374,7 @@ def parallel(*layers):
     rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=nlayers)
     result = []
     for i in range(nlayers):
-      result.append(init_funs[i](rngs[i], input_shape[i]))
+      result.append(tfnp.zeros(init_funs[i](rngs[i], input_shape[i])))
     return zip(*result)
     # return zip(*[init(rng.numpy(), shape) for init, rng, shape
     #              in zip(init_funs, rngs, input_shape)])

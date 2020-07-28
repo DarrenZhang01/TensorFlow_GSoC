@@ -202,7 +202,7 @@ def canonicalize_axis(axis: Axes,
   axis = [axis] if isinstance(axis, int) else list(axis)
   if hasattr(x, 'ndim'):
     ndim = x.ndim
-  elif isinstance(x, tf.TensorShape):
+  elif isinstance(x, tf.TensorShape) or isinstance(x, tuple):
     ndim = len(x)
   elif hasattr(x, '__len__'):
     ndim = len(x.shape)

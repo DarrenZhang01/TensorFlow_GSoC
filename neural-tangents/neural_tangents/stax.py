@@ -1213,7 +1213,7 @@ def Flatten(batch_axis: int = 0, batch_axis_out: int = 0) -> InternalLayer:
                      diagonal_spatial=False)
 
   def mask_fn(mask, input_shape):
-    mask = np.broadcast_to(mask, input_shape)
+    mask = np.broadcast_to(mask, shape_conversion(input_shape))
     output_shape = get_output_shape(mask.shape)
     return np.moveaxis(mask, batch_axis, batch_axis_out).reshape(output_shape)
 
@@ -3320,7 +3320,7 @@ def _mean_and_var(
   if mask is None:
     mean = np.mean(x, axis, dtype, keepdims)
     if get_var:
-      var = np.var(x, axis, dtype, out, ddof, keepdims)
+      var = np.var(x, axis, keepdims)
 
   else:
     axis = tuple(utils.canonicalize_axis(axis, x))

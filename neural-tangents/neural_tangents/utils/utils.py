@@ -30,7 +30,7 @@ from .kernel import Kernel
 import numpy as onp
 
 import sys
-from tf_dot_general import tf_dot_general as dot_general
+from tf_dot_general import tf_dot_general
 from trax.tf_numpy import numpy as np
 import tensorflow as tf
 
@@ -457,7 +457,7 @@ def dot_general(lhs: np.ndarray,
   else:
     rhs = np.moveaxis(rhs, batch_dims, leading_batch_dims)
 
-  prod = dot_general(lhs, rhs, dimension_numbers, precision)
+  prod = tf_dot_general(lhs, rhs, dimension_numbers)
   prod = zip_axes(prod, n_batch_dims)
 
   res_batch_dims = get_res_batch_dims(contracting_dims, batch_dims)

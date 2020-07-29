@@ -2127,8 +2127,8 @@ def _set_shapes(
                     f'`Kernel`s. Found {type(out_kernel)}.')
 
   if isinstance(out_kernel, Kernel):
-    shape1 = shape1 if isinstance(shape1, tuple) else shape1.shape.as_list()
-    shape2 = shape2 if isinstance(shape2, tuple) else shape2.shape.as_list()
+    shape1 = shape_conversion(shape1)
+    shape2 = shape_conversion(shape2)
     out_kernel = out_kernel.replace(shape1=tuple(shape1), \
         shape2=tuple(shape2))
 

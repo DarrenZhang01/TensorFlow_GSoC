@@ -41,7 +41,7 @@ from neural_tangents.utils.typing import ApplyFn, EmpiricalKernelFn, PyTree, PRN
 
 import tensorflow as tf
 from tensorflow.python.eager import forwardprop
-from tensorflow.python.eager.backprop import make_vjp
+from trax.tf_numpy.extensions import vjp
 import sys
 from trax.tf_numpy import numpy as np
 from trax.tf_numpy.extensions import eval_on_shapes
@@ -53,8 +53,7 @@ def _jvp(f, primals, tangents):
   """Compute the jacobian of `f` at `primals` multiplied by `tangents`."""
   with forwardprop.ForwardAccumulator(primals, tangents) as acc:
     primals_out = f(*primals)
-  return primals_out, acc.jvp(
-      primals_out, unconnected_gradients=UnconnectedGradients.ZERO)
+  return primals_out, acc.jvp(primals_out.data)
 
 
 def linearize(f: Callable[..., np.ndarray],
@@ -238,7 +237,7 @@ def empirical_implicit_ntk_fn(f: ApplyFn,
 
     def delta_vjp_jvp(delta):
       def delta_vjp(delta):
-        return make_vjp(f2, params)(delta)
+        return vjp(f2, params)[1](delta)
       return _jvp(f1, (params,), delta_vjp(delta))[1]
 
     # Since we are taking the Jacobian of a linear function (which does not
@@ -250,9 +249,9 @@ def empirical_implicit_ntk_fn(f: ApplyFn,
 
     # ntk = jacobian(delta_vjp_jvp)(fx_dummy)
     with tf.GradientTape() as tape:
-      tape.watch(tf.convert_to_tensor(fx_dummy))
-      y = delta_vjp_jvp(tf.convert_to_tensor(fx_dummy))
-    ntk = np.array(tape.jacobian(y, fx_dummy))
+      tape.watch(fx_dummy.data)
+      y = delta_vjp_jvp(fx_dummy.data)
+    ntk = np.array(tape.jacobian(y, fx_dummy.data))
     return _index_and_contract(ntk, trace_axes, diagonal_axes)
 
   return ntk_fn

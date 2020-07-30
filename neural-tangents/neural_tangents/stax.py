@@ -2205,6 +2205,7 @@ def _preprocess_kernel_fn(
 
   def kernel_fn_kernel(kernel, **user_reqs):
     out_kernel = kernel_fn(kernel, **user_reqs)
+    tf.print("output kernel: {}, {}".format(out_kernel.cov1.shape, out_kernel.cov2.shape), output_stream=sys.stdout)
     return _set_shapes(init_fn, kernel, out_kernel)
 
   def kernel_fn_x1(x1, x2, get, **user_reqs):
@@ -2394,6 +2395,7 @@ def _get_diagonal_outer_prods(cov1: np.ndarray,
   cov2, _ = _mean_and_var(cov2, axis=axis, keepdims=True, mask=mask2)
 
   end_axis = 1 if diagonal_spatial else cov1.ndim
+  tf.print("operation's name: {}".format(operation.__name__), output_stream=sys.stdout)
   prod12 = utils.outer_prod(cov1, cov2, 0, end_axis, operation)
 
   start_axis = 1 if diagonal_batch else 0
@@ -3109,7 +3111,7 @@ def _conv_kernel_diagonal_spatial(
   # it is of "N...C" format.
   mat = np.expand_dims(mat, axis=mat.ndim)
   # Combine the leading batch dimensions into one single batch dimension.
-  mat = np.reshape(mat, (-1,) + mat[batch_ndim:])
+  mat = np.reshape(mat, (-1,) + mat.shape[batch_ndim:])
   mat = reduce_window(mat, None, np.add, filter_shape, strides, padding.name, "SUM")
   mat /= filter_size
   return mat

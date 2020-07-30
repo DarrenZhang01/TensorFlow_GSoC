@@ -75,7 +75,7 @@ def _build_network(input_shape, network, out_logits, use_dropout):
 def _empirical_kernel(key, input_shape, network, out_logits, use_dropout):
   init_fn, f, _ = _build_network(input_shape, network, out_logits, use_dropout)
   key, split = random.split(key)
-  _, params = init_fn(key, (-1,) + input_shape)
+  _, params = init_fn(key, (1,) + input_shape)
   kernel_fn = jit(empirical.empirical_ntk_fn(f))
   return partial(kernel_fn, params=params, keys=split)
 

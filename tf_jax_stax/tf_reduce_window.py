@@ -39,7 +39,8 @@ def reduce_window(inputs, init_value, reducer, window_dimensions, strides,
   # Note that there is no need to send in the parameter data format since the
   # input is already of default data format - "N...C". The adjustments of the
   # input shape is already finished in apply_fun of Pooling in stax.
-  output = pool(inputs, window_dimensions, pooling_type, strides, padding)
+  pooling = "AVG" if pooling_type == "SUM" else pooling_type
+  output = pool(inputs, window_dimensions, pooling, strides, padding)
   if pooling_type in ["MAX", "AVG"]:
     return output
   # If it is sum pooling, mutiply the output by the number of grids inside a

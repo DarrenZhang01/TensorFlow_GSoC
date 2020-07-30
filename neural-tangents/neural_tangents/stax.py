@@ -3105,8 +3105,8 @@ def _conv_kernel_diagonal_spatial(
     padding = Padding.VALID
 
   filter_size = functools.reduce(op.mul, filter_shape, 1)
-  filter_shape = (1,) * batch_ndim + filter_shape
-  strides = (1,) * batch_ndim + strides
+  # filter_shape = (1,) * batch_ndim + filter_shape
+  # strides = (1,) * batch_ndim + strides
   # Manually append a `channel` dimension to the input matrix `mat` such that
   # it is of "N...C" format.
   mat = np.expand_dims(mat, axis=mat.ndim)

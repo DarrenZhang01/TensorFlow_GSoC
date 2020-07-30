@@ -30,16 +30,13 @@ refer to individual functions' docstrings for details.
 import operator
 from typing import Union, Callable, Optional, Tuple, Dict
 # from jax.api import eval_shape
-from jax.api import jacobian
-from jax.api import jvp
-from jax.api import vjp
-from trax.tf_numpy import numpy as np
 from jax.tree_util import tree_multimap
 from jax.tree_util import tree_reduce
 from neural_tangents.utils import utils
 from neural_tangents.utils.typing import ApplyFn, EmpiricalKernelFn, PyTree, PRNGKey, Axes
 
 import tensorflow as tf
+from trax.tf_numpy import numpy as np
 from tensorflow.python.eager import forwardprop
 from trax.tf_numpy.extensions import vjp
 import sys

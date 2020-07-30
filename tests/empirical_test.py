@@ -82,7 +82,7 @@ def _kernel_fns(key,
                 diagonal_axes,
                 trace_axes):
   init_fn, f, _ = _build_network(input_shape, network, out_logits)
-  _, params = init_fn(key, (-1,) + input_shape)
+  _, params = init_fn(key, (1,) + input_shape)
   implicit_kernel_fn = empirical.empirical_implicit_ntk_fn(f, trace_axes,
                                                            diagonal_axes)
   direct_kernel_fn = empirical.empirical_direct_ntk_fn(f, trace_axes,

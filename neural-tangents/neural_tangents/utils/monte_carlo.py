@@ -34,7 +34,7 @@ from typing import Union, Tuple, Generator, Set, Iterable, Optional
 import tensorflow as tf
 from stateless_random_ops import split as tf_split
 from tensorflow.random import stateless_uniform
-from trax.tf_numpy import numpy as np
+from tensorflow.python.ops import numpy_ops as np
 from jax.tree_util import tree_map
 from jax.tree_util import tree_multimap
 from neural_tangents.utils import batch

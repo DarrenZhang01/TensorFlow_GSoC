@@ -92,7 +92,6 @@ from neural_tangents.utils.typing import InitFn, AnalyticKernelFn, \
   LayerKernelFn, InternalLayer, Layer, Kernels, Shapes, Axes
 
 
-from trax import fastmath
 from tensorflow.math import erf
 # from tensorflow.random import normal
 from tensorflow.random import stateless_uniform
@@ -101,9 +100,8 @@ from stateless_random_ops import split
 # from stateless_random_ops import stateless_random_normal as normal
 import tf_jax_stax as ostax
 import tensorflow as tf
-from trax.tf_numpy import numpy as np
-from trax.tf_numpy.extensions import eval_on_shapes
-from trax import fastmath
+from tensorflow.python.ops import numpy_ops as np
+from extensions import eval_on_shapes
 from tf_lax import padtype_to_pads, reduce_window_shape_tuple
 from tf_conv_general import conv_general_dilated
 from tf_reduce_window import reduce_window
@@ -2103,9 +2101,7 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   closed_init_fn = functools.partial(init_fn, input_shape=shape)
   _, in_tree = tree_flatten(((akey,), {}))
   fun, out_tree = flatten_fun(lu.wrap_init(closed_init_fn), in_tree)
-  out = None
-  with fastmath.use_backend("tf"):
-    out = fastmath.abstract_eval(fun.call_wrapped)(akey)
+  out = eval_on_shapes(fun.call_wrapped)(akey)
   out_shape = tree_unflatten(out_tree(), out)[0]
   tf.print("out_shape is: {}, input shape: {}, init_fn: {}".format(out_shape, shape, init_fn.__name__), output_stream=sys.stdout)
   return out_shape

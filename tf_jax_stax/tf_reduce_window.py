@@ -27,7 +27,7 @@ implementation that directly builds on `tf.nn` is required.)
 
 import tensorflow as tf
 from tensorflow.nn import pool
-from trax.tf_numpy import numpy as np
+from tensorflow.python.ops import numpy_ops as np
 import numpy as onp
 
 

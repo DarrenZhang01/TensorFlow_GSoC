@@ -15,6 +15,8 @@ This file contains TF equivalences for:
 import builtins
 from typing import (NamedTuple, Sequence)
 import numpy as onp
+import tensorflow as tf
+import sys
 from tf_conv_general import conv_general_dilated
 from tf_reduce_window import reduce_window
 
@@ -82,6 +84,7 @@ def conv_shape_tuple(lhs_shape, rhs_shape, strides, pads, batch_group_count=1):
   out_space = onp.maximum(0, out_space)
   assert lhs_shape[0] % batch_group_count == 0
   out_shape = (lhs_shape[0] // batch_group_count, rhs_shape[0])
+  tf.print("ok, the output_shape: {}".format(lhs_shape[0]), output_stream=sys.stdout)
   return tuple(out_shape + tuple(out_space))
 
 

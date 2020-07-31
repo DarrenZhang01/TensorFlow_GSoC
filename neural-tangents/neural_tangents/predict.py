@@ -38,8 +38,8 @@ from typing import Union, Tuple, Callable, Iterable, Optional, Dict
 from functools import lru_cache
 
 import tensorflow as tf
-from trax.tf_numpy.extensions import grad
-from trax.tf_numpy import numpy as np
+from extensions import grad
+from tensorflow.python.ops import numpy_ops as np
 
 
 """Alias for optional arrays or scalars."""

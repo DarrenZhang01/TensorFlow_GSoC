@@ -24,7 +24,7 @@ Zhibo Zhang, 2020.06.30
 """
 
 import tensorflow as tf
-from trax.tf_numpy import numpy as tf_np
+from tensorflow.python.ops import numpy_ops as tf_np
 import string
 
 # Given lhs representation, rhs representation, contraction and batch dimensions,

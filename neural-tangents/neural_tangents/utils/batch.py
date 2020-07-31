@@ -56,8 +56,8 @@ from neural_tangents.utils import utils
 from neural_tangents.utils.typing import KernelFn
 import numpy as onp
 
-from trax.tf_numpy import numpy as np
-from trax.tf_numpy.extensions import jit, pmap
+from tensorflow.python.ops import numpy_ops as np
+from extensions import jit, pmap
 import tensorflow as tf
 import sys
 

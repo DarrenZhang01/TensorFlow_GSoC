@@ -26,7 +26,7 @@ import operator as op
 import sys
 import tensorflow as tf
 import tensorflow_probability as tfp
-from trax.tf_numpy import numpy as tfnp
+from tensorflow.python.ops import numpy_ops as tfnp
 from tf_lax import *
 from tf_shape_conversion import shape_conversion
 import numpy as onp
@@ -92,6 +92,7 @@ def GeneralConv(dimension_numbers, out_chan, filter_shape,
     k2 = keys[1]
     W = W_init(seed=k1, shape=kernel_shape)
     b = b_init(stddev=1e-6, seed=k2, shape=bias_shape)
+    tf.print("the output shape: {}".format(output_shape), output_stream=sys.stdout)
     return tfnp.zeros(output_shape), (W, b)
   def apply_fun(params, inputs, **kwargs):
     W, b = params

@@ -20,7 +20,7 @@ from jax.api import device_get
 from jax.api import jit
 from jax.config import config
 from jax.lib import xla_bridge
-from trax.tf_numpy import numpy as np
+from tensorflow.python.ops import numpy_ops as np
 import jax.random as random
 from neural_tangents.utils import utils
 

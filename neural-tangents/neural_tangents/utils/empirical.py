@@ -36,12 +36,10 @@ from neural_tangents.utils import utils
 from neural_tangents.utils.typing import ApplyFn, EmpiricalKernelFn, PyTree, PRNGKey, Axes
 
 import tensorflow as tf
-from trax.tf_numpy import numpy as np
+from tensorflow.python.ops import numpy_ops as np
 from tensorflow.python.eager import forwardprop
-from trax.tf_numpy.extensions import vjp
+from extensions import vjp, eval_on_shapes
 import sys
-from trax.tf_numpy import numpy as np
-from trax.tf_numpy.extensions import eval_on_shapes
 
 
 # The functionality below is from:
@@ -79,7 +77,7 @@ def linearize(f: Callable[..., np.ndarray],
   """
   def f_lin(p, *args, **kwargs):
     dparams = tree_multimap(lambda x, y: x - y, p, params)
-    f_params_x, proj = jvp(lambda param: f(param, *args, **kwargs),
+    f_params_x, proj = _jvp(lambda param: f(param, *args, **kwargs),
                            (params,), (dparams,))
     return f_params_x + proj
   return f_lin
@@ -118,7 +116,7 @@ def taylor_expand(f: Callable[..., np.ndarray],
       return f(params)
 
     def f_jvp(p):
-      _, val_jvp = jvp(f, (p,), (dparams,))
+      _, val_jvp = _jvp(f, (p,), (dparams,))
       return val_jvp
 
     df = taylorize_r(f_jvp, params, dparams, degree, current_degree+1)

@@ -17,9 +17,9 @@ from absl.testing import absltest
 
 from functools import partial
 from jax import test_util as jtu
-from jax.api import jit
 from jax.config import config as jax_config
-from trax.tf_numpy import numpy as np
+from tensorflow.python.ops import numpy_ops as np
+from extensions import jit
 import jax.random as random
 from jax.tree_util import tree_map
 from neural_tangents import stax

@@ -21,7 +21,7 @@ Zhibo Zhang, 2020.06.19
 
 import tensorflow.compat.v2 as tf
 import numpy as onp
-from trax.tf_numpy import numpy as np
+from tensorflow.python.ops import numpy_ops as np
 
 
 @utils.np_doc(np.moveaxis)

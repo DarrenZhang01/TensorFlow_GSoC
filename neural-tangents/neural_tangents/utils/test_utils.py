@@ -19,15 +19,15 @@ import logging
 
 import dataclasses
 from jax.lib import xla_bridge
-from trax.tf_numpy import numpy as np
 import jax.test_util as jtu
 from .kernel import Kernel
 import numpy as onp
 
 from absl.testing import parameterized
 import tensorflow as tf
+from tensorflow.python.ops import numpy_ops as np
 import sys
-from trax.tf_numpy.extensions import jit
+from extensions import jit
 from tensorflow import vectorized_map as vmap
 
 
@@ -104,7 +104,6 @@ class NeuralTangentsTestCase(tf.test.TestCase, parameterized.TestCase):
       atol=None,
       rtol=None,
       canonicalize_dtypes=True):
-    tf.print("what is x: {}".format(x), output_stream=sys.stdout)
     atol = atol if atol is not None else 1e-06
     rtol = rtol if rtol is not None else 1e-06
     if isinstance(x, Kernel):

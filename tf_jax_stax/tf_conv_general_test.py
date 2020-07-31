@@ -21,6 +21,7 @@ Zhibo Zhang, 2020.06.07
 """
 from tensorflow import nn
 import tensorflow as tf
+from tf_lax import ConvDimensionNumbers
 from tensorflow.python.platform import test
 from tf_conv_general import *
 from absl.testing import parameterized

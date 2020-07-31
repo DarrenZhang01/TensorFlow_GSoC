@@ -22,14 +22,13 @@ Zhibo Zhang
 """
 
 import tensorflow as tf
-from trax.tf_numpy import numpy as np
-import trax
+from tensorflow.python.ops import numpy_ops as np
 import numpy as onp
 import sys
 
 
 def shape_conversion(shape):
-  if isinstance(shape, np.ndarray) or isinstance(shape, trax.shapes.ShapeDtype):
+  if isinstance(shape, np.ndarray):
     return shape.shape
   elif isinstance(shape, tuple):
     # Iterate through all the elements inside the tuple and convert the potential

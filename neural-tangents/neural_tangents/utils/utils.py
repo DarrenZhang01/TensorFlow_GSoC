@@ -31,7 +31,7 @@ import numpy as onp
 
 import sys
 from tf_dot_general import tf_dot_general
-from trax.tf_numpy import numpy as np
+from tensorflow.python.ops import numpy_ops as np
 import tensorflow as tf
 
 
@@ -336,8 +336,10 @@ def interleave_ones(x, start_axis, end_axis, x_first):
 def outer_prod(x, y, start_axis, end_axis, prod_op):
   if y is None:
     y = x
+  tf.print("input x: {}, input y: {}".format(x.shape, y.shape), output_stream=sys.stdout)
   x = interleave_ones(x, start_axis, end_axis, True)
   y = interleave_ones(y, start_axis, end_axis, False)
+  tf.print("x: {}, y: {}".format(x.shape, y.shape), output_stream=sys.stdout)
   return prod_op(x, y)
 
 

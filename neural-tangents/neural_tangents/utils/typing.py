@@ -16,7 +16,7 @@
 
 from typing import Tuple, Callable, Union, List, Any, Optional, Sequence, \
   Generator
-from trax.tf_numpy import numpy as np
+from tensorflow.python.ops import numpy_ops as np
 from neural_tangents.utils.kernel import Kernel
 
 

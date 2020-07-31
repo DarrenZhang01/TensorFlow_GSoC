@@ -26,7 +26,7 @@ import zlib
 import re
 import tensorflow as tf
 from tensorflow.nest import map_structure
-from trax.tf_numpy.extensions import jit
+from extensions import jit
 
 
 # TODO(Zhibo Zhang): Find a way to replace the functionality

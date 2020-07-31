@@ -2125,8 +2125,8 @@ def _set_shapes(
   if isinstance(out_kernel, Kernel):
     shape1 = shape_conversion(shape1)
     shape2 = shape_conversion(shape2)
-    out_kernel = out_kernel.replace(shape1=tuple(shape1), \
-        shape2=tuple(shape2))
+    out_kernel = out_kernel.replace(shape1=shape_conversion(shape1), \
+        shape2=shape_conversion(shape2))
 
     if isinstance(out_kernel.cov1, tf.Tensor):
       cov1 = out_kernel.cov1
@@ -2201,7 +2201,7 @@ def _preprocess_kernel_fn(
 
   def kernel_fn_kernel(kernel, **user_reqs):
     out_kernel = kernel_fn(kernel, **user_reqs)
-    tf.print("output kernel: {}, {}".format(out_kernel.cov1.shape, out_kernel.cov2.shape), output_stream=sys.stdout)
+    tf.print("output kernel: {}".format(out_kernel), output_stream=sys.stdout)
     return _set_shapes(init_fn, kernel, out_kernel)
 
   def kernel_fn_x1(x1, x2, get, **user_reqs):

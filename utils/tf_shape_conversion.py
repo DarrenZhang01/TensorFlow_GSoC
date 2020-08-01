@@ -28,7 +28,7 @@ import sys
 
 
 def shape_conversion(shape):
-  if isinstance(shape, np.ndarray):
+  if isinstance(shape, np.ndarray) or isinstance(shape, tf.TensorSpec):
     return shape.shape
   elif isinstance(shape, tuple):
     # Iterate through all the elements inside the tuple and convert the potential

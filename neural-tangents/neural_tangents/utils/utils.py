@@ -336,11 +336,20 @@ def interleave_ones(x, start_axis, end_axis, x_first):
 def outer_prod(x, y, start_axis, end_axis, prod_op):
   if y is None:
     y = x
-  tf.print("input x: {}, input y: {}".format(x.shape, y.shape), output_stream=sys.stdout)
   x = interleave_ones(x, start_axis, end_axis, True)
   y = interleave_ones(y, start_axis, end_axis, False)
-  tf.print("x: {}, y: {}".format(x.shape, y.shape), output_stream=sys.stdout)
-  return prod_op(x, y)
+  if x.ndim <= 5:
+    return prod_op(x, y)
+  elif x.ndim == 6:
+    x = np.tile(x, (1, x.shape[0], 1, 1, 1, 1))
+    y = np.tile(y, (y.shape[1], 1, 1, 1, 1, 1))
+    z = np.reshape(x, (x.shape[0] * x.shape[1],) + x.shape[2:])
+    k = np.reshape(y, (y.shape[0] * y.shape[1],) + y.shape[2:])
+    result = prod_op(z, k)
+    result = np.reshape(result, (x.shape[0], x.shape[1],) + result.shape[1:])
+    return result
+  else:
+    raise ValueError("Current setting does not support matrices of rank beyond 6")
 
 
 ArrayOrList = Union[Optional[np.ndarray], List[Optional[np.ndarray]]]

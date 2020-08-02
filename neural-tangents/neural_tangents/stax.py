@@ -1078,7 +1078,7 @@ def _GlobalPool(
     non_spatial_axes = (batch_axis % ndim, channel_axis % ndim)
     output_shape = tuple(input_shape[i] for i in range(ndim)
                          if i in non_spatial_axes)
-    return output_shape, ()
+    return np.zeros(output_shape), ()
 
   def apply_fn(params, inputs, mask=None, **kwargs):
     non_spatial_axes = (batch_axis % inputs.ndim, channel_axis % inputs.ndim)

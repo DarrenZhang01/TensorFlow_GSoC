@@ -2201,7 +2201,6 @@ def _preprocess_kernel_fn(
 
   def kernel_fn_kernel(kernel, **user_reqs):
     out_kernel = kernel_fn(kernel, **user_reqs)
-    tf.print("output kernel: {}".format(out_kernel), output_stream=sys.stdout)
     return _set_shapes(init_fn, kernel, out_kernel)
 
   def kernel_fn_x1(x1, x2, get, **user_reqs):
@@ -3107,8 +3106,15 @@ def _conv_kernel_diagonal_spatial(
   # it is of "N...C" format.
   mat = np.expand_dims(mat, axis=mat.ndim)
   # Combine the leading batch dimensions into one single batch dimension.
+  batch_dims = mat.shape[:batch_ndim]
   mat = np.reshape(mat, (-1,) + mat.shape[batch_ndim:])
   mat = reduce_window(mat, None, np.add, filter_shape, strides, padding.name, "SUM")
+  # Split the batch dimensions
+  if batch_ndim > 1:
+    mat = np.reshape(mat, batch_dims + mat.shape[1:])
+  # Remove the last "channel" dimension
+  if mat.shape[-1] == 1:
+    mat = np.reshape(mat, mat.shape[:-1])
   mat /= filter_size
   return mat
 

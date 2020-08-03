@@ -80,7 +80,7 @@ def assert_close_matrices(self, expected, actual, rtol):
   self.assertEqual(expected.shape, actual.shape)
   relative_error = (
       tf.linalg.norm(actual - expected) /
-      np.maximum(np.linalg.norm(expected), 1e-12))
+      np.maximum(tf.linalg.norm(expected), 1e-12))
   if relative_error > rtol or np.isnan(relative_error):
     _log(relative_error, expected, actual, False)
     self.fail(self.failureException('Relative ERROR: ',

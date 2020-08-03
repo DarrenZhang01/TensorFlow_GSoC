@@ -18,10 +18,11 @@
 import operator as op
 from typing import Dict, Tuple, Optional, Callable, Any
 
+import tensorflow as tf
+import sys
 from tensorflow.python.ops import numpy_ops as np
 from neural_tangents.utils import dataclasses
 from neural_tangents.utils import utils
-
 
 @dataclasses.dataclass
 class Kernel:

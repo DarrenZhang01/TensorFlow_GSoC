@@ -2103,7 +2103,7 @@ def _propagate_shape(init_fn: InitFn, shape: Shapes) -> Shapes:
   fun, out_tree = flatten_fun(lu.wrap_init(closed_init_fn), in_tree)
   out = eval_on_shapes(fun.call_wrapped)(akey)
   out_shape = tree_unflatten(out_tree(), out)[0]
-  tf.print("out_shape is: {}, input shape: {}, init_fn: {}".format(out_shape, shape, init_fn.__name__), output_stream=sys.stdout)
+  # tf.print("out_shape is: {}, input shape: {}, init_fn: {}".format(out_shape, shape, init_fn.__name__), output_stream=sys.stdout)
   return out_shape
 
 
@@ -2390,7 +2390,7 @@ def _get_diagonal_outer_prods(cov1: np.ndarray,
   cov2, _ = _mean_and_var(cov2, axis=axis, keepdims=True, mask=mask2)
 
   end_axis = 1 if diagonal_spatial else cov1.ndim
-  tf.print("operation's name: {}".format(operation.__name__), output_stream=sys.stdout)
+  # tf.print("operation's name: {}".format(operation.__name__), output_stream=sys.stdout)
   prod12 = utils.outer_prod(cov1, cov2, 0, end_axis, operation)
 
   start_axis = 1 if diagonal_batch else 0

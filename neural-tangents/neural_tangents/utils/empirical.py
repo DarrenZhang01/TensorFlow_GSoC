@@ -38,7 +38,7 @@ from neural_tangents.utils.typing import ApplyFn, EmpiricalKernelFn, PyTree, PRN
 import tensorflow as tf
 from tensorflow.python.ops import numpy_ops as np
 from tensorflow.python.eager import forwardprop
-from extensions import vjp, eval_on_shapes
+from extensions import vjp, eval_on_shapes, _tf_to_np
 import sys
 
 
@@ -233,7 +233,7 @@ def empirical_implicit_ntk_fn(f: ApplyFn,
     def delta_vjp_jvp(delta):
       def delta_vjp(delta):
         return vjp(f2, params)[1](delta)
-      return _jvp(f1, (params,), delta_vjp(delta))[1]
+      return _jvp(f1, _tf_to_np((params,)), delta_vjp(delta))[1]
 
     # Since we are taking the Jacobian of a linear function (which does not
     # depend on its coefficients), it is more efficient to substitute fx_dummy
@@ -241,7 +241,6 @@ def empirical_implicit_ntk_fn(f: ApplyFn,
     # of the network on a single piece of input data.
     fx2_struct = eval_on_shapes(f2)(params)
     fx_dummy = np.ones(fx2_struct.shape, dtype=tf.float32)
-    # raise ValueError("fx_dummy: {}".format(fx_dummy))
 
     # ntk = jacobian(delta_vjp_jvp)(fx_dummy)
     with tf.GradientTape() as tape:

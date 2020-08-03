@@ -240,7 +240,8 @@ def empirical_implicit_ntk_fn(f: ApplyFn,
     # for the outputs of the network. fx_dummy has the same shape as the output
     # of the network on a single piece of input data.
     fx2_struct = eval_on_shapes(f2)(params)
-    fx_dummy = np.ones(fx2_struct.shape, fx2_struct.dtype)
+    fx_dummy = np.ones(fx2_struct.shape, dtype=tf.float32)
+    # raise ValueError("fx_dummy: {}".format(fx_dummy))
 
     # ntk = jacobian(delta_vjp_jvp)(fx_dummy)
     with tf.GradientTape() as tape:

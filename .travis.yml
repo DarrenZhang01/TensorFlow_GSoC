@@ -5,7 +5,7 @@ python:
   - "3.8"
 install:
   - pip install --upgrade pip
-  - pip install numpy jaxlib jax tf-nightly pygame matplotlib trax more-itertools --upgrade
+  - pip install numpy jaxlib jax tf-nightly matplotlib trax more-itertools --upgrade
   - git clone https://github.com/DarrenZhang01/TensorFlow_GSoC.git
   - cd TensorFlow_GSoC
   - pip install -e neural-tangents

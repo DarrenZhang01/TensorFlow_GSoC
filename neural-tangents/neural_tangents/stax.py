@@ -273,12 +273,12 @@ def _supports_masking(remask_kernel: bool):
       def kernel_fn_with_masking(k: Kernels, **user_reqs):
         if isinstance(k, Kernel):
           mask1 = mask_fn(k.mask1, shape_conversion(k.shape1))
-          mask2 = mask_fn(k.mask2, shape_conversion(k.shape1))
+          mask2 = mask_fn(k.mask2, shape_conversion(k.shape2))
         elif isinstance(k, list):
           mask1 = mask_fn([k.mask1 for k in k],
                           [shape_conversion(k.shape1) for k in k])
           mask2 = mask_fn([k.mask2 for k in k],
-                          [shape_conversion(k.shape1) for k in k])
+                          [shape_conversion(k.shape2) for k in k])
         else:
           raise TypeError(type(Kernel), Kernel)
 

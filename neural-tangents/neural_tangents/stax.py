@@ -101,7 +101,7 @@ from stateless_random_ops import split
 import tf_jax_stax as ostax
 import tensorflow as tf
 from tensorflow.python.ops import numpy_ops as np
-from extensions import eval_on_shapes
+from extensions import eval_on_shapes, _tf_to_np
 from tf_lax import padtype_to_pads, reduce_window_shape_tuple
 from tf_conv_general import conv_general_dilated
 from tf_reduce_window import reduce_window
@@ -1184,6 +1184,9 @@ def Flatten(batch_axis: int = 0, batch_axis_out: int = 0) -> InternalLayer:
     def trace(x, batch_ndim):
       if x is None:
         return x
+
+      if isinstance(x, tf.Tensor):
+        x = _tf_to_np(x)
 
       if k.diagonal_spatial:
         spatial_axes = tuple(range(x.ndim)[batch_ndim:])

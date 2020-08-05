@@ -380,14 +380,23 @@ def get_masked_array(x: ArrayOrList,
     A `MaskedArray` of `(masked_x, boolean_mask)`.
   """
   if isinstance(x, list):
-    fields = zip(*(get_masked_array(_x, mask_constant).astuple() for _x in x))
-    return MaskedArray(*(list(f) for f in fields))
+    x_array = []
+    mask_array = []
+    for x_ in x:
+      masked_array = get_masked_array(x_, mask_constant)
+      x_array.append(masked_array.masked_value)
+      mask_array.append(masked_array.mask)
+    # fields = zip(*(get_masked_array(_x, mask_constant).astuple() for _x in x))
+    # return MaskedArray(*(list(f) for f in fields))
+    return MaskedArray(x_array, mask_array)
 
   if x is None:
     mask = None
 
   if isinstance(x, MaskedArray):
-    x, mask = x.astuple()
+    masked_value = x.masked_value
+    mask = x.mask
+    x = masked_value
 
   elif isinstance(x, np.ndarray):
     if mask_constant is None:

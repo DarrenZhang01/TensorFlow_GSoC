@@ -385,7 +385,10 @@ def parallel(*layers):
       rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=nlayers)
     else:
       rngs = (None,) * nlayers
-    return [f(p, x, rng=r.numpy(), **kwargs) for f, p, x, r in zip(apply_funs, params, inputs, rngs)]
+    result = []
+    for i in range(len(apply_funs)):
+      result.append(apply_funs[i](params[i], inputs[i], rng=rngs[i], **kwargs))
+    return result
   return init_fun, apply_fun
 
 

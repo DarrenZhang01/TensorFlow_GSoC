@@ -374,7 +374,7 @@ def parallel(*layers):
     rngs = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=nlayers)
     result = []
     for i in range(nlayers):
-      result.append(tfnp.zeros(init_funs[i](rngs[i], input_shape[i])))
+      result.append(init_funs[i](rngs[i], input_shape[i]))
     return zip(*result)
     # return zip(*[init(rng.numpy(), shape) for init, rng, shape
     #              in zip(init_funs, rngs, input_shape)])

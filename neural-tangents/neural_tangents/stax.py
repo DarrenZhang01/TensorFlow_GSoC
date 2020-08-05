@@ -107,6 +107,7 @@ from tf_conv_general import conv_general_dilated
 from tf_reduce_window import reduce_window
 from tf_dot_general import tf_dot_general as dot_general
 from tf_shape_conversion import shape_conversion
+from bitwise import bitwise_and
 # Enums
 
 
@@ -414,7 +415,7 @@ def Dense(
 
   def ntk_init_fn(rng, input_shape):
     input_shape = shape_conversion(input_shape)
-    
+
     _channel_axis = channel_axis % len(input_shape)
     output_shape = (input_shape[:_channel_axis] + (out_dim,)
                     + input_shape[_channel_axis + 1:])
@@ -3359,7 +3360,7 @@ def _sum_masks(masks: List[Optional[np.ndarray]]) -> Optional[np.ndarray]:
     if mask2 is None:
       return mask1
 
-    return mask1 & mask2
+    return bitwise_and(mask1, mask2)
 
   mask = functools.reduce(add_two_masks, masks, None)
   return mask

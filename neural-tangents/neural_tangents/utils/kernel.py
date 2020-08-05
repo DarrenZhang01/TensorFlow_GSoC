@@ -19,7 +19,7 @@ import operator as op
 from typing import Dict, Tuple, Optional, Callable, Any
 
 import tensorflow as tf
-from bitwise_or import bitwise_or
+from bitwise import bitwise_or
 import sys
 import numpy as onp
 from tensorflow.python.ops import numpy_ops as np

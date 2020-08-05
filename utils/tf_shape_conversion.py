@@ -41,4 +41,4 @@ def shape_conversion(shape):
   elif isinstance(shape, tf.TensorShape):
     return tuple(shape.as_list())
   else:
-    return shape
+    return tuple(shape) if isinstance(shape, list) else shape

@@ -19,7 +19,9 @@ import operator as op
 from typing import Dict, Tuple, Optional, Callable, Any
 
 import tensorflow as tf
+from bitwise_or import bitwise_or
 import sys
+import numpy as onp
 from tensorflow.python.ops import numpy_ops as np
 from neural_tangents.utils import dataclasses
 from neural_tangents.utils import utils
@@ -269,7 +271,7 @@ class Kernel:
       start_axis = 2 - batch_ndim
       end_axis = 1 if self.diagonal_spatial else m1.ndim
 
-      mask = utils.outer_prod(m1, m2, start_axis, end_axis, op.or_)
+      mask = utils.outer_prod(m1, m2, start_axis, end_axis, bitwise_or)
       return mask
 
     mask11 = get_mask_prod(mask1, mask1, 1 if self.diagonal_batch else 2)

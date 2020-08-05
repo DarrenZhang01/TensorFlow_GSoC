@@ -414,7 +414,7 @@ def Dense(
 
   def ntk_init_fn(rng, input_shape):
     input_shape = shape_conversion(input_shape)
-
+    
     _channel_axis = channel_axis % len(input_shape)
     output_shape = (input_shape[:_channel_axis] + (out_dim,)
                     + input_shape[_channel_axis + 1:])

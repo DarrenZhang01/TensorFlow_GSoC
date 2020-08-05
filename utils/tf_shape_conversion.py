@@ -35,9 +35,9 @@ def shape_conversion(shape):
     # TF Tensor object into shape integers
     shape = list(shape)
     for i in range(len(shape)):
-      shape[i] = (shape[i],) if isinstance(shape[i], int) else shape[i].shape
-    output_shape = tuple([int_ for shape_ in shape for int_ in shape_])
-    return output_shape
+      shape[i] = shape[i] if isinstance(shape[i], int) else shape[i].shape
+    # output_shape = tuple([int_ for shape_ in shape for int_ in shape_])
+    return tuple(shape)
   elif isinstance(shape, tf.TensorShape):
     return tuple(shape.as_list())
   else:

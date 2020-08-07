@@ -2914,7 +2914,7 @@ def _concat_kernels(
           sum(mats[j].shape[pad_axis] for j in range(i)),
           sum(mats[j].shape[pad_axis] for j in range(i + 1, n_mats))
       )
-      rows.append(np.pad(mat, pads))
+      rows.append(np.pad(mat, pads, 'constant'))
     mat = np.concatenate(rows, pad_axis + 1)
 
   return mat

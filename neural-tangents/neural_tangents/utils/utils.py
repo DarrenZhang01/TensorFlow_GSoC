@@ -341,8 +341,8 @@ def outer_prod(x, y, start_axis, end_axis, prod_op):
   if x.ndim <= 5:
     return prod_op(x, y)
   elif x.ndim == 6:
-    x = np.tile(x, (1, x.shape[0], 1, 1, 1, 1))
-    y = np.tile(y, (y.shape[1], 1, 1, 1, 1, 1))
+    x = np.tile(x, (1, y.shape[1], 1, 1, 1, 1))
+    y = np.tile(y, (x.shape[0], 1, 1, 1, 1, 1))
     z = np.reshape(x, (x.shape[0] * x.shape[1],) + x.shape[2:])
     k = np.reshape(y, (y.shape[0] * y.shape[1],) + y.shape[2:])
     result = prod_op(z, k)

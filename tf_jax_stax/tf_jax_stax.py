@@ -266,7 +266,9 @@ Identity = Identity()
 
 def FanOut(num):
   """Layer construction function for a fan-out layer."""
-  init_fun = lambda rng, input_shape: ([tfnp.zeros(input_shape)] * num, ())
+  def init_fun(rng, input_shape):
+    return ([tfnp.zeros(input_shape)] * num, ())
+  # init_fun = lambda rng, input_shape: ([tfnp.zeros(input_shape)] * num, ())
   apply_fun = lambda params, inputs, **kwargs: [inputs] * num
   return init_fun, apply_fun
 
@@ -332,14 +334,16 @@ def serial(*layers):
   init_funs, apply_funs = zip(*layers)
   def init_fun(rng, input_shape):
     params = []
+    i = 0
     for init_fun in init_funs:
+      i += 1
       keys = split(seed=tf.convert_to_tensor(rng, dtype=tf.int32), num=2)
       rng = keys[0]
       layer_rng = keys[1]
-      input_shape, param = init_fun(layer_rng, input_shape)
       input_shape = shape_conversion(input_shape)
+      input_shape, param = init_fun(layer_rng, input_shape)
       params.append(param)
-    return tfnp.zeros(input_shape), params
+    return input_shape, params
   def apply_fun(params, inputs, **kwargs):
     rng = kwargs.pop('rng', None)
     rngs = None

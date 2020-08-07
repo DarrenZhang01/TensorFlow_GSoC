@@ -2121,7 +2121,7 @@ def _set_shapes(
     shape2 = _propagate_shape(init_fn, in_kernel.shape2)
   elif isinstance(in_kernel, list):
     shape1 = _propagate_shape(init_fn, [shape_conversion(k.shape1) for k in in_kernel])
-    shape2 = _propagate_shape(init_fn, [shape_conversion(k.shape1) for k in in_kernel])
+    shape2 = _propagate_shape(init_fn, [shape_conversion(k.shape2) for k in in_kernel])
   else:
     raise TypeError(f'Expected input kernel to be a `Kernel` or a list of '
                     f'`Kernel`s. Found {type(out_kernel)}.')
@@ -3397,7 +3397,6 @@ def _concat_masks(
     return None
 
   axis %= len(input_shapes[0])
-
   # Expand the concatenation dimension of each mask.
   masks = [m if m is None else np.broadcast_to(
       m,

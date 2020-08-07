@@ -2779,7 +2779,7 @@ def _fan_in_kernel_fn(kernels: List[Kernel], axis: Optional[int]) -> Kernel:
     new_shape2 = shape2[:axis] + shape2[axis + 1:]
     for k in kernels:
       k_shape1 = shape_conversion(k.shape1)[:axis] + shape_conversion(k.shape1)[axis + 1:]
-      k_shape2 = shape_conversion(k.shape1)[:axis] + shape_conversion(k.shape1)[axis + 1:]
+      k_shape2 = shape_conversion(k.shape2)[:axis] + shape_conversion(k.shape2)[axis + 1:]
       if k_shape1 != new_shape1 or k_shape2 != new_shape2:
         raise ValueError('Non-`axis` shapes should be equal in `FanInConcat`.')
 

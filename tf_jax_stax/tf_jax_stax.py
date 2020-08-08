@@ -352,6 +352,7 @@ def serial(*layers):
     else:
       rngs = (None,) * nlayers
     for i in range(nlayers):
+      tf.print("input type in serial: {}".format(type(inputs)), output_stream=sys.stdout)
       inputs = apply_funs[i](params[i], inputs, rng=rngs[i], **kwargs)
     return inputs
   return init_fun, apply_fun

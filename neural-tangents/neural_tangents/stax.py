@@ -423,10 +423,10 @@ def Dense(
     rng1 = rngs[0]
     rng2 = rngs[1]
     in_dim = input_shape[_channel_axis]
-    W = normal(shape=(in_dim, out_dim), seed=rng1)
+    W = np.asarray(normal(shape=(in_dim, out_dim), seed=rng1))
     b_shape = [1] * len(input_shape)
     b_shape[channel_axis] = out_dim
-    b = normal(shape=b_shape, seed=rng2)
+    b = np.asarray(normal(shape=b_shape, seed=rng2))
     out_shape = np.zeros(output_shape)
 
     return out_shape, (W, b)

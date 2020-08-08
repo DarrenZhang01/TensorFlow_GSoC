@@ -202,6 +202,7 @@ def vjp(f, *primals, has_aux=False):
     else:
       np_out = outputs
     tf_out = _np_to_tf(np_out)
+    tf_out = tf.cast(tf_out, tf.float32)
 
     def _vjp(dy):
       tf_dy = _np_to_tf(dy)

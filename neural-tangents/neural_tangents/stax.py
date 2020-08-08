@@ -2295,19 +2295,19 @@ def _elementwise(fn, name, **fn_kwargs):
 
 
 def _ab_relu(x, a, b, **kwargs):
-  return a * np.minimum(x, 0) + b * np.maximum(x, 0)
+  return np.asarray(a * np.minimum(x, 0) + b * np.maximum(x, 0))
 
 
 def _erf(x, a, b, c, **kwargs):
-  return a * erf(b * x) + c
+  return np.asarray(a * erf(b * x) + c)
 
 
 def _gelu(x, **kwargs):
-  return 0.5 * x * (1. + erf(x / np.sqrt(2.)))
+  return np.asarray(0.5 * x * (1. + erf(x / np.sqrt(2.))))
 
 
 def _sin(x, a, b, c, **kwargs):
-  return a * np.sin(b * x + c)
+  return np.asarray(a * np.sin(b * x + c))
 
 
 def _rbf(x, gamma, **kwargs):

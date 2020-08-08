@@ -960,31 +960,31 @@ class ActivationTest(test_utils.NeuralTangentsTestCase):
       raise absltest.SkipTest(f'Activation {phi_name} is not implemented.')
     self._test_activation(activation, same_inputs, model, get)
 
-  @jtu.parameterized.named_parameters(
-      jtu.cases_from_list({
-          'testcase_name':
-              '_{}_Rbf_{}_{}_{}'.format(
-                  model,
-                  'Same_inputs' if same_inputs else 'Different_inputs',
-                  get,
-                  gamma),
-          'model':
-              model,
-          'same_inputs':
-              same_inputs,
-          'get': get,
-          'gamma': gamma,
-      }
-                          for model in ['fc', 'conv-pool', 'conv-flatten']
-                          for same_inputs in [False, True]
-                          for get in ['nngp', 'ntk']
-                          for gamma in [1e-6, 1e-4, 1e-2, 1.0, 2.]
-                          ))
-
-  def test_rbf(self, same_inputs, model, get, gamma):
-    activation = stax.Rbf(gamma)
-    self._test_activation(activation, same_inputs, model, get,
-                          rbf_gamma=gamma)
+  # @jtu.parameterized.named_parameters(
+  #     jtu.cases_from_list({
+  #         'testcase_name':
+  #             '_{}_Rbf_{}_{}_{}'.format(
+  #                 model,
+  #                 'Same_inputs' if same_inputs else 'Different_inputs',
+  #                 get,
+  #                 gamma),
+  #         'model':
+  #             model,
+  #         'same_inputs':
+  #             same_inputs,
+  #         'get': get,
+  #         'gamma': gamma,
+  #     }
+  #                         for model in ['fc', 'conv-pool', 'conv-flatten']
+  #                         for same_inputs in [False, True]
+  #                         for get in ['nngp', 'ntk']
+  #                         for gamma in [1e-6, 1e-4, 1e-2, 1.0, 2.]
+  #                         ))
+  #
+  # def test_rbf(self, same_inputs, model, get, gamma):
+  #   activation = stax.Rbf(gamma)
+  #   self._test_activation(activation, same_inputs, model, get,
+  #                         rbf_gamma=gamma)
 
 
 

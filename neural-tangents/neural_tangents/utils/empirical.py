@@ -346,14 +346,22 @@ def empirical_direct_ntk_fn(f: ApplyFn,
     key1, key2 = _read_keys(keys)
 
     f1 = _get_f_params(f, x1, key1, **apply_fn_kwargs)
-    jac_fn1 = jacobian(f1)
-    j1 = jac_fn1(params)
+    with tf.GradientTape() as tape:
+      tape.watch(params)
+      y = f1(params)
+    j1 = np.asarray(tape.jacobian(y, params))
+    # jac_fn1 = jacobian(f1)
+    # j1 = jac_fn1(params)
     if x2 is None:
       j2 = j1
     else:
       f2 = _get_f_params(f, x2, key2, **apply_fn_kwargs)
-      jac_fn2 = jacobian(f2)
-      j2 = jac_fn2(params)
+      with tf.GradientTape() as tape:
+        tape.watch(params)
+        y = f2(params)
+      j2 = np.asarray(tape.jacobian(y, params))
+      # jac_fn2 = jacobian(f2)
+      # j2 = jac_fn2(params)
 
     fx1 = eval_on_shapes(f1)(params)
     ntk = sum_and_contract(j1, j2, fx1.ndim)

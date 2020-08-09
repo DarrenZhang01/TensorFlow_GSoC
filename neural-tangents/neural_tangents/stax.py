@@ -1650,7 +1650,7 @@ def LayerNorm(
     `(init_fn, apply_fn, kernel_fn)`.
   """
   def init_fn(rng, input_shape):
-    return input_shape, ()
+    return np.zeros(input_shape), ()
 
   def apply_fn(params, inputs, mask=None, **kwargs):
     _axis = utils.canonicalize_axis(axis, inputs)

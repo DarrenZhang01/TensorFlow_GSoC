@@ -436,65 +436,65 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
   #   self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
   #                                        proj_into_2d)
   #
-  # @jtu.parameterized.named_parameters(
-  #     jtu.cases_from_list({
-  #         'testcase_name':
-  #             '_{}_{}_{}_{}_{}_{}'.format(
-  #                 model,
-  #                 width,
-  #                 'same_inputs' if same_inputs else 'different_inputs',
-  #                 'NTK' if is_ntk else 'NNGP',
-  #                 proj_into_2d,
-  #                 'layer_norm=%s' % str(layer_norm)),
-  #         'model':
-  #             model,
-  #         'width':
-  #             width,
-  #         'same_inputs':
-  #             same_inputs,
-  #         'is_ntk':
-  #             is_ntk,
-  #         'proj_into_2d':
-  #             proj_into_2d,
-  #         'layer_norm':
-  #             layer_norm
-  #     }
-  #                         for model in MODELS
-  #                         for width in WIDTHS
-  #                         for same_inputs in [False]
-  #                         for is_ntk in [False, True]
-  #                         for proj_into_2d in PROJECTIONS[:2]
-  #                         for layer_norm in LAYER_NORM))
-  # def test_layernorm(self,
-  #                    model,
-  #                    width,
-  #                    same_inputs,
-  #                    is_ntk,
-  #                    proj_into_2d,
-  #                    layer_norm):
-  #   is_conv = 'conv' in model
-  #   # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
-  #   if is_conv:
-  #     if xla_bridge.get_backend().platform == 'cpu':
-  #       raise absltest.SkipTest('Not running CNN models on CPU to save time.')
-  #   elif proj_into_2d != PROJECTIONS[0] or layer_norm not in ('C', 'NC'):
-  #     raise absltest.SkipTest('FC models do not have these parameters.')
-  #
-  #   W_std, b_std = 2.**0.5, 0.5**0.5
-  #   filter_shape = FILTER_SHAPES[0]
-  #   padding = PADDINGS[0]
-  #   strides = STRIDES[0]
-  #   phi = stax.Relu()
-  #   use_pooling, is_res = False, False
-  #   parameterization = 'ntk'
-  #   pool_type = 'AVG'
-  #   use_dropout = False
-  #
-  #   net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
-  #                  padding, phi, strides, width, is_ntk, proj_into_2d,
-  #                  pool_type, layer_norm, parameterization, use_dropout)
-  #   self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
-  #                                        proj_into_2d, True)
+  @jtu.parameterized.named_parameters(
+      jtu.cases_from_list({
+          'testcase_name':
+              '_{}_{}_{}_{}_{}_{}'.format(
+                  model,
+                  width,
+                  'same_inputs' if same_inputs else 'different_inputs',
+                  'NTK' if is_ntk else 'NNGP',
+                  proj_into_2d,
+                  'layer_norm=%s' % str(layer_norm)),
+          'model':
+              model,
+          'width':
+              width,
+          'same_inputs':
+              same_inputs,
+          'is_ntk':
+              is_ntk,
+          'proj_into_2d':
+              proj_into_2d,
+          'layer_norm':
+              layer_norm
+      }
+                          for model in MODELS
+                          for width in WIDTHS
+                          for same_inputs in [False]
+                          for is_ntk in [False, True]
+                          for proj_into_2d in PROJECTIONS[:2]
+                          for layer_norm in LAYER_NORM))
+  def test_layernorm(self,
+                     model,
+                     width,
+                     same_inputs,
+                     is_ntk,
+                     proj_into_2d,
+                     layer_norm):
+    is_conv = 'conv' in model
+    # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
+    if is_conv:
+      if xla_bridge.get_backend().platform == 'cpu':
+        raise absltest.SkipTest('Not running CNN models on CPU to save time.')
+    elif proj_into_2d != PROJECTIONS[0] or layer_norm not in ('C', 'NC'):
+      raise absltest.SkipTest('FC models do not have these parameters.')
+
+    W_std, b_std = 2.**0.5, 0.5**0.5
+    filter_shape = FILTER_SHAPES[0]
+    padding = PADDINGS[0]
+    strides = STRIDES[0]
+    phi = stax.Relu()
+    use_pooling, is_res = False, False
+    parameterization = 'ntk'
+    pool_type = 'AVG'
+    use_dropout = False
+
+    net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
+                   padding, phi, strides, width, is_ntk, proj_into_2d,
+                   pool_type, layer_norm, parameterization, use_dropout)
+    self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
+                                         proj_into_2d, True)
   #
   # @jtu.parameterized.named_parameters(
   #     jtu.cases_from_list({
@@ -662,7 +662,7 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
   #                  pool_type, layer_norm, parameterization, use_dropout)
   #   self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
   #                                        proj_into_2d)
-
+  #
 
 
   # @jtu.parameterized.named_parameters(
@@ -830,163 +830,163 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
         shape2 = shape_conversion(shape2)
         empirical = _get_empirical(num_samples, 'nngp')
       test_utils.assert_close_matrices(self, exact, empirical, rtol)
-      self.assertEqual(shape1, x1_out_shape)
-      self.assertEqual(shape2, x2_out_shape)
+      self.assertAllEqual(shape1, x1_out_shape)
+      self.assertAllEqual(shape2, x2_out_shape)
 
 
-class ActivationTest(test_utils.NeuralTangentsTestCase):
-
-  @stax.layer
-  def _RBF(self, gamma):
-    init_fn = lambda key, input_shape: (input_shape, ())
-    def apply_fn(unused_params, unused_xs, **kwargs):
-      raise NotImplementedError()
-    def kernel_fn(kernels):
-      if kernels.ntk is not None:
-        raise ValueError('RBF Kernel does not have an associated NTK.')
-
-      if kernels.nngp.ndim > 2:
-        raise ValueError(
-            ('RBF Kernel is not defined for covariance matrices with dimension'
-             ' greater than two.'))
-
-      input_dim = kernels.shape1[1]
-      cov1 = kernels.cov1
-      cov1 = np.reshape(cov1, (cov1.shape[0], 1))
-      cov2 = cov1 if kernels.cov2 is None else kernels.cov2
-      cov2 = np.reshape(cov2, (1, cov2.shape[0]))
-      nngp = kernels.nngp
-
-      # TODO(schsam): Update cov1 and cov2 if we want to compose this kernel
-      # with other kernels.
-      return kernels.replace(
-          nngp=np.exp(-input_dim * gamma * (cov1 + cov2 - 2 * nngp)))
-    return init_fn, apply_fn, kernel_fn
-
-
-  def _test_activation(self, activation_fn, same_inputs, model, get,
-                       rbf_gamma=None):
-    platform = xla_bridge.get_backend().platform
-    if platform == 'cpu' and 'conv' in model:
-      raise absltest.SkipTest('Not running CNNs on CPU to save time.')
-
-    key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
-    key, split = tf_random_split(key)
-    output_dim = 2048 if get == 'nngp' else 1
-    b_std = 0.5
-    W_std = 2.0
-    if activation_fn[2].__name__ == 'Sin':
-      W_std = 0.9
-    if activation_fn[2].__name__ == 'Rbf':
-      W_std = 1.0
-      b_std = 0.0
-
-    if model == 'fc':
-      rtol = 0.05
-      X0_1 = np.asarray(normal((6, 7), seed=key))
-      X0_2 = None if same_inputs else np.asarray(normal((10, 7), seed=split))
-      affine = stax.Dense(1024, W_std, b_std)
-      readout = stax.Dense(output_dim)
-      depth = 1
-    else:
-      rtol = 0.1
-      X0_1 = np.asarray(normal((4, 8, 8, 3), seed=key))
-      X0_2 = None if same_inputs else np.asarray(normal((6, 8, 8, 3), seed=split))
-      affine = stax.Conv(1024, (3, 2), W_std=W_std, b_std=b_std, padding='SAME')
-      readout = stax.serial(stax.GlobalAvgPool() if 'pool' in model else
-                            stax.Flatten(),
-                            stax.Dense(output_dim))
-      depth = 2
-    if platform == 'cpu':
-      num_samplings = 200
-      rtol *= 2
-    else:
-      num_samplings = (500 if activation_fn[2].__name__ in ('Sin', 'Rbf')
-                       else 300)
-
-    init_fn, apply_fn, kernel_fn = stax.serial(
-        *[affine, activation_fn]*depth, readout)
-    analytic_kernel = kernel_fn(X0_1, X0_2, get)
-    split = stateless_uniform(shape=[2], seed=split, minval=None, maxval=None, dtype=tf.int32)
-    mc_kernel_fn = monte_carlo.monte_carlo_kernel_fn(
-        init_fn, apply_fn, split, num_samplings)
-    empirical_kernel = mc_kernel_fn(X0_1, X0_2, get)
-    test_utils.assert_close_matrices(self, analytic_kernel,
-                                     empirical_kernel, rtol)
-
-    # Check match with explicit RBF
-    if rbf_gamma is not None and get == 'nngp' and model == 'fc':
-      input_dim = X0_1.shape[1]
-      _, _, kernel_fn = self._RBF(rbf_gamma / input_dim)
-      direct_rbf_kernel = kernel_fn(X0_1, X0_2, get)
-      test_utils.assert_close_matrices(self, analytic_kernel,
-                                       direct_rbf_kernel, rtol)
-
-  @jtu.parameterized.named_parameters(
-      jtu.cases_from_list({
-          'testcase_name':
-              '_{}_{}_{}_{}_{}'.format(
-                  model,
-                  phi_name,
-                  'Same_inputs' if same_inputs else 'Different_inputs',
-                  get,
-                  abc),
-          'model':
-              model,
-          'phi_name':
-              phi_name,
-          'same_inputs':
-              same_inputs,
-          'get': get,
-          'abc': abc,
-      }
-                          for model in ['fc', 'conv-pool', 'conv-flatten']
-                          for phi_name in ['Sin', 'Erf', 'Gelu']
-                          for same_inputs in [False, True]
-                          for get in ['nngp', 'ntk']
-                          for abc in itertools.product(
-                              [1., 2., 0.3],
-                              [1., 1.5, 0.3],
-                              [0., -math.pi/4., math.pi/2.])))
-  def test_activation(self, same_inputs, model, phi_name, get, abc):
-    a, b, c = abc
-    if phi_name == 'Sin':
-      activation = stax.Sin(a=a, b=b, c=c)
-    elif phi_name == 'Erf':
-      activation = stax.Erf(a=a, b=b, c=c)
-    elif phi_name == 'Gelu':
-      activation = stax.Gelu()
-      if a != 1. or b != 1. or c != 0.:
-        absltest.SkipTest('Skip `Gelu` test if (a, b, c) != (1., 1., 0.).')
-    else:
-      raise absltest.SkipTest(f'Activation {phi_name} is not implemented.')
-    self._test_activation(activation, same_inputs, model, get)
-
-  @jtu.parameterized.named_parameters(
-      jtu.cases_from_list({
-          'testcase_name':
-              '_{}_Rbf_{}_{}_{}'.format(
-                  model,
-                  'Same_inputs' if same_inputs else 'Different_inputs',
-                  get,
-                  gamma),
-          'model':
-              model,
-          'same_inputs':
-              same_inputs,
-          'get': get,
-          'gamma': gamma,
-      }
-                          for model in ['fc', 'conv-pool', 'conv-flatten']
-                          for same_inputs in [False, True]
-                          for get in ['nngp', 'ntk']
-                          for gamma in [1e-6, 1e-4, 1e-2, 1.0, 2.]
-                          ))
-
-  def test_rbf(self, same_inputs, model, get, gamma):
-    activation = stax.Rbf(gamma)
-    self._test_activation(activation, same_inputs, model, get,
-                          rbf_gamma=gamma)
+# class ActivationTest(test_utils.NeuralTangentsTestCase):
+#
+#   @stax.layer
+#   def _RBF(self, gamma):
+#     init_fn = lambda key, input_shape: (input_shape, ())
+#     def apply_fn(unused_params, unused_xs, **kwargs):
+#       raise NotImplementedError()
+#     def kernel_fn(kernels):
+#       if kernels.ntk is not None:
+#         raise ValueError('RBF Kernel does not have an associated NTK.')
+#
+#       if kernels.nngp.ndim > 2:
+#         raise ValueError(
+#             ('RBF Kernel is not defined for covariance matrices with dimension'
+#              ' greater than two.'))
+#
+#       input_dim = kernels.shape1[1]
+#       cov1 = kernels.cov1
+#       cov1 = np.reshape(cov1, (cov1.shape[0], 1))
+#       cov2 = cov1 if kernels.cov2 is None else kernels.cov2
+#       cov2 = np.reshape(cov2, (1, cov2.shape[0]))
+#       nngp = kernels.nngp
+#
+#       # TODO(schsam): Update cov1 and cov2 if we want to compose this kernel
+#       # with other kernels.
+#       return kernels.replace(
+#           nngp=np.exp(-input_dim * gamma * (cov1 + cov2 - 2 * nngp)))
+#     return init_fn, apply_fn, kernel_fn
+#
+#
+#   def _test_activation(self, activation_fn, same_inputs, model, get,
+#                        rbf_gamma=None):
+#     platform = xla_bridge.get_backend().platform
+#     if platform == 'cpu' and 'conv' in model:
+#       raise absltest.SkipTest('Not running CNNs on CPU to save time.')
+#
+#     key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+#     key, split = tf_random_split(key)
+#     output_dim = 2048 if get == 'nngp' else 1
+#     b_std = 0.5
+#     W_std = 2.0
+#     if activation_fn[2].__name__ == 'Sin':
+#       W_std = 0.9
+#     if activation_fn[2].__name__ == 'Rbf':
+#       W_std = 1.0
+#       b_std = 0.0
+#
+#     if model == 'fc':
+#       rtol = 0.05
+#       X0_1 = np.asarray(normal((6, 7), seed=key))
+#       X0_2 = None if same_inputs else np.asarray(normal((10, 7), seed=split))
+#       affine = stax.Dense(1024, W_std, b_std)
+#       readout = stax.Dense(output_dim)
+#       depth = 1
+#     else:
+#       rtol = 0.1
+#       X0_1 = np.asarray(normal((4, 8, 8, 3), seed=key))
+#       X0_2 = None if same_inputs else np.asarray(normal((6, 8, 8, 3), seed=split))
+#       affine = stax.Conv(1024, (3, 2), W_std=W_std, b_std=b_std, padding='SAME')
+#       readout = stax.serial(stax.GlobalAvgPool() if 'pool' in model else
+#                             stax.Flatten(),
+#                             stax.Dense(output_dim))
+#       depth = 2
+#     if platform == 'cpu':
+#       num_samplings = 200
+#       rtol *= 2
+#     else:
+#       num_samplings = (500 if activation_fn[2].__name__ in ('Sin', 'Rbf')
+#                        else 300)
+#
+#     init_fn, apply_fn, kernel_fn = stax.serial(
+#         *[affine, activation_fn]*depth, readout)
+#     analytic_kernel = kernel_fn(X0_1, X0_2, get)
+#     split = stateless_uniform(shape=[2], seed=split, minval=None, maxval=None, dtype=tf.int32)
+#     mc_kernel_fn = monte_carlo.monte_carlo_kernel_fn(
+#         init_fn, apply_fn, split, num_samplings)
+#     empirical_kernel = mc_kernel_fn(X0_1, X0_2, get)
+#     test_utils.assert_close_matrices(self, analytic_kernel,
+#                                      empirical_kernel, rtol)
+#
+#     # Check match with explicit RBF
+#     if rbf_gamma is not None and get == 'nngp' and model == 'fc':
+#       input_dim = X0_1.shape[1]
+#       _, _, kernel_fn = self._RBF(rbf_gamma / input_dim)
+#       direct_rbf_kernel = kernel_fn(X0_1, X0_2, get)
+#       test_utils.assert_close_matrices(self, analytic_kernel,
+#                                        direct_rbf_kernel, rtol)
+#
+#   @jtu.parameterized.named_parameters(
+#       jtu.cases_from_list({
+#           'testcase_name':
+#               '_{}_{}_{}_{}_{}'.format(
+#                   model,
+#                   phi_name,
+#                   'Same_inputs' if same_inputs else 'Different_inputs',
+#                   get,
+#                   abc),
+#           'model':
+#               model,
+#           'phi_name':
+#               phi_name,
+#           'same_inputs':
+#               same_inputs,
+#           'get': get,
+#           'abc': abc,
+#       }
+#                           for model in ['fc', 'conv-pool', 'conv-flatten']
+#                           for phi_name in ['Sin', 'Erf', 'Gelu']
+#                           for same_inputs in [False, True]
+#                           for get in ['nngp', 'ntk']
+#                           for abc in itertools.product(
+#                               [1., 2., 0.3],
+#                               [1., 1.5, 0.3],
+#                               [0., -math.pi/4., math.pi/2.])))
+#   def test_activation(self, same_inputs, model, phi_name, get, abc):
+#     a, b, c = abc
+#     if phi_name == 'Sin':
+#       activation = stax.Sin(a=a, b=b, c=c)
+#     elif phi_name == 'Erf':
+#       activation = stax.Erf(a=a, b=b, c=c)
+#     elif phi_name == 'Gelu':
+#       activation = stax.Gelu()
+#       if a != 1. or b != 1. or c != 0.:
+#         absltest.SkipTest('Skip `Gelu` test if (a, b, c) != (1., 1., 0.).')
+#     else:
+#       raise absltest.SkipTest(f'Activation {phi_name} is not implemented.')
+#     self._test_activation(activation, same_inputs, model, get)
+#
+#   @jtu.parameterized.named_parameters(
+#       jtu.cases_from_list({
+#           'testcase_name':
+#               '_{}_Rbf_{}_{}_{}'.format(
+#                   model,
+#                   'Same_inputs' if same_inputs else 'Different_inputs',
+#                   get,
+#                   gamma),
+#           'model':
+#               model,
+#           'same_inputs':
+#               same_inputs,
+#           'get': get,
+#           'gamma': gamma,
+#       }
+#                           for model in ['fc', 'conv-pool', 'conv-flatten']
+#                           for same_inputs in [False, True]
+#                           for get in ['nngp', 'ntk']
+#                           for gamma in [1e-6, 1e-4, 1e-2, 1.0, 2.]
+#                           ))
+#
+#   def test_rbf(self, same_inputs, model, get, gamma):
+#     activation = stax.Rbf(gamma)
+#     self._test_activation(activation, same_inputs, model, get,
+#                           rbf_gamma=gamma)
 
 
 

@@ -830,8 +830,12 @@ class StaxTest(test_utils.NeuralTangentsTestCase):
         shape2 = shape_conversion(shape2)
         empirical = _get_empirical(num_samples, 'nngp')
       test_utils.assert_close_matrices(self, exact, empirical, rtol)
-      self.assertAllEqual(shape1, x1_out_shape)
-      self.assertAllEqual(shape2, x2_out_shape)
+      x1_shape, x2_shape = [], []
+      for item in x1_out_shape:
+        x1_shape.append(item)
+        x2_shape.append(item)
+      self.assertAllEqual(shape1, tuple(x1_shape))
+      self.assertAllEqual(shape2, tuple(x2_shape))
 
 
 # class ActivationTest(test_utils.NeuralTangentsTestCase):

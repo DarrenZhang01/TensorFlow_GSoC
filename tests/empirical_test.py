@@ -19,13 +19,16 @@ from functools import partial
 from absl.testing import absltest
 from jax import test_util as jtu
 from jax.config import config as jax_config
-import jax.random as random
 from neural_tangents import stax
 from neural_tangents.utils import empirical
 from neural_tangents.utils import test_utils
 from neural_tangents.utils import utils
 
+import tensorflow as tf
 from tensorflow.python.ops import numpy_ops as np
+from stateless_random_ops import stateless_random_normal as normal
+from tensorflow.random import stateless_uniform
+from stateless_random_ops import split as tf_random_split
 from extensions import jit
 
 jax_config.parse_flags_with_absl()
@@ -137,24 +140,32 @@ class EmpiricalTest(jtu.JaxTestCase):
           'shape': shape
       } for shape in TAYLOR_MATRIX_SHAPES))
   def testLinearization(self, shape):
-    key = random.PRNGKey(0)
-    key, s1, s2, s3, = random.split(key, 4)
-    w1 = random.normal(s1, shape)
+    key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+    splits = tf_random_split(seed=tf.convert_to_tensor(key, dtype=tf.int32), num=4)
+    key = splits[0]
+    s1 = splits[1]
+    s2 = splits[2]
+    s3 = splits[3]
+    w1 = np.asarray(normal(shape, seed=s1))
     w1 = 0.5 * (w1 + w1.T)
-    w2 = random.normal(s2, shape)
-    b = random.normal(s3, (shape[-1],))
+    w2 = np.asarray(normal(shape, seed=s2))
+    b = np.asarray(normal((shape[-1],), seed=s3))
     params = (w1, w2, b)
 
-    key, split = random.split(key)
-    x0 = random.normal(split, (shape[-1],))
+    splits = tf_random_split(seed=tf.convert_to_tensor(key, dtype=tf.int32), num=2)
+    key = splits[0]
+    split = splits[1]
+    x0 = np.asarray(normal((shape[-1],), seed=split))
 
     f_lin = empirical.linearize(EmpiricalTest.f, x0)
 
     for _ in range(TAYLOR_RANDOM_SAMPLES):
       for do_alter in [True, False]:
         for do_shift_x in [True, False]:
-          key, split = random.split(key)
-          x = random.normal(split, (shape[-1],))
+          splits = tf_random_split(seed=tf.convert_to_tensor(key, dtype=tf.int32), num=2)
+          key = splits[0]
+          split = splits[1]
+          x = np.asarray(normal((shape[-1],), seed=split))
           self.assertAllClose(EmpiricalTest.f_lin_exact(x0, x, params, do_alter,
                                                         do_shift_x=do_shift_x),
                               f_lin(x, params, do_alter, do_shift_x=do_shift_x))
@@ -179,16 +190,21 @@ class EmpiricalTest(jtu.JaxTestCase):
       dx = x - x0
       return f_lin + 0.5 * np.dot(np.dot(dx.T, w1), dx)
 
-    key = random.PRNGKey(0)
-    key, s1, s2, s3, = random.split(key, 4)
-    w1 = random.normal(s1, shape)
+    splits = tf_random_split(seed=tf.convert_to_tensor(key, dtype=tf.int32), num=4)
+    key = splits[0]
+    s1 = splits[1]
+    s2 = splits[2]
+    s3 = splits[3]
+    w1 = np.asarray(normal(shape, seed=s1))
     w1 = 0.5 * (w1 + w1.T)
-    w2 = random.normal(s2, shape)
-    b = random.normal(s3, (shape[-1],))
+    w2 = np.asarray(normal(shape, seed=s2))
+    b = np.asarray(normal((shape[-1],), seed=s3))
     params = (w1, w2, b)
 
-    key, split = random.split(key)
-    x0 = random.normal(split, (shape[-1],))
+    splits = tf_random_split(seed=tf.convert_to_tensor(key, dtype=tf.int32), num=2)
+    key = splits[0]
+    split = splits[1]
+    x0 = np.asarray(normal((shape[-1],), seed=split))
 
     f_lin = empirical.taylor_expand(EmpiricalTest.f, x0, 1)
     f_2 = empirical.taylor_expand(EmpiricalTest.f, x0, 2)
@@ -196,8 +212,10 @@ class EmpiricalTest(jtu.JaxTestCase):
     for _ in range(TAYLOR_RANDOM_SAMPLES):
       for do_alter in [True, False]:
         for do_shift_x in [True, False]:
-          key, split = random.split(key)
-          x = random.normal(split, (shape[-1],))
+          splits = tf_random_split(seed=tf.convert_to_tensor(key, dtype=tf.int32), num=2)
+          key = splits[0]
+          split = splits[1]
+          x = np.asarray(normal((shape[-1],), seed=split))
           self.assertAllClose(EmpiricalTest.f_lin_exact(x0, x, params, do_alter,
                                                         do_shift_x=do_shift_x),
                               f_lin(x, params, do_alter, do_shift_x=do_shift_x))
@@ -218,10 +236,13 @@ class EmpiricalTest(jtu.JaxTestCase):
                           for name, kernel_fn in KERNELS.items()))
   def testNTKAgainstDirect(
       self, train_shape, test_shape, network, name, kernel_fn):
-    key = random.PRNGKey(0)
-    key, self_split, other_split = random.split(key, 3)
-    data_self = random.normal(self_split, train_shape)
-    data_other = random.normal(other_split, test_shape)
+    key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+    splits = tf_random_split(seed=tf.convert_to_tensor(key, dtype=tf.int32), num=3)
+    key = splits[0]
+    self_split = splits[1]
+    other_split = splits[2]
+    data_self = np.asarray(normal(train_shape, seed=self_split))
+    data_other = np.asarray(normal(test_shape, seed=other_split))
 
     implicit, direct, _ = kernel_fn(key, train_shape[1:], network,
                                     diagonal_axes=(), trace_axes=())
@@ -260,10 +281,13 @@ class EmpiricalTest(jtu.JaxTestCase):
                                                (-3, -1),
                                                (-2, -4)]))
   def testAxes(self, diagonal_axes, trace_axes):
-    key = random.PRNGKey(0)
-    key, self_split, other_split = random.split(key, 3)
-    data_self = random.normal(self_split, (4, 5, 6, 3))
-    data_other = random.normal(other_split, (2, 5, 6, 3))
+    key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+    splits = tf_random_split(seed=tf.convert_to_tensor(key, dtype=tf.int32), num=3)
+    key = splits[0]
+    self_split = splits[1]
+    other_split = splits[2]
+    data_self = np.asarray(normal((4, 5, 6, 3), seed=self_split))
+    data_other = np.asarray(normal((2, 5, 6, 3), seed=other_split))
 
     _diagonal_axes = utils.canonicalize_axis(diagonal_axes, data_self)
     _trace_axes = utils.canonicalize_axis(trace_axes, data_self)

@@ -305,531 +305,533 @@ def _get_net_pool(width, is_ntk, pool_type, padding,
       fc(1 if is_ntk else width)), INPUT_SHAPE, -1, -1
 
 
-# class StaxTest(test_utils.NeuralTangentsTestCase):
-#
-#   @jtu.parameterized.named_parameters(
-#       jtu.cases_from_list({
-#           'testcase_name':
-#               '_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(
-#                   model, phi_name, width, 'same_inputs'
-#                   if same_inputs else 'different_inputs', 'filter_shape=%s' %
-#                   str(filter_shape), 'padding=%s' % padding, 'strides=%s' %
-#                   str(strides), 'pool' if use_pooling else 'flatten',
-#                   'NTK' if is_ntk else 'NNGP', 'RESNET' if is_res else 'serial',
-#                   proj_into_2d),
-#           'model':
-#               model,
-#           'width':
-#               width,
-#           'strides':
-#               strides,
-#           'padding':
-#               padding,
-#           'phi':
-#               phi,
-#           'same_inputs':
-#               same_inputs,
-#           'filter_shape':
-#               filter_shape,
-#           'use_pooling':
-#               use_pooling,
-#           'is_ntk':
-#               is_ntk,
-#           'is_res':
-#               is_res,
-#           'proj_into_2d':
-#               proj_into_2d
-#       }
-#                           for model in MODELS
-#                           for width in WIDTHS
-#                           for phi, phi_name in ACTIVATIONS.items()
-#                           for same_inputs in [False]
-#                           for padding in PADDINGS for strides in STRIDES
-#                           for filter_shape in FILTER_SHAPES
-#                           for use_pooling in [False, True]
-#                           for is_ntk in [False, True]
-#                           for is_res in [False, True]
-#                           for proj_into_2d in PROJECTIONS))
-#   def test_exact(self, model, width, strides, padding, phi, same_inputs,
-#                  filter_shape, use_pooling, is_ntk, is_res, proj_into_2d):
-#     is_conv = 'conv' in model
-#
-#     # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
-#     if is_conv:
-#       if xla_bridge.get_backend().platform == 'cpu':
-#         raise absltest.SkipTest('Not running CNN models on CPU to save time.')
-#
-#       if (is_res and is_conv and ((strides is not None and strides != (1, 1)) or
-#                                   (padding == 'VALID' and filter_shape !=
-#                                    (1, 1)))):
-#         raise absltest.SkipTest('Different paths in a residual models need to '
-#                                 'return outputs of the same shape.')
-#     elif (filter_shape != FILTER_SHAPES[0] or padding != PADDINGS[0] or
-#           strides != STRIDES[0] or proj_into_2d != PROJECTIONS[0] or
-#           use_pooling):
-#       raise absltest.SkipTest('FC models do not have these parameters.')
-#
-#     pool_type = 'AVG'
-#     W_std, b_std = 2.**0.5, 0.5**0.5
-#     layer_norm = None
-#     parameterization = 'ntk'
-#     use_dropout = False
-#
-#     net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
-#                    padding, phi, strides, width, is_ntk, proj_into_2d,
-#                    pool_type, layer_norm, parameterization, use_dropout)
-#     self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
-#                                          proj_into_2d)
-#
-#   # pylint: disable=g-complex-comprehension
-#   @jtu.parameterized.named_parameters(
-#       jtu.cases_from_list({
-#           'testcase_name':
-#               '_{}_{}_{}_{}_{}_{}_{}'.format(
-#                   model, width, 'same_inputs'
-#                   if same_inputs else 'different_inputs', 'filter_shape=%s' %
-#                   str(filter_shape), proj_into_2d, 'NTK' if is_ntk else 'NNGP',
-#                   'parameterization=%s' % str(parameterization)),
-#           'model':
-#               model,
-#           'width':
-#               width,
-#           'same_inputs':
-#               same_inputs,
-#           'filter_shape':
-#               filter_shape,
-#           'proj_into_2d':
-#               proj_into_2d,
-#           'is_ntk':
-#               is_ntk,
-#           'parameterization':
-#               parameterization
-#       } for model in MODELS for width in WIDTHS
-#                           for same_inputs in [False]
-#                           for is_ntk in [False, True]
-#                           for filter_shape in FILTER_SHAPES
-#                           for proj_into_2d in PROJECTIONS[:2]
-#                           for parameterization in PARAMETERIZATIONS))
-#   def test_parameterizations(self, model, width, same_inputs, is_ntk,
-#                              filter_shape, proj_into_2d, parameterization):
-#     is_conv = 'conv' in model
-#
-#     W_std, b_std = 2.**0.5, 0.5**0.5
-#     padding = PADDINGS[0]
-#     strides = STRIDES[0]
-#     phi = stax.Relu()
-#     use_pooling, is_res = False, False
-#     layer_norm = None
-#     pool_type = 'AVG'
-#     use_dropout = False
-#
-#     # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
-#     if is_conv:
-#       if xla_bridge.get_backend().platform == 'cpu':
-#         raise absltest.SkipTest('Not running CNN models on CPU to save time.')
-#     elif proj_into_2d != PROJECTIONS[0]:
-#       raise absltest.SkipTest('FC models do not have these parameters.')
-#
-#     net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
-#                    padding, phi, strides, width, is_ntk, proj_into_2d,
-#                    pool_type, layer_norm, parameterization, use_dropout)
-#     self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
-#                                          proj_into_2d)
-#
-#   @jtu.parameterized.named_parameters(
-#       jtu.cases_from_list({
-#           'testcase_name':
-#               '_{}_{}_{}_{}_{}_{}'.format(
-#                   model,
-#                   width,
-#                   'same_inputs' if same_inputs else 'different_inputs',
-#                   'NTK' if is_ntk else 'NNGP',
-#                   proj_into_2d,
-#                   'layer_norm=%s' % str(layer_norm)),
-#           'model':
-#               model,
-#           'width':
-#               width,
-#           'same_inputs':
-#               same_inputs,
-#           'is_ntk':
-#               is_ntk,
-#           'proj_into_2d':
-#               proj_into_2d,
-#           'layer_norm':
-#               layer_norm
-#       }
-#                           for model in MODELS
-#                           for width in WIDTHS
-#                           for same_inputs in [False]
-#                           for is_ntk in [False, True]
-#                           for proj_into_2d in PROJECTIONS[:2]
-#                           for layer_norm in LAYER_NORM))
-#   def test_layernorm(self,
-#                      model,
-#                      width,
-#                      same_inputs,
-#                      is_ntk,
-#                      proj_into_2d,
-#                      layer_norm):
-#     is_conv = 'conv' in model
-#     # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
-#     if is_conv:
-#       if xla_bridge.get_backend().platform == 'cpu':
-#         raise absltest.SkipTest('Not running CNN models on CPU to save time.')
-#     elif proj_into_2d != PROJECTIONS[0] or layer_norm not in ('C', 'NC'):
-#       raise absltest.SkipTest('FC models do not have these parameters.')
-#
-#     W_std, b_std = 2.**0.5, 0.5**0.5
-#     filter_shape = FILTER_SHAPES[0]
-#     padding = PADDINGS[0]
-#     strides = STRIDES[0]
-#     phi = stax.Relu()
-#     use_pooling, is_res = False, False
-#     parameterization = 'ntk'
-#     pool_type = 'AVG'
-#     use_dropout = False
-#
-#     net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
-#                    padding, phi, strides, width, is_ntk, proj_into_2d,
-#                    pool_type, layer_norm, parameterization, use_dropout)
-#     self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
-#                                          proj_into_2d, True)
-#
-#   @jtu.parameterized.named_parameters(
-#       jtu.cases_from_list({
-#           'testcase_name':
-#               '_{}_{}_{}_{}_{}_{}_{}_{}'.format(
-#                   width, 'same_inputs' if same_inputs else 'different_inputs',
-#                   'filter_shape=%s' % str(filter_shape), 'padding=%s' %
-#                   padding, 'strides=%s' % str(strides),
-#                   'NTK' if is_ntk else 'NNGP', 'pool_type=%s' %
-#                   str(pool_type), 'normalize_edges=%s' % str(normalize_edges)),
-#           'width':
-#               width,
-#           'same_inputs':
-#               same_inputs,
-#           'is_ntk':
-#               is_ntk,
-#           'pool_type':
-#               pool_type,
-#           'padding':
-#               padding,
-#           'filter_shape':
-#               filter_shape,
-#           'strides':
-#               strides,
-#           'normalize_edges':
-#               normalize_edges
-#       } for width in WIDTHS for same_inputs in [False, True]
-#                           for is_ntk in [False, True]
-#                           for pool_type in POOL_TYPES for padding in PADDINGS
-#                           for filter_shape in FILTER_SHAPES
-#                           for strides in STRIDES
-#                           for normalize_edges in [True, False]))
-#   def test_pool(self, width, same_inputs, is_ntk, pool_type,
-#                 padding, filter_shape, strides, normalize_edges):
-#     is_conv = True
-#     use_dropout = False
-#     proj_into_2d = 'POOL'
-#     # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
-#
-#     if xla_bridge.get_backend().platform == 'cpu':
-#       raise absltest.SkipTest('Not running CNN models on CPU to save time.')
-#     if pool_type == 'SUM' and normalize_edges:
-#       raise absltest.SkipTest('normalize_edges not applicable to SumPool.')
-#
-#     net = _get_net_pool(width, is_ntk, pool_type,
-#                         padding, filter_shape, strides, normalize_edges)
-#     self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
-#                                          proj_into_2d)
-#
-#   def test_avg_pool(self):
-#     X1 = np.ones((4, 2, 3, 2))
-#     X2 = np.ones((3, 2, 3, 2))
-#
-#     _, apply_fn, kernel_fn = stax.AvgPool((2, 2), (1, 1), 'SAME',
-#                                           normalize_edges=False)
-#     _, apply_fn_norm, kernel_fn_norm = stax.AvgPool((2, 2), (1, 1), 'SAME',
-#                                                     normalize_edges=True)
-#     _, apply_fn_stax = stax.ostax.AvgPool((2, 2), (1, 1), 'SAME')
-#
-#     out1 = apply_fn((), X1)
-#     out2 = apply_fn((), X2)
-#
-#     out1_norm = apply_fn_norm((), X1)
-#     out2_norm = apply_fn_norm((), X2)
-#
-#     out1_stax = apply_fn_stax((), X1)
-#     out2_stax = apply_fn_stax((), X2)
-#
-#     self.assertAllClose((out1_stax, out2_stax), (out1_norm, out2_norm))
-#
-#     out_unnorm = np.array([[1., 1., 0.5], [0.5, 0.5, 0.25]]).reshape(
-#         (1, 2, 3, 1))
-#     out1_unnormalized = np.broadcast_to(out_unnorm, X1.shape)
-#     out2_unnormalized = np.broadcast_to(out_unnorm, X2.shape)
-#
-#     self.assertAllClose((out1_unnormalized, out2_unnormalized), (out1, out2))
-#
-#     ker = kernel_fn(X1, X2)
-#     ker_norm = kernel_fn_norm(X1, X2)
-#
-#     self.assertAllClose(np.ones_like(ker_norm.nngp), ker_norm.nngp)
-#     self.assertAllClose(np.ones_like(ker_norm.cov1), ker_norm.cov1)
-#     self.assertAllClose(np.ones_like(ker_norm.cov2), ker_norm.cov2)
-#
-#     self.assertEqual(ker_norm.nngp.shape, ker.nngp.shape)
-#     self.assertEqual(ker_norm.cov1.shape, ker.cov1.shape)
-#     self.assertEqual(ker_norm.cov2.shape, ker.cov2.shape)
-#
-#     ker_unnorm = np.outer(out_unnorm, out_unnorm).reshape((2, 3, 2, 3))
-#     ker_unnorm = np.transpose(ker_unnorm, axes=(0, 2, 1, 3))
-#     nngp = np.broadcast_to(
-#         ker_unnorm.reshape((1, 1) + ker_unnorm.shape), ker.nngp.shape)
-#     cov1 = np.broadcast_to(np.expand_dims(ker_unnorm, 0), ker.cov1.shape)
-#     cov2 = np.broadcast_to(np.expand_dims(ker_unnorm, 0), ker.cov2.shape)
-#     self.assertAllClose((nngp, cov1, cov2), (ker.nngp, ker.cov1, ker.cov2))
-#
-#   @jtu.parameterized.named_parameters(
-#       jtu.cases_from_list({
-#           'testcase_name':
-#               '_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(
-#                   model, phi_name, width, 'same_inputs'
-#                   if same_inputs else 'different_inputs', 'filter_shape=%s' %
-#                   str(filter_shape), 'padding=%s' % padding, 'strides=%s' %
-#                   str(strides), 'pool' if use_pooling else 'flatten',
-#                   'NTK' if is_ntk else 'NNGP', proj_into_2d),
-#           'model':
-#               model,
-#           'width':
-#               width,
-#           'same_inputs':
-#               same_inputs,
-#           'is_ntk':
-#               is_ntk,
-#           'padding':
-#               padding,
-#           'strides':
-#               strides,
-#           'filter_shape':
-#               filter_shape,
-#           'phi':
-#               phi,
-#           'use_pooling':
-#               use_pooling,
-#           'proj_into_2d':
-#               proj_into_2d
-#       } for model in MODELS for width in WIDTHS
-#                           for same_inputs in [True, False]
-#                           for phi, phi_name in ACTIVATIONS.items()
-#                           for padding in ['SAME'] for strides in STRIDES
-#                           for filter_shape in [(2, 1)]
-#                           for is_ntk in [True, False]
-#                           for use_pooling in [True, False]
-#                           for proj_into_2d in ['FLAT', 'POOL']))
-#   def test_dropout(self, model, width, same_inputs, is_ntk, padding, strides,
-#                    filter_shape, phi, use_pooling, proj_into_2d):
-#     if xla_bridge.get_backend().platform == 'tpu' and same_inputs:
-#       raise absltest.SkipTest(
-#           'Skip TPU test for `same_inputs`. Need to handle '
-#           'random keys carefully for dropout + empirical kernel.')
-#
-#     pool_type = 'AVG'
-#     use_dropout = True
-#     is_conv = 'conv' in model
-#     is_res = False
-#     # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
-#     W_std, b_std = 2.**0.5, 0.5**0.5
-#     layer_norm = None
-#     parameterization = 'ntk'
-#     if is_conv:
-#       if xla_bridge.get_backend().platform == 'cpu':
-#         raise absltest.SkipTest('Not running CNN models on CPU to save time.')
-#
-#       if (is_res and is_conv and ((strides is not None and strides != (1, 1)) or
-#                                   (padding == 'VALID' and filter_shape !=
-#                                    (1, 1)))):
-#         raise absltest.SkipTest('Different paths in a residual models need to '
-#                                 'return outputs of the same shape.')
-#     elif (filter_shape != FILTER_SHAPES[0] or padding != PADDINGS[0] or
-#           strides != STRIDES[0] or proj_into_2d != PROJECTIONS[0] or
-#           use_pooling):
-#       raise absltest.SkipTest('FC models do not have these parameters.')
-#
-#     net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
-#                    padding, phi, strides, width, is_ntk, proj_into_2d,
-#                    pool_type, layer_norm, parameterization, use_dropout)
-#     self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
-#                                          proj_into_2d)
-#
-#
-#
-#   @jtu.parameterized.named_parameters(
-#       jtu.cases_from_list({
-#           'testcase_name': '_act={}_kernel={}'.format(act, kern),
-#           'act': act,
-#           'kernel': kern
-#       }
-#                           for act in ['erf', 'relu']
-#                           for kern in ['nngp', 'ntk']))
-#   def test_sparse_inputs(self, act, kernel):
-#     key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
-#
-#     input_count = 4
-#     sparse_count = 2
-#     input_size = 128
-#     width = 4096
-#
-#     # NOTE(schsam): It seems that convergence is slower when inputs are sparse.
-#     samples = N_SAMPLES
-#
-#     if xla_bridge.get_backend().platform == 'gpu':
-#       jtu._default_tolerance[onp.dtype(onp.float64)] = 5e-4
-#       samples = 100 * N_SAMPLES
-#     else:
-#       jtu._default_tolerance[onp.dtype(onp.float32)] = 5e-2
-#       jtu._default_tolerance[onp.dtype(onp.float64)] = 5e-3
-#
-#     # a batch of dense inputs
-#     x_dense = np.asarray(normal((input_count, input_size), seed=key))
-#     x_sparse = ops.index_update(x_dense, ops.index[:sparse_count, :], 0.)
-#
-#     activation = stax.Relu() if act == 'relu' else stax.Erf()
-#
-#     init_fn, apply_fn, kernel_fn = stax.serial(
-#         stax.Dense(width),
-#         activation,
-#         stax.Dense(1 if kernel == 'ntk' else width))
-#     # tf.print("x_sparse: {}".format(x_sparse), output_stream=sys.stderr)
-#     exact = kernel_fn(x_sparse, None, kernel)
-#     mc = monte_carlo.monte_carlo_kernel_fn(init_fn, apply_fn,
-#                                            tf_random_split(key, 2)[0],
-#                                            samples)(x_sparse, None, kernel)
-#     mc = np.reshape(mc, exact.shape)
-#
-#     assert not np.any(np.isnan(exact))
-#     self.assertAllClose(exact[sparse_count:, sparse_count:],
-#                         mc[sparse_count:, sparse_count:])
-#
-#   def test_composition_dense(self):
-#     rng = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
-#     x1 = np.asarray(normal((10, 10), seed=rng))
-#     x2 = np.asarray(normal((10, 10), seed=rng))
-#
-#     Block = stax.serial(stax.Dense(256), stax.Relu())
-#
-#     _, _, ker_fn = Block
-#     _, _, composed_ker_fn = stax.serial(Block, Block)
-#
-#     ker_out = ker_fn(ker_fn(x1))
-#     composed_ker_out = composed_ker_fn(x1)
-#     self.assertAllClose(ker_out, composed_ker_out)
-#
-#     ker_out = ker_fn(ker_fn(x1, x2))
-#     composed_ker_out = composed_ker_fn(x1, x2)
-#     self.assertAllClose(ker_out, composed_ker_out)
-#
-#   @jtu.parameterized.named_parameters(
-#       jtu.cases_from_list({
-#           'testcase_name': '_avg_pool={}_same_inputs={}'.format(avg_pool,
-#                                                                 same_inputs),
-#           'avg_pool': avg_pool,
-#           'same_inputs': same_inputs
-#       }
-#                           for avg_pool in [True, False]
-#                           for same_inputs in [True, False]))
-#   def test_composition_conv(self, avg_pool, same_inputs):
-#     rng = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
-#     x1 = np.asarray(normal((5, 10, 10, 3), seed=rng))
-#     x2 = None if same_inputs else np.asarray(normal((5, 10, 10, 3), seed=rng))
-#
-#     Block = stax.serial(stax.Conv(256, (3, 3)), stax.Relu())
-#     if avg_pool:
-#       Readout = stax.serial(stax.GlobalAvgPool(), stax.Dense(10))
-#     else:
-#       Readout = stax.serial(stax.Flatten(), stax.Dense(10))
-#
-#     block_ker_fn, readout_ker_fn = Block[2], Readout[2]
-#     _, _, composed_ker_fn = stax.serial(Block, Readout)
-#
-#     composed_ker_out = composed_ker_fn(x1, x2)
-#     ker_out_no_marg = readout_ker_fn(block_ker_fn(x1, x2,
-#                                                   diagonal_spatial=False))
-#     ker_out_default = readout_ker_fn(block_ker_fn(x1, x2))
-#     self.assertAllClose(composed_ker_out, ker_out_no_marg)
-#     self.assertAllClose(composed_ker_out, ker_out_default)
-#
-#     if avg_pool:
-#       with self.assertRaises(ValueError):
-#         ker_out = readout_ker_fn(block_ker_fn(x1, x2, diagonal_spatial=True))
-#     else:
-#       ker_out_marg = readout_ker_fn(block_ker_fn(x1, x2,
-#                                                  diagonal_spatial=True))
-#       self.assertAllClose(composed_ker_out, ker_out_marg)
-#
-#   def _check_agreement_with_empirical(
-#       self,
-#       net,
-#       same_inputs,
-#       use_dropout,
-#       is_ntk,
-#       proj_into_2d,
-#       use_layer_norm=False):
-#     ((init_fn, apply_fn, kernel_fn),
-#      input_shape, device_count, channel_axis) = net
-#
-#     num_samples = N_SAMPLES * 5 if use_dropout else N_SAMPLES
-#     key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
-#     x1, x2 = _get_inputs(key, same_inputs, input_shape)
-#
-#     x1_out_shape, params = init_fn(key, x1.shape)
-#     if same_inputs:
-#       assert x2 is None
-#     if x2 is None:
-#       x2_out_shape = x1_out_shape
-#     else:
-#       x2_out_shape, params = init_fn(key, x2.shape)
-#     del params
-#
-#     def _get_empirical(n_samples, get):
-#       kernel_fn_empirical = monte_carlo.monte_carlo_kernel_fn(
-#           init_fn, apply_fn, key, n_samples, device_count=device_count,
-#           trace_axes=(channel_axis,)
-#       )
-#       if same_inputs:
-#         assert x2 is None
-#       return kernel_fn_empirical(x1, x2, get)
-#
-#     if proj_into_2d == 'ATTN_PARAM':
-#       # no analytic kernel available, just test forward/backward pass
-#       _get_empirical(1, 'ntk' if is_ntk else 'nngp')
-#     else:
-#       platform = xla_bridge.get_backend().platform
-#       if proj_into_2d == 'ATTN_FIXED':
-#         if platform == 'tpu':
-#           rtol = 0.08
-#         else:
-#           rtol = 0.04
-#       else:
-#         if use_layer_norm and platform == 'tpu':
-#           rtol = 0.05
-#         else:
-#           rtol = RTOL
-#
-#       if is_ntk:
-#         exact, shape1, shape2 = kernel_fn(x1, x2, ('ntk', 'shape1', 'shape2'))
-#         shape1 = shape_conversion(shape1)
-#         shape2 = shape_conversion(shape2)
-#         empirical = np.reshape(_get_empirical(num_samples, 'ntk'), exact.shape)
-#       else:
-#         exact, shape1, shape2 = kernel_fn(x1, x2, ('nngp', 'shape1', 'shape2'))
-#         shape1 = shape_conversion(shape1)
-#         shape2 = shape_conversion(shape2)
-#         empirical = _get_empirical(num_samples, 'nngp')
-#       test_utils.assert_close_matrices(self, exact, empirical, rtol)
-#       self.assertEqual(shape1, x1_out_shape)
-#       self.assertEqual(shape2, x2_out_shape)
+class StaxTest(test_utils.NeuralTangentsTestCase):
+
+  # @jtu.parameterized.named_parameters(
+  #     jtu.cases_from_list({
+  #         'testcase_name':
+  #             '_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(
+  #                 model, phi_name, width, 'same_inputs'
+  #                 if same_inputs else 'different_inputs', 'filter_shape=%s' %
+  #                 str(filter_shape), 'padding=%s' % padding, 'strides=%s' %
+  #                 str(strides), 'pool' if use_pooling else 'flatten',
+  #                 'NTK' if is_ntk else 'NNGP', 'RESNET' if is_res else 'serial',
+  #                 proj_into_2d),
+  #         'model':
+  #             model,
+  #         'width':
+  #             width,
+  #         'strides':
+  #             strides,
+  #         'padding':
+  #             padding,
+  #         'phi':
+  #             phi,
+  #         'same_inputs':
+  #             same_inputs,
+  #         'filter_shape':
+  #             filter_shape,
+  #         'use_pooling':
+  #             use_pooling,
+  #         'is_ntk':
+  #             is_ntk,
+  #         'is_res':
+  #             is_res,
+  #         'proj_into_2d':
+  #             proj_into_2d
+  #     }
+  #                         for model in MODELS
+  #                         for width in WIDTHS
+  #                         for phi, phi_name in ACTIVATIONS.items()
+  #                         for same_inputs in [False]
+  #                         for padding in PADDINGS for strides in STRIDES
+  #                         for filter_shape in FILTER_SHAPES
+  #                         for use_pooling in [False, True]
+  #                         for is_ntk in [False, True]
+  #                         for is_res in [False, True]
+  #                         for proj_into_2d in PROJECTIONS))
+  # def test_exact(self, model, width, strides, padding, phi, same_inputs,
+  #                filter_shape, use_pooling, is_ntk, is_res, proj_into_2d):
+  #   is_conv = 'conv' in model
+  #
+  #   # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
+  #   if is_conv:
+  #     if xla_bridge.get_backend().platform == 'cpu':
+  #       raise absltest.SkipTest('Not running CNN models on CPU to save time.')
+  #
+  #     if (is_res and is_conv and ((strides is not None and strides != (1, 1)) or
+  #                                 (padding == 'VALID' and filter_shape !=
+  #                                  (1, 1)))):
+  #       raise absltest.SkipTest('Different paths in a residual models need to '
+  #                               'return outputs of the same shape.')
+  #   elif (filter_shape != FILTER_SHAPES[0] or padding != PADDINGS[0] or
+  #         strides != STRIDES[0] or proj_into_2d != PROJECTIONS[0] or
+  #         use_pooling):
+  #     raise absltest.SkipTest('FC models do not have these parameters.')
+  #
+  #   pool_type = 'AVG'
+  #   W_std, b_std = 2.**0.5, 0.5**0.5
+  #   layer_norm = None
+  #   parameterization = 'ntk'
+  #   use_dropout = False
+  #
+  #   net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
+  #                  padding, phi, strides, width, is_ntk, proj_into_2d,
+  #                  pool_type, layer_norm, parameterization, use_dropout)
+  #   self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
+  #                                        proj_into_2d)
+  #
+  # # pylint: disable=g-complex-comprehension
+  # @jtu.parameterized.named_parameters(
+  #     jtu.cases_from_list({
+  #         'testcase_name':
+  #             '_{}_{}_{}_{}_{}_{}_{}'.format(
+  #                 model, width, 'same_inputs'
+  #                 if same_inputs else 'different_inputs', 'filter_shape=%s' %
+  #                 str(filter_shape), proj_into_2d, 'NTK' if is_ntk else 'NNGP',
+  #                 'parameterization=%s' % str(parameterization)),
+  #         'model':
+  #             model,
+  #         'width':
+  #             width,
+  #         'same_inputs':
+  #             same_inputs,
+  #         'filter_shape':
+  #             filter_shape,
+  #         'proj_into_2d':
+  #             proj_into_2d,
+  #         'is_ntk':
+  #             is_ntk,
+  #         'parameterization':
+  #             parameterization
+  #     } for model in MODELS for width in WIDTHS
+  #                         for same_inputs in [False]
+  #                         for is_ntk in [False, True]
+  #                         for filter_shape in FILTER_SHAPES
+  #                         for proj_into_2d in PROJECTIONS[:2]
+  #                         for parameterization in PARAMETERIZATIONS))
+  # def test_parameterizations(self, model, width, same_inputs, is_ntk,
+  #                            filter_shape, proj_into_2d, parameterization):
+  #   is_conv = 'conv' in model
+  #
+  #   W_std, b_std = 2.**0.5, 0.5**0.5
+  #   padding = PADDINGS[0]
+  #   strides = STRIDES[0]
+  #   phi = stax.Relu()
+  #   use_pooling, is_res = False, False
+  #   layer_norm = None
+  #   pool_type = 'AVG'
+  #   use_dropout = False
+  #
+  #   # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
+  #   if is_conv:
+  #     if xla_bridge.get_backend().platform == 'cpu':
+  #       raise absltest.SkipTest('Not running CNN models on CPU to save time.')
+  #   elif proj_into_2d != PROJECTIONS[0]:
+  #     raise absltest.SkipTest('FC models do not have these parameters.')
+  #
+  #   net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
+  #                  padding, phi, strides, width, is_ntk, proj_into_2d,
+  #                  pool_type, layer_norm, parameterization, use_dropout)
+  #   self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
+  #                                        proj_into_2d)
+  #
+  # @jtu.parameterized.named_parameters(
+  #     jtu.cases_from_list({
+  #         'testcase_name':
+  #             '_{}_{}_{}_{}_{}_{}'.format(
+  #                 model,
+  #                 width,
+  #                 'same_inputs' if same_inputs else 'different_inputs',
+  #                 'NTK' if is_ntk else 'NNGP',
+  #                 proj_into_2d,
+  #                 'layer_norm=%s' % str(layer_norm)),
+  #         'model':
+  #             model,
+  #         'width':
+  #             width,
+  #         'same_inputs':
+  #             same_inputs,
+  #         'is_ntk':
+  #             is_ntk,
+  #         'proj_into_2d':
+  #             proj_into_2d,
+  #         'layer_norm':
+  #             layer_norm
+  #     }
+  #                         for model in MODELS
+  #                         for width in WIDTHS
+  #                         for same_inputs in [False]
+  #                         for is_ntk in [False, True]
+  #                         for proj_into_2d in PROJECTIONS[:2]
+  #                         for layer_norm in LAYER_NORM))
+  # def test_layernorm(self,
+  #                    model,
+  #                    width,
+  #                    same_inputs,
+  #                    is_ntk,
+  #                    proj_into_2d,
+  #                    layer_norm):
+  #   is_conv = 'conv' in model
+  #   # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
+  #   if is_conv:
+  #     if xla_bridge.get_backend().platform == 'cpu':
+  #       raise absltest.SkipTest('Not running CNN models on CPU to save time.')
+  #   elif proj_into_2d != PROJECTIONS[0] or layer_norm not in ('C', 'NC'):
+  #     raise absltest.SkipTest('FC models do not have these parameters.')
+  #
+  #   W_std, b_std = 2.**0.5, 0.5**0.5
+  #   filter_shape = FILTER_SHAPES[0]
+  #   padding = PADDINGS[0]
+  #   strides = STRIDES[0]
+  #   phi = stax.Relu()
+  #   use_pooling, is_res = False, False
+  #   parameterization = 'ntk'
+  #   pool_type = 'AVG'
+  #   use_dropout = False
+  #
+  #   net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
+  #                  padding, phi, strides, width, is_ntk, proj_into_2d,
+  #                  pool_type, layer_norm, parameterization, use_dropout)
+  #   self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
+  #                                        proj_into_2d, True)
+  #
+  # @jtu.parameterized.named_parameters(
+  #     jtu.cases_from_list({
+  #         'testcase_name':
+  #             '_{}_{}_{}_{}_{}_{}_{}_{}'.format(
+  #                 width, 'same_inputs' if same_inputs else 'different_inputs',
+  #                 'filter_shape=%s' % str(filter_shape), 'padding=%s' %
+  #                 padding, 'strides=%s' % str(strides),
+  #                 'NTK' if is_ntk else 'NNGP', 'pool_type=%s' %
+  #                 str(pool_type), 'normalize_edges=%s' % str(normalize_edges)),
+  #         'width':
+  #             width,
+  #         'same_inputs':
+  #             same_inputs,
+  #         'is_ntk':
+  #             is_ntk,
+  #         'pool_type':
+  #             pool_type,
+  #         'padding':
+  #             padding,
+  #         'filter_shape':
+  #             filter_shape,
+  #         'strides':
+  #             strides,
+  #         'normalize_edges':
+  #             normalize_edges
+  #     } for width in WIDTHS for same_inputs in [False, True]
+  #                         for is_ntk in [False, True]
+  #                         for pool_type in POOL_TYPES for padding in PADDINGS
+  #                         for filter_shape in FILTER_SHAPES
+  #                         for strides in STRIDES
+  #                         for normalize_edges in [True, False]))
+  # def test_pool(self, width, same_inputs, is_ntk, pool_type,
+  #               padding, filter_shape, strides, normalize_edges):
+  #   is_conv = True
+  #   use_dropout = False
+  #   proj_into_2d = 'POOL'
+  #   # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
+  #
+  #   if xla_bridge.get_backend().platform == 'cpu':
+  #     raise absltest.SkipTest('Not running CNN models on CPU to save time.')
+  #   if pool_type == 'SUM' and normalize_edges:
+  #     raise absltest.SkipTest('normalize_edges not applicable to SumPool.')
+  #
+  #   net = _get_net_pool(width, is_ntk, pool_type,
+  #                       padding, filter_shape, strides, normalize_edges)
+  #   self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
+  #                                        proj_into_2d)
+  #
+  # def test_avg_pool(self):
+  #   X1 = np.ones((4, 2, 3, 2))
+  #   X2 = np.ones((3, 2, 3, 2))
+  #
+  #   _, apply_fn, kernel_fn = stax.AvgPool((2, 2), (1, 1), 'SAME',
+  #                                         normalize_edges=False)
+  #   _, apply_fn_norm, kernel_fn_norm = stax.AvgPool((2, 2), (1, 1), 'SAME',
+  #                                                   normalize_edges=True)
+  #   _, apply_fn_stax = stax.ostax.AvgPool((2, 2), (1, 1), 'SAME')
+  #
+  #   out1 = apply_fn((), X1)
+  #   out2 = apply_fn((), X2)
+  #
+  #   out1_norm = apply_fn_norm((), X1)
+  #   out2_norm = apply_fn_norm((), X2)
+  #
+  #   out1_stax = apply_fn_stax((), X1)
+  #   out2_stax = apply_fn_stax((), X2)
+  #
+  #   self.assertAllClose((out1_stax, out2_stax), (out1_norm, out2_norm))
+  #
+  #   out_unnorm = np.array([[1., 1., 0.5], [0.5, 0.5, 0.25]]).reshape(
+  #       (1, 2, 3, 1))
+  #   out1_unnormalized = np.broadcast_to(out_unnorm, X1.shape)
+  #   out2_unnormalized = np.broadcast_to(out_unnorm, X2.shape)
+  #
+  #   self.assertAllClose((out1_unnormalized, out2_unnormalized), (out1, out2))
+  #
+  #   ker = kernel_fn(X1, X2)
+  #   ker_norm = kernel_fn_norm(X1, X2)
+  #
+  #   self.assertAllClose(np.ones_like(ker_norm.nngp), ker_norm.nngp)
+  #   self.assertAllClose(np.ones_like(ker_norm.cov1), ker_norm.cov1)
+  #   self.assertAllClose(np.ones_like(ker_norm.cov2), ker_norm.cov2)
+  #
+  #   self.assertEqual(ker_norm.nngp.shape, ker.nngp.shape)
+  #   self.assertEqual(ker_norm.cov1.shape, ker.cov1.shape)
+  #   self.assertEqual(ker_norm.cov2.shape, ker.cov2.shape)
+  #
+  #   ker_unnorm = np.outer(out_unnorm, out_unnorm).reshape((2, 3, 2, 3))
+  #   ker_unnorm = np.transpose(ker_unnorm, axes=(0, 2, 1, 3))
+  #   nngp = np.broadcast_to(
+  #       ker_unnorm.reshape((1, 1) + ker_unnorm.shape), ker.nngp.shape)
+  #   cov1 = np.broadcast_to(np.expand_dims(ker_unnorm, 0), ker.cov1.shape)
+  #   cov2 = np.broadcast_to(np.expand_dims(ker_unnorm, 0), ker.cov2.shape)
+  #   self.assertAllClose((nngp, cov1, cov2), (ker.nngp, ker.cov1, ker.cov2))
+  #
+  # @jtu.parameterized.named_parameters(
+  #     jtu.cases_from_list({
+  #         'testcase_name':
+  #             '_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(
+  #                 model, phi_name, width, 'same_inputs'
+  #                 if same_inputs else 'different_inputs', 'filter_shape=%s' %
+  #                 str(filter_shape), 'padding=%s' % padding, 'strides=%s' %
+  #                 str(strides), 'pool' if use_pooling else 'flatten',
+  #                 'NTK' if is_ntk else 'NNGP', proj_into_2d),
+  #         'model':
+  #             model,
+  #         'width':
+  #             width,
+  #         'same_inputs':
+  #             same_inputs,
+  #         'is_ntk':
+  #             is_ntk,
+  #         'padding':
+  #             padding,
+  #         'strides':
+  #             strides,
+  #         'filter_shape':
+  #             filter_shape,
+  #         'phi':
+  #             phi,
+  #         'use_pooling':
+  #             use_pooling,
+  #         'proj_into_2d':
+  #             proj_into_2d
+  #     } for model in MODELS for width in WIDTHS
+  #                         for same_inputs in [True, False]
+  #                         for phi, phi_name in ACTIVATIONS.items()
+  #                         for padding in ['SAME'] for strides in STRIDES
+  #                         for filter_shape in [(2, 1)]
+  #                         for is_ntk in [True, False]
+  #                         for use_pooling in [True, False]
+  #                         for proj_into_2d in ['FLAT', 'POOL']))
+  # def test_dropout(self, model, width, same_inputs, is_ntk, padding, strides,
+  #                  filter_shape, phi, use_pooling, proj_into_2d):
+  #   if xla_bridge.get_backend().platform == 'tpu' and same_inputs:
+  #     raise absltest.SkipTest(
+  #         'Skip TPU test for `same_inputs`. Need to handle '
+  #         'random keys carefully for dropout + empirical kernel.')
+  #
+  #   pool_type = 'AVG'
+  #   use_dropout = True
+  #   is_conv = 'conv' in model
+  #   is_res = False
+  #   # Check for duplicate / incorrectly-shaped NN configs / wrong backend.
+  #   W_std, b_std = 2.**0.5, 0.5**0.5
+  #   layer_norm = None
+  #   parameterization = 'ntk'
+  #   if is_conv:
+  #     if xla_bridge.get_backend().platform == 'cpu':
+  #       raise absltest.SkipTest('Not running CNN models on CPU to save time.')
+  #
+  #     if (is_res and is_conv and ((strides is not None and strides != (1, 1)) or
+  #                                 (padding == 'VALID' and filter_shape !=
+  #                                  (1, 1)))):
+  #       raise absltest.SkipTest('Different paths in a residual models need to '
+  #                               'return outputs of the same shape.')
+  #   elif (filter_shape != FILTER_SHAPES[0] or padding != PADDINGS[0] or
+  #         strides != STRIDES[0] or proj_into_2d != PROJECTIONS[0] or
+  #         use_pooling):
+  #     raise absltest.SkipTest('FC models do not have these parameters.')
+  #
+  #   net = _get_net(W_std, b_std, filter_shape, is_conv, use_pooling, is_res,
+  #                  padding, phi, strides, width, is_ntk, proj_into_2d,
+  #                  pool_type, layer_norm, parameterization, use_dropout)
+  #   self._check_agreement_with_empirical(net, same_inputs, use_dropout, is_ntk,
+  #                                        proj_into_2d)
+
+
+
+  # @jtu.parameterized.named_parameters(
+  #     jtu.cases_from_list({
+  #         'testcase_name': '_act={}_kernel={}'.format(act, kern),
+  #         'act': act,
+  #         'kernel': kern
+  #     }
+  #                         for act in ['erf', 'relu']
+  #                         for kern in ['nngp', 'ntk']))
+  # def test_sparse_inputs(self, act, kernel):
+  #   key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+  #
+  #   input_count = 4
+  #   sparse_count = 2
+  #   input_size = 128
+  #   width = 4096
+  #
+  #   # NOTE(schsam): It seems that convergence is slower when inputs are sparse.
+  #   samples = N_SAMPLES
+  #
+  #   if xla_bridge.get_backend().platform == 'gpu':
+  #     jtu._default_tolerance[onp.dtype(onp.float64)] = 5e-4
+  #     samples = 100 * N_SAMPLES
+  #   else:
+  #     jtu._default_tolerance[onp.dtype(onp.float32)] = 5e-2
+  #     jtu._default_tolerance[onp.dtype(onp.float64)] = 5e-3
+  #
+  #   # a batch of dense inputs
+  #   x_dense = np.asarray(normal((input_count, input_size), seed=key))
+  #   indices = [[dim] for dim in list(range(sparse_count))]
+  #   x_sparse = tf.tensor_scatter_nd_update(x_dense, np.array(indices), np.zeros([sparse_count, input_size]))
+  #   x_sparse = np.asarray(x_sparse)
+  #
+  #   activation = stax.Relu() if act == 'relu' else stax.Erf()
+  #
+  #   init_fn, apply_fn, kernel_fn = stax.serial(
+  #       stax.Dense(width),
+  #       activation,
+  #       stax.Dense(1 if kernel == 'ntk' else width))
+  #   # tf.print("x_sparse: {}".format(x_sparse), output_stream=sys.stderr)
+  #   exact = kernel_fn(x_sparse, None, kernel)
+  #   mc = monte_carlo.monte_carlo_kernel_fn(init_fn, apply_fn,
+  #                                          tf_random_split(key, 2)[0],
+  #                                          samples)(x_sparse, None, kernel)
+  #   mc = np.reshape(mc, exact.shape)
+  #
+  #   assert not np.any(np.isnan(exact))
+  #   self.assertAllClose(exact[sparse_count:, sparse_count:],
+  #                       mc[sparse_count:, sparse_count:])
+
+  # def test_composition_dense(self):
+  #   rng = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+  #   x1 = np.asarray(normal((10, 10), seed=rng))
+  #   x2 = np.asarray(normal((10, 10), seed=rng))
+  #
+  #   Block = stax.serial(stax.Dense(256), stax.Relu())
+  #
+  #   _, _, ker_fn = Block
+  #   _, _, composed_ker_fn = stax.serial(Block, Block)
+  #
+  #   ker_out = ker_fn(ker_fn(x1))
+  #   composed_ker_out = composed_ker_fn(x1)
+  #   self.assertAllClose(ker_out, composed_ker_out)
+  #
+  #   ker_out = ker_fn(ker_fn(x1, x2))
+  #   composed_ker_out = composed_ker_fn(x1, x2)
+  #   self.assertAllClose(ker_out, composed_ker_out)
+  #
+  # @jtu.parameterized.named_parameters(
+  #     jtu.cases_from_list({
+  #         'testcase_name': '_avg_pool={}_same_inputs={}'.format(avg_pool,
+  #                                                               same_inputs),
+  #         'avg_pool': avg_pool,
+  #         'same_inputs': same_inputs
+  #     }
+  #                         for avg_pool in [True, False]
+  #                         for same_inputs in [True, False]))
+  # def test_composition_conv(self, avg_pool, same_inputs):
+  #   rng = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+  #   x1 = np.asarray(normal((5, 10, 10, 3), seed=rng))
+  #   x2 = None if same_inputs else np.asarray(normal((5, 10, 10, 3), seed=rng))
+  #
+  #   Block = stax.serial(stax.Conv(256, (3, 3)), stax.Relu())
+  #   if avg_pool:
+  #     Readout = stax.serial(stax.GlobalAvgPool(), stax.Dense(10))
+  #   else:
+  #     Readout = stax.serial(stax.Flatten(), stax.Dense(10))
+  #
+  #   block_ker_fn, readout_ker_fn = Block[2], Readout[2]
+  #   _, _, composed_ker_fn = stax.serial(Block, Readout)
+  #
+  #   composed_ker_out = composed_ker_fn(x1, x2)
+  #   ker_out_no_marg = readout_ker_fn(block_ker_fn(x1, x2,
+  #                                                 diagonal_spatial=False))
+  #   ker_out_default = readout_ker_fn(block_ker_fn(x1, x2))
+  #   self.assertAllClose(composed_ker_out, ker_out_no_marg)
+  #   self.assertAllClose(composed_ker_out, ker_out_default)
+  #
+  #   if avg_pool:
+  #     with self.assertRaises(ValueError):
+  #       ker_out = readout_ker_fn(block_ker_fn(x1, x2, diagonal_spatial=True))
+  #   else:
+  #     ker_out_marg = readout_ker_fn(block_ker_fn(x1, x2,
+  #                                                diagonal_spatial=True))
+  #     self.assertAllClose(composed_ker_out, ker_out_marg)
+
+  def _check_agreement_with_empirical(
+      self,
+      net,
+      same_inputs,
+      use_dropout,
+      is_ntk,
+      proj_into_2d,
+      use_layer_norm=False):
+    ((init_fn, apply_fn, kernel_fn),
+     input_shape, device_count, channel_axis) = net
+
+    num_samples = N_SAMPLES * 5 if use_dropout else N_SAMPLES
+    key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+    x1, x2 = _get_inputs(key, same_inputs, input_shape)
+
+    x1_out_shape, params = init_fn(key, x1.shape)
+    if same_inputs:
+      assert x2 is None
+    if x2 is None:
+      x2_out_shape = x1_out_shape
+    else:
+      x2_out_shape, params = init_fn(key, x2.shape)
+    del params
+
+    def _get_empirical(n_samples, get):
+      kernel_fn_empirical = monte_carlo.monte_carlo_kernel_fn(
+          init_fn, apply_fn, key, n_samples, device_count=device_count,
+          trace_axes=(channel_axis,)
+      )
+      if same_inputs:
+        assert x2 is None
+      return kernel_fn_empirical(x1, x2, get)
+
+    if proj_into_2d == 'ATTN_PARAM':
+      # no analytic kernel available, just test forward/backward pass
+      _get_empirical(1, 'ntk' if is_ntk else 'nngp')
+    else:
+      platform = xla_bridge.get_backend().platform
+      if proj_into_2d == 'ATTN_FIXED':
+        if platform == 'tpu':
+          rtol = 0.08
+        else:
+          rtol = 0.04
+      else:
+        if use_layer_norm and platform == 'tpu':
+          rtol = 0.05
+        else:
+          rtol = RTOL
+
+      if is_ntk:
+        exact, shape1, shape2 = kernel_fn(x1, x2, ('ntk', 'shape1', 'shape2'))
+        shape1 = shape_conversion(shape1)
+        shape2 = shape_conversion(shape2)
+        empirical = np.reshape(_get_empirical(num_samples, 'ntk'), exact.shape)
+      else:
+        exact, shape1, shape2 = kernel_fn(x1, x2, ('nngp', 'shape1', 'shape2'))
+        shape1 = shape_conversion(shape1)
+        shape2 = shape_conversion(shape2)
+        empirical = _get_empirical(num_samples, 'nngp')
+      test_utils.assert_close_matrices(self, exact, empirical, rtol)
+      self.assertEqual(shape1, x1_out_shape)
+      self.assertEqual(shape2, x2_out_shape)
 
 
 class ActivationTest(test_utils.NeuralTangentsTestCase):
@@ -960,140 +962,140 @@ class ActivationTest(test_utils.NeuralTangentsTestCase):
       raise absltest.SkipTest(f'Activation {phi_name} is not implemented.')
     self._test_activation(activation, same_inputs, model, get)
 
-  # @jtu.parameterized.named_parameters(
-  #     jtu.cases_from_list({
-  #         'testcase_name':
-  #             '_{}_Rbf_{}_{}_{}'.format(
-  #                 model,
-  #                 'Same_inputs' if same_inputs else 'Different_inputs',
-  #                 get,
-  #                 gamma),
-  #         'model':
-  #             model,
-  #         'same_inputs':
-  #             same_inputs,
-  #         'get': get,
-  #         'gamma': gamma,
-  #     }
-  #                         for model in ['fc', 'conv-pool', 'conv-flatten']
-  #                         for same_inputs in [False, True]
-  #                         for get in ['nngp', 'ntk']
-  #                         for gamma in [1e-6, 1e-4, 1e-2, 1.0, 2.]
-  #                         ))
-  #
-  # def test_rbf(self, same_inputs, model, get, gamma):
-  #   activation = stax.Rbf(gamma)
-  #   self._test_activation(activation, same_inputs, model, get,
-  #                         rbf_gamma=gamma)
+  @jtu.parameterized.named_parameters(
+      jtu.cases_from_list({
+          'testcase_name':
+              '_{}_Rbf_{}_{}_{}'.format(
+                  model,
+                  'Same_inputs' if same_inputs else 'Different_inputs',
+                  get,
+                  gamma),
+          'model':
+              model,
+          'same_inputs':
+              same_inputs,
+          'get': get,
+          'gamma': gamma,
+      }
+                          for model in ['fc', 'conv-pool', 'conv-flatten']
+                          for same_inputs in [False, True]
+                          for get in ['nngp', 'ntk']
+                          for gamma in [1e-6, 1e-4, 1e-2, 1.0, 2.]
+                          ))
+
+  def test_rbf(self, same_inputs, model, get, gamma):
+    activation = stax.Rbf(gamma)
+    self._test_activation(activation, same_inputs, model, get,
+                          rbf_gamma=gamma)
 
 
 
-@jtu.parameterized.parameters([
-    {
-        'same_inputs': True
-    },
-    {
-        'same_inputs': False
-    },
-])
-class ABReluTest(test_utils.NeuralTangentsTestCase):
-
-  def test_ab_relu_relu(self, same_inputs):
-    key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
-    X0_1 = np.asarray(normal((5, 7), seed=key))
-    fc = stax.Dense(10, 1, 0)
-
-    # Test that ABRelu(0, 1) == ReLU
-    init_fn, apply_relu, kernel_fn_relu = stax.serial(fc, stax.Relu())
-    key_ = [key, key] if key.shape == [] else key
-    key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
-    _, params = init_fn(key, input_shape=X0_1.shape)
-
-    X0_2 = None if same_inputs else np.asarray(normal((9, 7), seed=key))
-
-    for a, b in [(0, 1), (0, -1), (-1, 0), (1, 0)]:
-      with self.subTest(a=a, b=b):
-        _, apply_ab_relu, kernel_fn_ab_relu = stax.serial(fc, stax.ABRelu(a, b))
-
-        X1_1_relu = (b - a) * apply_relu(params, X0_1 * (-1 if a != 0 else 1))
-        X1_1_ab_relu = apply_ab_relu(params, X0_1)
-        self.assertAllClose(X1_1_relu, X1_1_ab_relu)
-
-        kernels_relu = kernel_fn_relu(X0_1, X0_2)
-        kernels_ab_relu = kernel_fn_ab_relu(X0_1, X0_2)
-        self.assertAllClose(kernels_relu, kernels_ab_relu)
-
-  def test_ab_relu_id(self, same_inputs):
-    key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
-    X0_1 = np.asarray(normal((5, 7), seed=key))
-    fc = stax.Dense(10, 1, 0)
-
-    X0_2 = None if same_inputs else np.asarray(normal((9, 7), seed=key))
-
-    # Test that ABRelu(a, a) == a * Identity
-    init_fn, apply_id, kernel_fn_id = stax.serial(fc, stax.Identity())
-    key_ = [key, key] if key.shape == [] else key
-    key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
-    _, params = init_fn(key, input_shape=X0_1.shape)
-
-    for a in [-5, -1, -0.5, 0, 0.5, 1, 5]:
-      with self.subTest(a=a):
-        _, apply_ab_relu, kernel_fn_ab_relu = stax.serial(fc, stax.ABRelu(a, a))
-
-        X1_1_id = a * apply_id(params, X0_1)
-        X1_1_ab_relu = apply_ab_relu(params, X0_1)
-        self.assertAllClose(X1_1_id, X1_1_ab_relu)
-
-        kernels_id = kernel_fn_id(X0_1 * a, None if X0_2 is None else a * X0_2)
-        kernels_ab_relu = kernel_fn_ab_relu(X0_1, X0_2)
-        self.assertAllClose(kernels_id, kernels_ab_relu)
-
-  def test_leaky_relu(self, same_inputs):
-    key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
-    X0_1 = np.asarray(normal((5, 7), seed=key))
-    fc = stax.Dense(10, 1, 0)
-
-    X0_2 = None if same_inputs else np.asarray(normal((9, 7), seed=key))
-
-    # Test that ABRelu(alpha, 1) == LeakyRelu(alpha)
-    for a in [-2, -1, 0, 1, 2]:
-      with self.subTest(alpha=a):
-        init_fn, apply_leaky_relu, kernel_fn_leaky_relu = stax.serial(
-            fc, stax.LeakyRelu(a))
-        _, apply_ab_relu, kernel_fn_ab_relu = stax.serial(fc, stax.ABRelu(a, 1))
-
-        key_ = [key, key] if key.shape == [] else key
-        key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
-        _, params = init_fn(key, input_shape=X0_1.shape)
-        X1_1_leaky_relu = apply_leaky_relu(params, X0_1)
-        X1_1_ab_relu = apply_ab_relu(params, X0_1)
-        self.assertAllClose(X1_1_leaky_relu, X1_1_ab_relu)
-
-        kernels_leaky_relu = kernel_fn_leaky_relu(X0_1, X0_2)
-        kernels_ab_relu = kernel_fn_ab_relu(X0_1, X0_2)
-        self.assertAllClose(kernels_leaky_relu, kernels_ab_relu)
-
-  def test_abs(self, same_inputs):
-    key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
-    X0_1 = np.asarray(normal((5, 7), seed=key))
-    fc = stax.Dense(10, 1, 0)
-
-    X0_2 = None if same_inputs else np.asarray(normal((9, 7), seed=key))
-
-    # Test that Abs == ABRelu(-1, 1)
-    init_fn, apply_leaky_relu, kernel_fn_abs = stax.serial(fc, stax.Abs())
-    _, apply_ab_relu, kernel_fn_ab_relu = stax.serial(fc, stax.ABRelu(-1, 1))
-
-    key_ = [key, key] if key.shape == [] else key
-    key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
-    _, params = init_fn(key, input_shape=X0_1.shape)
-    X1_1_abs = apply_leaky_relu(params, X0_1)
-    X1_1_ab_relu = apply_ab_relu(params, X0_1)
-    self.assertAllClose(X1_1_abs, X1_1_ab_relu)
-
-    kernels_abs = kernel_fn_abs(X0_1, X0_2, ('nngp', 'ntk'))
-    kernels_ab_relu = kernel_fn_ab_relu(X0_1, X0_2, ('nngp', 'ntk'))
-    self.assertAllClose(kernels_abs, kernels_ab_relu)
+# @jtu.parameterized.parameters([
+#     {
+#         'same_inputs': True
+#     },
+#     {
+#         'same_inputs': False
+#     },
+# ])
+# class ABReluTest(test_utils.NeuralTangentsTestCase):
+#
+#   def test_ab_relu_relu(self, same_inputs):
+#     key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+#     X0_1 = np.asarray(normal((5, 7), seed=key))
+#     fc = stax.Dense(10, 1, 0)
+#
+#     # Test that ABRelu(0, 1) == ReLU
+#     init_fn, apply_relu, kernel_fn_relu = stax.serial(fc, stax.Relu())
+#     key_ = [key, key] if key.shape == [] else key
+#     key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
+#     _, params = init_fn(key, input_shape=X0_1.shape)
+#
+#     X0_2 = None if same_inputs else np.asarray(normal((9, 7), seed=key))
+#
+#     for a, b in [(0, 1), (0, -1), (-1, 0), (1, 0)]:
+#       with self.subTest(a=a, b=b):
+#         _, apply_ab_relu, kernel_fn_ab_relu = stax.serial(fc, stax.ABRelu(a, b))
+#
+#         X1_1_relu = (b - a) * apply_relu(params, X0_1 * (-1 if a != 0 else 1))
+#         X1_1_ab_relu = apply_ab_relu(params, X0_1)
+#         self.assertAllClose(X1_1_relu, X1_1_ab_relu)
+#
+#         kernels_relu = kernel_fn_relu(X0_1, X0_2)
+#         kernels_ab_relu = kernel_fn_ab_relu(X0_1, X0_2)
+#         self.assertAllClose(kernels_relu, kernels_ab_relu)
+#
+#   def test_ab_relu_id(self, same_inputs):
+#     key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+#     X0_1 = np.asarray(normal((5, 7), seed=key))
+#     fc = stax.Dense(10, 1, 0)
+#
+#     X0_2 = None if same_inputs else np.asarray(normal((9, 7), seed=key))
+#
+#     # Test that ABRelu(a, a) == a * Identity
+#     init_fn, apply_id, kernel_fn_id = stax.serial(fc, stax.Identity())
+#     key_ = [key, key] if key.shape == [] else key
+#     key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
+#     _, params = init_fn(key, input_shape=X0_1.shape)
+#
+#     for a in [-5, -1, -0.5, 0, 0.5, 1, 5]:
+#       with self.subTest(a=a):
+#         _, apply_ab_relu, kernel_fn_ab_relu = stax.serial(fc, stax.ABRelu(a, a))
+#
+#         X1_1_id = a * apply_id(params, X0_1)
+#         X1_1_ab_relu = apply_ab_relu(params, X0_1)
+#         self.assertAllClose(X1_1_id, X1_1_ab_relu)
+#
+#         kernels_id = kernel_fn_id(X0_1 * a, None if X0_2 is None else a * X0_2)
+#         kernels_ab_relu = kernel_fn_ab_relu(X0_1, X0_2)
+#         self.assertAllClose(kernels_id, kernels_ab_relu)
+#
+#   def test_leaky_relu(self, same_inputs):
+#     key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+#     X0_1 = np.asarray(normal((5, 7), seed=key))
+#     fc = stax.Dense(10, 1, 0)
+#
+#     X0_2 = None if same_inputs else np.asarray(normal((9, 7), seed=key))
+#
+#     # Test that ABRelu(alpha, 1) == LeakyRelu(alpha)
+#     for a in [-2, -1, 0, 1, 2]:
+#       with self.subTest(alpha=a):
+#         init_fn, apply_leaky_relu, kernel_fn_leaky_relu = stax.serial(
+#             fc, stax.LeakyRelu(a))
+#         _, apply_ab_relu, kernel_fn_ab_relu = stax.serial(fc, stax.ABRelu(a, 1))
+#
+#         key_ = [key, key] if key.shape == [] else key
+#         key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
+#         _, params = init_fn(key, input_shape=X0_1.shape)
+#         X1_1_leaky_relu = apply_leaky_relu(params, X0_1)
+#         X1_1_ab_relu = apply_ab_relu(params, X0_1)
+#         self.assertAllClose(X1_1_leaky_relu, X1_1_ab_relu)
+#
+#         kernels_leaky_relu = kernel_fn_leaky_relu(X0_1, X0_2)
+#         kernels_ab_relu = kernel_fn_ab_relu(X0_1, X0_2)
+#         self.assertAllClose(kernels_leaky_relu, kernels_ab_relu)
+#
+#   def test_abs(self, same_inputs):
+#     key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+#     X0_1 = np.asarray(normal((5, 7), seed=key))
+#     fc = stax.Dense(10, 1, 0)
+#
+#     X0_2 = None if same_inputs else np.asarray(normal((9, 7), seed=key))
+#
+#     # Test that Abs == ABRelu(-1, 1)
+#     init_fn, apply_leaky_relu, kernel_fn_abs = stax.serial(fc, stax.Abs())
+#     _, apply_ab_relu, kernel_fn_ab_relu = stax.serial(fc, stax.ABRelu(-1, 1))
+#
+#     key_ = [key, key] if key.shape == [] else key
+#     key = stateless_uniform(shape=[2], seed=key_, minval=None, maxval=None, dtype=tf.int32)
+#     _, params = init_fn(key, input_shape=X0_1.shape)
+#     X1_1_abs = apply_leaky_relu(params, X0_1)
+#     X1_1_ab_relu = apply_ab_relu(params, X0_1)
+#     self.assertAllClose(X1_1_abs, X1_1_ab_relu)
+#
+#     kernels_abs = kernel_fn_abs(X0_1, X0_2, ('nngp', 'ntk'))
+#     kernels_ab_relu = kernel_fn_ab_relu(X0_1, X0_2, ('nngp', 'ntk'))
+#     self.assertAllClose(kernels_abs, kernels_ab_relu)
 
 
 # @jtu.parameterized.parameters([

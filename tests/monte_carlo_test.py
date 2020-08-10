@@ -18,8 +18,11 @@ from absl.testing import absltest
 from jax import test_util as jtu
 from jax.config import config as jax_config
 from jax.lib import xla_bridge
+import tensorflow as tf
 from tensorflow.python.ops import numpy_ops as np
-import jax.random as random
+from stateless_random_ops import split as tf_random_split
+from stateless_random_ops import stateless_random_normal as normal
+from tensorflow.random import stateless_uniform
 from neural_tangents import stax
 from neural_tangents.utils import batch
 from neural_tangents.utils import empirical
@@ -46,10 +49,10 @@ test_utils.update_test_tolerance()
 
 
 def _get_inputs_and_model(width=1, n_classes=2, use_conv=True):
-  key = random.PRNGKey(1)
-  key, split = random.split(key)
-  x1 = random.normal(key, (8, 4, 3, 2))
-  x2 = random.normal(split, (4, 4, 3, 2))
+  key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+  key, split = tf_random_split(key)
+  x1 = np.asarray(normal((8, 4, 3, 2), seed=split))
+  x2 = np.asarray(normal((4, 4, 3, 2), seed=split))
 
   if not use_conv:
     x1 = np.reshape(x1, (x1.shape[0], -1))

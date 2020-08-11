@@ -19,14 +19,13 @@ import math
 
 from absl.testing import absltest
 from jax import test_util as jtu
-from jax.api import grad
-from jax.api import jit
-from jax.api import vmap
 from jax.config import config
 from jax.experimental import optimizers
 from jax.flatten_util import ravel_pytree
 from jax.lib import xla_bridge
 import tensorflow as tf
+from extensions import jit, grad
+from tensorflow import vectorized_map as vmap
 from tensorflow.python.ops import numpy_ops as np
 from stateless_random_ops import split as tf_random_split
 from stateless_random_ops import stateless_random_normal as normal

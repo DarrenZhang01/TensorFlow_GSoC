@@ -50,8 +50,10 @@ test_utils.update_test_tolerance()
 
 def _get_inputs_and_model(width=1, n_classes=2, use_conv=True):
   key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
-  key, split = tf_random_split(key)
-  x1 = np.asarray(normal((8, 4, 3, 2), seed=split))
+  keys = tf_random_split(key)
+  key = keys[0]
+  split = keys[1]
+  x1 = np.asarray(normal((8, 4, 3, 2), seed=key))
   x2 = np.asarray(normal((4, 4, 3, 2), seed=split))
 
   if not use_conv:

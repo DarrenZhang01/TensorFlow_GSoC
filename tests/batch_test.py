@@ -18,9 +18,12 @@ from absl.testing import absltest
 from functools import partial
 from jax import test_util as jtu
 from jax.config import config as jax_config
+import tensorflow as tf
 from tensorflow.python.ops import numpy_ops as np
 from extensions import jit
-import jax.random as random
+from stateless_random_ops import split as tf_random_split
+from stateless_random_ops import stateless_random_normal as normal
+from tensorflow.random import stateless_uniform
 from jax.tree_util import tree_map
 from neural_tangents import stax
 from neural_tangents.utils import batch
@@ -74,7 +77,9 @@ def _build_network(input_shape, network, out_logits, use_dropout):
 
 def _empirical_kernel(key, input_shape, network, out_logits, use_dropout):
   init_fn, f, _ = _build_network(input_shape, network, out_logits, use_dropout)
-  key, split = random.split(key)
+  keys = tf_random_split(key)
+  key = keys[0]
+  split = keys[1]
   _, params = init_fn(key, (1,) + input_shape)
   kernel_fn = jit(empirical.empirical_ntk_fn(f))
   return partial(kernel_fn, params=params, keys=split)
@@ -150,10 +155,13 @@ class BatchTest(test_utils.NeuralTangentsTestCase):
                           for batch_size in [2, 8]))
   def testSerial(self, train_shape, test_shape, network, name, kernel_fn,
                  batch_size):
-    key = random.PRNGKey(0)
-    key, self_split, other_split = random.split(key, 3)
-    data_self = random.normal(self_split, train_shape)
-    data_other = random.normal(other_split, test_shape)
+    key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+    keys = tf_random_split(key, 3)
+    key = keys[0]
+    self_split = keys[1]
+    other_split = keys[2]
+    data_self = np.asarray(normal(train_shape, seed=self_split))
+    data_other = np.asarray(normal(test_shape, seed=other_split))
     kernel_fn = kernel_fn(key, train_shape[1:], network)
     kernel_batched = batch._serial(kernel_fn, batch_size=batch_size)
 
@@ -183,10 +191,13 @@ class BatchTest(test_utils.NeuralTangentsTestCase):
           for name, kernel_fn in KERNELS.items()))
   def testParallel(self, train_shape, test_shape, network, name, kernel_fn):
     test_utils.stub_out_pmap(batch, 2)
-    key = random.PRNGKey(0)
-    key, self_split, other_split = random.split(key, 3)
-    data_self = random.normal(self_split, train_shape)
-    data_other = random.normal(other_split, test_shape)
+    key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+    keys = tf_random_split(key, 3)
+    key = keys[0]
+    self_split = keys[1]
+    other_split = keys[2]
+    data_self = np.asarray(normal(train_shape, seed=self_split))
+    data_other = np.asarray(normal(test_shape, seed=other_split))
 
     kernel_fn = kernel_fn(key, train_shape[1:], network, use_dropout=False)
     kernel_batched = batch._parallel(kernel_fn)
@@ -218,10 +229,13 @@ class BatchTest(test_utils.NeuralTangentsTestCase):
                       batch_size):
     test_utils.stub_out_pmap(batch, 2)
 
-    key = random.PRNGKey(0)
-    key, self_split, other_split = random.split(key, 3)
-    data_self = random.normal(self_split, train_shape)
-    data_other = random.normal(other_split, test_shape)
+    key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+    keys = tf_random_split(key, 3)
+    key = keys[0]
+    self_split = keys[1]
+    other_split = keys[2]
+    data_self = np.asarray(normal(train_shape, seed=self_split))
+    data_other = np.asarray(normal(test_shape, seed=other_split))
 
     kernel_fn = kernel_fn(key, train_shape[1:], network)
 
@@ -259,10 +273,13 @@ class BatchTest(test_utils.NeuralTangentsTestCase):
                     batch_size):
     test_utils.stub_out_pmap(batch, 2)
 
-    key = random.PRNGKey(0)
-    key, self_split, other_split = random.split(key, 3)
-    data_self = random.normal(self_split, train_shape)
-    data_other = random.normal(other_split, test_shape)
+    key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+    keys = tf_random_split(key, 3)
+    key = keys[0]
+    self_split = keys[1]
+    other_split = keys[2]
+    data_self = np.asarray(normal(train_shape, seed=self_split))
+    data_other = np.asarray(normal(test_shape, seed=other_split))
 
     kernel_fn = kernel_fn(key, train_shape[1:], network)
 
@@ -277,10 +294,12 @@ class BatchTest(test_utils.NeuralTangentsTestCase):
 
   def _test_analytic_kernel_composition(self, batching_fn):
     # Check Fully-Connected.
-    rng = random.PRNGKey(0)
-    rng_self, rng_other = random.split(rng)
-    x_self = random.normal(rng_self, (8, 10))
-    x_other = random.normal(rng_other, (2, 10))
+    rng = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+    keys = tf_random_split(rng)
+    rng_self = keys[0]
+    rng_other = keys[1]
+    x_self = np.asrray(normal((8, 10), seed=rng_self))
+    x_other = np.asarray(normal((2, 10), seed=rng_other))
     Block = stax.serial(stax.Dense(256), stax.Relu())
 
     _, _, ker_fn = Block
@@ -303,8 +322,8 @@ class BatchTest(test_utils.NeuralTangentsTestCase):
     self.assertAllClose(ker_out, composed_ker_out)
 
     # Check convolutional + pooling.
-    x_self = random.normal(rng, (8, 10, 10, 3))
-    x_other = random.normal(rng, (2, 10, 10, 3))
+    x_self = np.asarray(normal((8, 10, 10, 3), seed=rng))
+    x_other = np.asarray(normal((2, 10, 10, 3), seed=rng))
 
     Block = stax.serial(stax.Conv(256, (2, 2)), stax.Relu())
     Readout = stax.serial(stax.GlobalAvgPool(), stax.Dense(10))
@@ -377,12 +396,12 @@ class BatchTest(test_utils.NeuralTangentsTestCase):
       if do_flip:
         res = -res
 
-      res *= random.uniform(keys) * p
+      res *= stateless_uniform(keys) * p
       return [res, params]
 
     params = (np.array([1., 0.3]), (np.array([1.2]), np.array([0.5])))
     x2 = np.arange(0, 10).reshape((10,))
-    keys = random.PRNGKey(1)
+    keys = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
 
     kernel_fn_pmapped = batch._jit_or_pmap_broadcast(kernel_fn, device_count=0)
     x1 = np.arange(0, 10).reshape((1, 10))

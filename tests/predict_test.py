@@ -26,8 +26,11 @@ from jax.config import config
 from jax.experimental import optimizers
 from jax.flatten_util import ravel_pytree
 from jax.lib import xla_bridge
+import tensorflow as tf
 from tensorflow.python.ops import numpy_ops as np
-import jax.random as random
+from stateless_random_ops import split as tf_random_split
+from stateless_random_ops import stateless_random_normal as normal
+from tensorflow.random import stateless_uniform
 from neural_tangents import predict
 from neural_tangents import stax
 from neural_tangents.utils import batch
@@ -175,14 +178,21 @@ class PredictTest(jtu.JaxTestCase):
 
   @classmethod
   def _get_inputs(cls, out_logits, test_shape, train_shape):
-    key = random.PRNGKey(0)
-    key, split = random.split(key)
-    x_train = random.normal(split, train_shape)
-    key, split = random.split(key)
-    y_train = np.array(
-        random.bernoulli(split, shape=(train_shape[0], out_logits)), np.float32)
-    key, split = random.split(key)
-    x_test = random.normal(split, test_shape)
+    key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+    keys = tf_random_split(key)
+    key = keys[0]
+    split = keys[1]
+    x_train = np.asarray(normal(train_shape, seed=split))
+    keys = tf_random_split(key)
+    key = keys[0]
+    split = keys[1]
+    y_train = np.asarray(
+        stateless_uniform(
+            shape=(train_shape[0], out_logits), seed=split, minval=0, maxval=1) < 0.5, np.float32)
+    keys = tf_random_split(key)
+    key = keys[0]
+    split = keys[1]
+    x_test = np.asarray(normal(test_shape, seed=split))
     return key, x_test, x_train, y_train
 
   @jtu.parameterized.named_parameters(
@@ -334,7 +344,7 @@ class PredictTest(jtu.JaxTestCase):
       return predict_fn(ts, fx_train_0, fx_test_0, g_td)
 
     def predict_mc(count, key):
-      key = random.split(key, count)
+      key = tf_random_split(key, count)
       fx_train, fx_test = vmap(predict_empirical)(key)
       fx_train_mean = np.mean(fx_train, axis=0)
       fx_test_mean = np.mean(fx_test, axis=0)
@@ -671,7 +681,7 @@ class PredictTest(jtu.JaxTestCase):
         diag_reg=0.)
 
     train = (x_train, y_train)
-    ensemble_key = random.split(key, ensemble_size)
+    ensemble_key = tf_random_split(key, ensemble_size)
 
     loss = jit(lambda params, x, y: 0.5 * np.mean((apply_fn(params, x) - y)**2))
     grad_loss = jit(lambda state, x, y: grad(loss)(get_params(state), x, y))
@@ -704,12 +714,12 @@ class PredictTest(jtu.JaxTestCase):
         self._assertAllClose(cov_emp, ntk.covariance, rtol)
 
   def testGradientDescentMseEnsembleTrain(self):
-    key = random.PRNGKey(1)
-    x = random.normal(key, (8, 4, 6, 3))
+    key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+    x = np.asarray(normal((8, 4, 6, 3), seed=key))
     _, _, kernel_fn = stax.serial(stax.Conv(1, (2, 2)),
                                   stax.Relu(),
                                   stax.Conv(1, (2, 1)))
-    y = random.normal(key, (8, 2, 5, 1))
+    y = np.asarray(normal((8, 2, 5, 1), seed=key))
     predictor = predict.gradient_descent_mse_ensemble(kernel_fn, x, y)
 
     for t in [None, np.array([0., 1., 10.])]:
@@ -720,13 +730,13 @@ class PredictTest(jtu.JaxTestCase):
 
   def testGpInference(self):
     reg = 1e-5
-    key = random.PRNGKey(1)
-    x_train = random.normal(key, (4, 2))
+    key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+    x_train = np.asarray(normal((4, 2), seed=key))
     init_fn, apply_fn, kernel_fn_analytic = stax.serial(
         stax.Dense(32, 2., 0.5),
         stax.Relu(),
         stax.Dense(10, 2., 0.5))
-    y_train = random.normal(key, (4, 10))
+    y_train = np.asarray(normal((4, 10), seed=key))
     for kernel_fn_is_analytic in [True, False]:
       if kernel_fn_is_analytic:
         kernel_fn = kernel_fn_analytic
@@ -748,7 +758,7 @@ class PredictTest(jtu.JaxTestCase):
                                                             y_train,
                                                             diag_reg=reg)
         for x_test in [None, 'x_test']:
-          x_test = None if x_test is None else random.normal(key, (8, 2))
+          x_test = None if x_test is None else np.asarray(normal((8, 2), seed=key))
           k_td = None if x_test is None else kernel_fn(x_test, x_train, get)
 
           for compute_cov in [True, False]:
@@ -779,10 +789,13 @@ class PredictTest(jtu.JaxTestCase):
                 self.assertAllClose(out_ens, out_gp_inf)
 
   def testPredictOnCPU(self):
-    x_train = random.normal(random.PRNGKey(1), (4, 4, 4, 2))
-    x_test = random.normal(random.PRNGKey(1), (8, 4, 4, 2))
+    key1 = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+    key2 = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+    key3 = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
+    x_train = np.asarray(normal((4, 4, 4, 2), seed=key1))
+    x_test = np.asarray(normal((8, 4, 4, 2), seed=key2))
 
-    y_train = random.uniform(random.PRNGKey(1), (4, 2))
+    y_train = np.asarray(uniform((4, 2), seed=key3))
 
     _, _, kernel_fn = stax.serial(
         stax.Conv(1, (3, 3)), stax.Relu(), stax.Flatten(), stax.Dense(1))
@@ -814,12 +827,12 @@ class PredictTest(jtu.JaxTestCase):
 
   def testPredictND(self):
     n_chan = 6
-    key = random.PRNGKey(1)
+    key = stateless_uniform(shape=[2], seed=[1, 1], minval=None, maxval=None, dtype=tf.int32)
     im_shape = (5, 4, 3)
     n_train = 2
     n_test = 2
-    x_train = random.normal(key, (n_train,) + im_shape)
-    y_train = random.uniform(key, (n_train, 3, 2, n_chan))
+    x_train = np.asarray(normal((n_train,) + im_shape, seed=key))
+    y_train = stateless_uniform(shape=(n_train, 3, 2, n_chan), seed=key)
     init_fn, apply_fn, _ = stax.Conv(n_chan, (3, 2), (1, 2))
     _, params = init_fn(key, x_train.shape)
     fx_train_0 = apply_fn(params, x_train)
@@ -842,7 +855,7 @@ class PredictTest(jtu.JaxTestCase):
             t_shape = ts.shape if ts is not None else ()
             y_test_shape = t_shape + (n_test,) + y_train.shape[1:]
             y_train_shape = t_shape + y_train.shape
-            x = x if x is None else random.normal(key, (n_test,) + im_shape)
+            x = x if x is None else np.asarray(normal((n_test,) + im_shape, seed=key))
             fx_test_0 = None if x is None else apply_fn(params, x)
 
             kernel_fn = empirical.empirical_kernel_fn(apply_fn,
@@ -909,19 +922,23 @@ class PredictTest(jtu.JaxTestCase):
   def testMaxLearningRate(self, train_shape, network, out_logits,
                           fn_and_kernel):
 
-    key = random.PRNGKey(0)
+    key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
 
-    key, split = random.split(key)
+    keys = tf_random_split(key)
+    key = keys[0]
+    split = keys[1]
     if len(train_shape) == 2:
       train_shape = (train_shape[0] * 5, train_shape[1] * 10)
     else:
       train_shape = (16, 8, 8, 3)
-    x_train = random.normal(split, train_shape)
+    x_train = np.asarray(normal(train_shape, seed=split))
 
-    key, split = random.split(key)
-    y_train = np.array(
-        random.bernoulli(split, shape=(train_shape[0], out_logits)), np.float32)
-
+    keys = tf_random_split(key)
+    key = keys[0]
+    split = keys[1]
+    y_train = np.asarray(
+        stateless_uniform(
+            shape=(train_shape[0], out_logits), seed=split, minval=0, maxval=1) < 0.5, np.float32)
     # Regress to an MSE loss.
     loss = lambda params, x: 0.5 * np.mean((f(params, x) - y_train) ** 2)
     grad_loss = jit(grad(loss))

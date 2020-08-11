@@ -794,7 +794,7 @@ class PredictTest(jtu.JaxTestCase):
     x_train = np.asarray(normal((4, 4, 4, 2), seed=key1))
     x_test = np.asarray(normal((8, 4, 4, 2), seed=key2))
 
-    y_train = np.asarray(uniform((4, 2), seed=key3))
+    y_train = np.asarray(stateless_uniform(shape=(4, 2), seed=key3))
 
     _, _, kernel_fn = stax.serial(
         stax.Conv(1, (3, 3)), stax.Relu(), stax.Flatten(), stax.Dense(1))

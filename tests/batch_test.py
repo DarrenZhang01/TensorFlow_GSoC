@@ -396,7 +396,7 @@ class BatchTest(test_utils.NeuralTangentsTestCase):
       if do_flip:
         res = -res
 
-      res *= stateless_uniform(keys) * p
+      res *= stateless_uniform(shape=[], seed=keys) * p
       return [res, params]
 
     params = (np.array([1., 0.3]), (np.array([1.2]), np.array([0.5])))

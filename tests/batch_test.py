@@ -114,7 +114,6 @@ def _test_kernel_against_batched(cls,
                                  train,
                                  test,
                                  is_parallel_only=False):
-
   g = kernel_fn(train, None)
   g_b = batched_kernel_fn(train, None)
 
@@ -298,7 +297,7 @@ class BatchTest(test_utils.NeuralTangentsTestCase):
     keys = tf_random_split(rng)
     rng_self = keys[0]
     rng_other = keys[1]
-    x_self = np.asrray(normal((8, 10), seed=rng_self))
+    x_self = np.asarray(normal((8, 10), seed=rng_self))
     x_other = np.asarray(normal((2, 10), seed=rng_other))
     Block = stax.serial(stax.Dense(256), stax.Relu())
 

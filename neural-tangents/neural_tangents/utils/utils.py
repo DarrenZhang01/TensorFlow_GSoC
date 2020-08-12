@@ -398,7 +398,8 @@ def get_masked_array(x: ArrayOrList,
     mask = x.mask
     x = masked_value
 
-  elif isinstance(x, np.ndarray):
+  elif isinstance(x, np.ndarray) or isinstance(x, onp.ndarray):
+    x = np.asarray(x)
     if mask_constant is None:
       mask = None
     else:

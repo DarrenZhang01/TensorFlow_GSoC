@@ -373,6 +373,8 @@ def _serial(kernel_fn: KernelFn,
                 **kwargs) -> _KernelType:
     if isinstance(x1_or_kernel, np.ndarray):
       return serial_fn_x1(x1_or_kernel, x2, *args, **kwargs)
+    elif isinstance(x1_or_kernel, onp.ndarray):
+      return serial_fn_x1(np.asarray(x1_or_kernel), x2, *args, **kwargs)
     elif isinstance(x1_or_kernel, Kernel):
       if x2 is not None:
         raise ValueError(f'`x2` must be `None`, got {x2}.')

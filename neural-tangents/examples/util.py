@@ -16,7 +16,7 @@
 """
 
 
-from trax.tf_numpy import numpy as np
+from tensorflow.python.ops import numpy_ops as np
 
 
 def _accuracy(y, y_hat):

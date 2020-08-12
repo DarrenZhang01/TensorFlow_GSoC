@@ -159,7 +159,9 @@ Conv = functools.partial(GeneralConv, ('NHWC', 'HWIO', 'NHWC'))
 
 def elementwise(fun, **fun_kwargs):
   """Layer that applies a scalar function elementwise on its inputs."""
-  init_fun = lambda rng, input_shape: (tfnp.zeros(input_shape), ())
+  def init_fun(rng, input_shape):
+    return (tfnp.zeros(input_shape), ())
+  # init_fun = lambda rng, input_shape: (tfnp.zeros(input_shape), ())
   apply_fun = lambda params, inputs, **kwargs: fun(inputs, **fun_kwargs)
   return init_fun, apply_fun
 Tanh = elementwise(tfnp.tanh)
@@ -352,7 +354,6 @@ def serial(*layers):
     else:
       rngs = (None,) * nlayers
     for i in range(nlayers):
-      tf.print("input type in serial: {}".format(type(inputs)), output_stream=sys.stdout)
       inputs = apply_funs[i](params[i], inputs, rng=rngs[i], **kwargs)
     return inputs
   return init_fun, apply_fun

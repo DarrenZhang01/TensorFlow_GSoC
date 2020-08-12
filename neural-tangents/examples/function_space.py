@@ -21,15 +21,19 @@ prediction using the NTK. Data is loaded using tensorflow datasets.
 
 from absl import app
 from absl import flags
-from jax import random
-from jax.api import grad
-from jax.api import jit
 from jax.experimental import optimizers
-from trax.tf_numpy import numpy as np
 import neural_tangents as nt
 from neural_tangents import stax
 from examples import datasets
 from examples import util
+
+import tensorflow as tf
+from tensorflow.python.ops import numpy_ops as np
+from stateless_random_ops import split as tf_random_split
+from stateless_random_ops import stateless_random_normal as normal
+from tensorflow.random import stateless_uniform
+from extensions import jit, grad
+
 
 
 flags.DEFINE_float('learning_rate', 1.0,
@@ -57,8 +61,8 @@ def main(unused_argv):
       stax.Erf(),
       stax.Dense(10, 1., 0.05))
 
-  key = random.PRNGKey(0)
-  _, params = init_fn(key, (-1, 784))
+  key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+  _, params = init_fn(key, (1, 784))
 
   # Create and initialize an optimizer.
   opt_init, opt_apply, get_params = optimizers.sgd(FLAGS.learning_rate)

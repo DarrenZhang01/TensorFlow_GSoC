@@ -962,7 +962,7 @@ def max_learning_rate(
                                   eigvals=(ntk_train_train.shape[0] - 1,
                                            ntk_train_train.shape[0] - 1))[-1]
   else:
-    max_eva = np.linalg.eigvalsh(ntk_train_train)[-1]
+    max_eva = tf.linalg.eigvalsh(ntk_train_train)[-1]
   lr = 2 * factor / (max_eva + eps)
   return lr
 
@@ -1005,7 +1005,7 @@ def _get_fns_in_eigenbasis(k_train_train: np.ndarray,
   k_train_train = utils.make_2d(k_train_train)
   k_train_train = _add_diagonal_regularizer(k_train_train, diag_reg,
                                             diag_reg_absolute_scale)
-  evals, evecs = np.linalg.eigh(k_train_train)
+  evals, evecs = tf.linalg.eigh(k_train_train)
 
   def to_eigenbasis(fn):
     """Generates a transform given a function on the eigenvalues."""

@@ -594,15 +594,18 @@ def _get_jit_or_pmap_broadcast() -> Callable[[Callable, int], Callable]:
       _key = list(_key)
       for i in range(len(_key)):
         if isinstance(_key[i], tf.Tensor):
-          _key[i] = _key[i].ref()
+          _key[i] = tuple(map(tuple, _key[i].ref()))
+        elif isinstance(_key[i], onp.ndarray):
+          _key[i] = tuple(map(tuple, _key[i]))
         elif isinstance(_key[i], tuple):
           _key[i] = list(_key[i])
           for j in range(len(_key[i])):
             if isinstance(_key[i][j], tf.Tensor):
-              _key[i][j] = _key[i][j].ref()
+              _key[i][j] = tuple(map(tuple, _key[i][j].ref()))
+            elif isinstance(_key[i][j], onp.ndarray):
+              _key[i][j] = tuple(map(tuple, _key[i][j]))
           _key[i] = tuple(_key[i])
       _key = tuple(_key)
-
       if _key in cache:
         _f = cache[_key]
       else:

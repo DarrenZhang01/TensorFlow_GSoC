@@ -24,12 +24,14 @@ datasets.
 
 from absl import app
 from absl import flags
-from jax import random
-from jax.api import grad
-from jax.api import jit
 from jax.experimental import optimizers
 from jax.experimental.stax import logsoftmax
-from trax.tf_numpy import numpy as np
+import tensorflow as tf
+from extensions import jit, grad
+from tensorflow.python.ops import numpy_ops as np
+from stateless_random_ops import split as tf_random_split
+from stateless_random_ops import stateless_random_normal as normal
+from tensorflow.random import stateless_uniform
 import neural_tangents as nt
 from neural_tangents import stax
 from examples import datasets
@@ -59,8 +61,8 @@ def main(unused_argv):
       stax.Erf(),
       stax.Dense(10, 1., 0.05))
 
-  key = random.PRNGKey(0)
-  _, params = init_fn(key, (-1, 784))
+  key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
+  _, params = init_fn(key, (1, 784))
 
   # Linearize the network about its initial parameters.
   f_lin = nt.linearize(f, params)

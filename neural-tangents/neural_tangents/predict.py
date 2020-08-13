@@ -1036,7 +1036,7 @@ def _get_cho_solve(A: np.ndarray,
   x_non_channel_shape = A.shape[1::2]
   A = utils.make_2d(A)
   A = _add_diagonal_regularizer(A, diag_reg, diag_reg_absolute_scale)
-  C = sp.linalg.cho_factor(A, lower)
+  C = np.asarray(tf.linalg.cholesky(A))
 
   def cho_solve(b: np.ndarray, b_axes: Axes) -> np.ndarray:
     b_axes = utils.canonicalize_axis(b_axes, b)
@@ -1046,7 +1046,7 @@ def _get_cho_solve(A: np.ndarray,
     b = np.moveaxis(b, b_axes, last_b_axes)
     b = b.reshape((A.shape[1], -1))
 
-    x = sp.linalg.cho_solve(C, b)
+    x = np.asarray(tf.linalg.cholesky_solve(C, b))
     x = x.reshape(x_shape)
     return x
 

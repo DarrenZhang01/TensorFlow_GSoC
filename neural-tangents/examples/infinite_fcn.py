@@ -61,8 +61,6 @@ def main(unused_argv):
   predict_fn = nt.predict.gradient_descent_mse_ensemble(kernel_fn, x_train,
                                                         y_train, diag_reg=1e-3)
   fx_test_nngp, fx_test_ntk = predict_fn(x_test=x_test)
-  fx_test_nngp.block_until_ready()
-  fx_test_ntk.block_until_ready()
 
   duration = time.time() - start
   print('Kernel construction and inference done in %s seconds.' % duration)

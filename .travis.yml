@@ -15,5 +15,6 @@ install:
 
 script:
   - travis_wait python tests/function_space_test.py
+  - travis_wait python tests/infinite_fcn_test.py
   # - for f in tests/*.py; do python $f; done
   # - python tf_dot_general/tf_dot_general_test.py

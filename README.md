@@ -1,4 +1,4 @@
-## Neural Tangents (Infinite-Width NNs) for TensorFlow 2.x.
+## Neural Tangents (Infinite-width NNs) for TensorFlow 2.x.
 
 [![Build Status](https://travis-ci.com/DarrenZhang01/TensorFlow_GSoC.svg?branch=master)](https://travis-ci.com/DarrenZhang01/TensorFlow_GSoC)
 

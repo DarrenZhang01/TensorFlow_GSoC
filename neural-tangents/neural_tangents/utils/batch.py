@@ -303,7 +303,8 @@ def _serial(kernel_fn: KernelFn,
     _kernel_fn = kernel_fn
     @utils.wraps(_kernel_fn)
     def kernel_fn(x1, x2=None, *args, **kwargs):
-      return device_put(_kernel_fn(x1, x2, *args, **kwargs), devices('cpu')[0])
+      # return device_put(_kernel_fn(x1, x2, *args, **kwargs), devices('cpu')[0])
+      return _kernel_fn(x1, x2, *args, **kwargs)
 
   flatten = partial(_flatten_kernel, is_parallel=False)
 

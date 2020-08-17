@@ -11,10 +11,12 @@ install:
   - pip install -e neural-tangents
   - cp tf_jax_stax/*.py tests/
   - cp utils/*.py tests/
+  - cp jax_optimizers/*.py tests/
   - cp tf_dot_general/tf_dot_general.py tests/
 
 script:
   - travis_wait python tests/function_space_test.py
   - travis_wait python tests/infinite_fcn_test.py
+  - travis_wait python tests/weight_space_test.py
   # - for f in tests/*.py; do python $f; done
   # - python tf_dot_general/tf_dot_general_test.py

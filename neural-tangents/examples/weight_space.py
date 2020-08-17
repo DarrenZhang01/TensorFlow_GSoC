@@ -24,10 +24,11 @@ datasets.
 
 from absl import app
 from absl import flags
-from jax.experimental import optimizers
-from jax.experimental.stax import logsoftmax
 import tensorflow as tf
-from extensions import jit, grad
+from tensorflow.nn import log_softmax
+from jax_optimizers import momentum
+# from jax.experimental import optimizers
+from extensions import grad, jit
 from tensorflow.python.ops import numpy_ops as np
 from stateless_random_ops import split as tf_random_split
 from stateless_random_ops import stateless_random_normal as normal
@@ -68,15 +69,19 @@ def main(unused_argv):
   f_lin = nt.linearize(f, params)
 
   # Create and initialize an optimizer for both f and f_lin.
-  opt_init, opt_apply, get_params = optimizers.momentum(FLAGS.learning_rate,
-                                                        0.9)
+  opt_init, opt_apply, get_params = momentum(FLAGS.learning_rate, 0.9)
+  # opt_init, opt_apply, get_params = optimizers.sgd(FLAGS.learning_rate)
+
   opt_apply = jit(opt_apply)
 
   state = opt_init(params)
   state_lin = opt_init(params)
 
+  # momentum = MomentumOptimizer(learning_rate=FLAGS.learning_rate, momentum=0.9)
+  # momentum_lin = MomentumOptimizer(learning_rate=FLAGS.learning_rate, momentum=0.9)
+
   # Create a cross-entropy loss function.
-  loss = lambda fx, y_hat: -np.mean(logsoftmax(fx) * y_hat)
+  loss = lambda fx, y_hat: -np.mean(log_softmax(fx) * y_hat)
 
   # Specialize the loss function to compute gradients for both linearized and
   # full networks.
@@ -100,8 +105,14 @@ def main(unused_argv):
     params_lin = get_params(state_lin)
     state_lin = opt_apply(i, grad_loss_lin(params_lin, x, y), state_lin)
 
+    # x = np.asarray(x)
+    # y = np.asarray(y)
+
+    # momentum.apply_gradients((grad_loss(params, x, y), params))
+    # momentum.apply_gradients((grad_loss_lin(params_lin, x, y), params_lin))
+
     if i % steps_per_epoch == 0:
-      print('{}\t{:.4f}\t{:.4f}'.format(
+      print('{}\t{}\t{}'.format(
           epoch, loss(f(params, x), y), loss(f_lin(params_lin, x), y)))
       epoch += 1
 

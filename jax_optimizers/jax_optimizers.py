@@ -75,8 +75,10 @@ import functools
 from tensorflow.python.ops import numpy_ops as np
 from jax.util import partial, safe_zip, safe_map, unzip2
 from jax import tree_util
-from jax.tree_util import (tree_map, tree_flatten, tree_unflatten,
-                           register_pytree_node)
+# from jax.tree_util import (tree_map, tree_flatten, tree_unflatten,
+#                            register_pytree_node)
+from jax.tree_util import register_pytree_node
+from tensorflow.nest import pack_sequence_as, flatten
 
 map = safe_map
 zip = safe_zip
@@ -135,36 +137,40 @@ def optimizer(opt_maker):
 
     @functools.wraps(init)
     def tree_init(x0_tree):
-      x0_flat, tree = tree_flatten(x0_tree)
+      x0_flat = flatten(x0_tree)
       initial_states = [init(x0) for x0 in x0_flat]
-      states_flat, subtrees = unzip2(map(tree_flatten, initial_states))
-      return OptimizerState(states_flat, tree, subtrees)
+      states_flat = unzip2(map(flatten, initial_states))
+      states_back = map(pack_sequence_as, unzip2(initial_states), states_flat)
+      return OptimizerState(states_flat, x0_tree, unzip2(initial_states))
 
     @functools.wraps(update)
     def tree_update(i, grad_tree, opt_state):
       states_flat, tree, subtrees = opt_state
-      grad_flat, tree2 = tree_flatten(grad_tree)
-      if tree2 != tree:
-        msg = ("optimizer update function was passed a gradient tree that did "
-               "not match the parameter tree structure with which it was "
-               "initialized: parameter tree {} and grad tree {}.")
-        raise TypeError(msg.format(tree, tree2))
-      states = map(tree_unflatten, subtrees, states_flat)
-      new_states = map(partial(update, i), grad_flat, states)
-      new_states_flat, subtrees2 = unzip2(map(tree_flatten, new_states))
-      for subtree, subtree2 in zip(subtrees, subtrees2):
-        if subtree2 != subtree:
-          msg = ("optimizer update function produced an output structure that "
-                 "did not match its input structure: input {} and output {}.")
-          raise TypeError(msg.format(subtree, subtree2))
-      return OptimizerState(new_states_flat, tree, subtrees)
+      grad_flat = flatten(grad_tree)
+      # if tree2 != tree:
+      #   msg = ("optimizer update function was passed a gradient tree that did "
+      #          "not match the parameter tree structure with which it was "
+      #          "initialized: parameter tree {} and grad tree {}.")
+      #   raise TypeError(msg.format(tree, tree2))
+      states = map(pack_sequence_as, subtrees, states_flat)
+      states_ = []
+      for i in range(len(states[0])):
+        states_.append((states[0][i], states[1][i]))
+      new_states = map(partial(update, i), grad_flat, states_)
+      new_states_flat = unzip2(map(flatten, new_states))
+      # for subtree, subtree2 in zip(subtrees, subtrees2):
+      #   if subtree2 != subtree:
+      #     msg = ("optimizer update function produced an output structure that "
+      #            "did not match its input structure: input {} and output {}.")
+      #     raise TypeError(msg.format(subtree, subtree2))
+      return OptimizerState(new_states_flat, tree, unzip2(new_states))
 
     @functools.wraps(get_params)
     def tree_get_params(opt_state):
       states_flat, tree, subtrees = opt_state
-      states = map(tree_unflatten, subtrees, states_flat)
-      params = map(get_params, states)
-      return tree_unflatten(tree, params)
+      states = map(pack_sequence_as, subtrees, states_flat)
+      params = get_params(states)
+      return pack_sequence_as(tree, params)
 
     return tree_init, tree_update, tree_get_params
   return tree_opt_maker

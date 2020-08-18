@@ -190,6 +190,7 @@ class EmpiricalTest(test_utils.NeuralTangentsTestCase):
       dx = x - x0
       return f_lin + 0.5 * np.dot(np.dot(dx.T, w1), dx)
 
+    key = stateless_uniform(shape=[2], seed=[0, 0], minval=None, maxval=None, dtype=tf.int32)
     splits = tf_random_split(seed=tf.convert_to_tensor(key, dtype=tf.int32), num=4)
     key = splits[0]
     s1 = splits[1]

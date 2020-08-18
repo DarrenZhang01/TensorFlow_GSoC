@@ -17,8 +17,9 @@
 from functools import partial
 
 from absl.testing import absltest
-from jax import test_util as jtu
+from absl.testing import parameterized
 from jax.config import config as jax_config
+from jax import test_util as jtu
 from neural_tangents import stax
 from neural_tangents.utils import empirical
 from neural_tangents.utils import test_utils
@@ -106,7 +107,7 @@ for o in OUTPUT_LOGITS:
   KERNELS['empirical_logits_{}'.format(o)] = partial(_kernel_fns, out_logits=o)
 
 
-class EmpiricalTest(jtu.JaxTestCase):
+class EmpiricalTest(test_utils.NeuralTangentsTestCase):
 
   # We use a three layer deep linear network for testing.
   @classmethod
@@ -134,7 +135,7 @@ class EmpiricalTest(jtu.JaxTestCase):
       w2 /= 0.9
     return f0 + np.dot(np.dot(x0.T, w1) + w2, dx)
 
-  @jtu.parameterized.named_parameters(
+  @parameterized.named_parameters(
       jtu.cases_from_list({
           'testcase_name': '_{}'.format(shape),
           'shape': shape

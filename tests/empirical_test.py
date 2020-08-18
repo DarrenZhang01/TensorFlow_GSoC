@@ -17,7 +17,6 @@
 from functools import partial
 
 from absl.testing import absltest
-from absl.testing import parameterized
 from jax.config import config as jax_config
 from jax import test_util as jtu
 from neural_tangents import stax
@@ -135,7 +134,7 @@ class EmpiricalTest(test_utils.NeuralTangentsTestCase):
       w2 /= 0.9
     return f0 + np.dot(np.dot(x0.T, w1) + w2, dx)
 
-  @parameterized.named_parameters(
+  @jtu.parameterized.named_parameters(
       jtu.cases_from_list({
           'testcase_name': '_{}'.format(shape),
           'shape': shape

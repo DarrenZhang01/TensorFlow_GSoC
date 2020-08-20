@@ -24,28 +24,28 @@ import numpy as onp
 from tensorflow.python.ops import numpy_ops as np
 
 
-@utils.np_doc(np.moveaxis)
-def moveaxis(x, from, to):
-  return np.array(onp.moveaxis(onp.array(x), from, to))
+# # @utils.np_doc(np.moveaxis)
+# def moveaxis(x, from, to):
+#   return np.array(onp.moveaxis(onp.array(x), from, to))
+#
+#
+# # @utils.np_doc(np.sign)
+# def sign(x):
+#   if isinstance(x, (float, int, onp.ndarray)):
+#     return tf.convert_to_tensor(np.sign(x))
+#   elif isinstance(x, (tf.Tensor, np.ndarray)):
+#     x = np.sign(x.numpy())
+#     return tf.convert_to_tensor(x)
+#   else:
+#     raise TypeError("The inputs must be one of types {int, float, numpy array"
+#                     ", TensorFlow Tensor, TensorFlow ndarray} object.")
 
-
-@utils.np_doc(np.sign)
-def sign(x):
-  if isinstance(x, (float, int, onp.ndarray)):
-    return tf.convert_to_tensor(np.sign(x))
-  elif isinstance(x, (tf.Tensor, np.ndarray)):
-    x = np.sign(x.numpy())
-    return tf.convert_to_tensor(x)
-  else:
-    raise TypeError("The inputs must be one of types {int, float, numpy array"
-                    ", TensorFlow Tensor, TensorFlow ndarray} object.")
-
-@utils.np_doc(np.size)
+# @utils.np_doc(np.size)
 def size(x):
   if isinstance(x, (int, float)):
     return 1
   elif isinstance(x, (np.ndarray, tf.Tensor)):
-    return np.prod(x.numpy().shape)
+    return np.prod(x.shape)
   elif isinstance(x, onp.ndarray):
     return np.prod(x.shape)
   else:

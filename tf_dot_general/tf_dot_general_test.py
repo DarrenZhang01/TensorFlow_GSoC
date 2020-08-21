@@ -25,12 +25,12 @@ from tensorflow.python.platform import test
 import numpy as np
 import jax.numpy as jnp
 from jax import lax
-from tf_dot_general import compose_output_rep
-from tf_dot_general import tf_dot_general
+from tf_dot_general import *
 from absl.testing import parameterized
 
 
 class TFConvGeneralTest(test.TestCase, parameterized.TestCase):
+
 
   @parameterized.parameters(
     {"lhs": ['i', 'j'], "rhs": ['j', 'k'], "dims": (((1,), (0,)), ((), ())),
@@ -69,9 +69,9 @@ class TFConvGeneralTest(test.TestCase, parameterized.TestCase):
       "dims": (((4,), (1,)), ((0,), (0,)))},
   )
   def test_tf_dot_general(self, lhs_np, rhs_np, dims):
-    ans = lax.dot_general(jnp.array(lhs_np), jnp.array(rhs_np), dims)
-    result = tf_dot_general(tf.constant(lhs_np), tf.constant(rhs_np), dims)
-    self.assertTrue((result.numpy() == np.array(ans)).all())
+    ans = lax.dot_general(lhs_np, rhs_np, dims)
+    result = tf_dot_general(lhs_np, rhs_np, dims)
+    self.assertAllClose(result, np.array(ans))
 
 
 if __name__ == "__main__":

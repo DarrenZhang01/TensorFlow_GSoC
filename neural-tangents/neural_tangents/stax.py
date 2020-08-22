@@ -190,11 +190,11 @@ def _requires(**static_reqs):
                                  f'but input kernel has `{key} == {v_kernel}`, '
                                  f'making the infinite limit ill-defined.')
 
-            elif key == 'mask_constant':
-              pass
-
             else:
-              raise NotImplementedError(key)
+              # Any other name is recognized as a keyword-argument threaded
+              # through all `kernel_fn` down to `_inputs_to_kernel` rather than
+              # a requirement for this layer.
+              pass
 
       return kernel_fn(k)
 
@@ -324,9 +324,11 @@ def serial(*layers: Layer) -> InternalLayer:
   init_fn, apply_fn = ostax.serial(*zip(init_fns, apply_fns))
 
   @_requires(**_get_input_req_attr(kernel_fns))
-  def kernel_fn(k: Kernels) -> Kernels:
+  def kernel_fn(k: Kernels, **kwargs) -> Kernels:
+     # TODO(xlc): if we drop `x1_is_x2` and use `rng` instead, need split key
+     # inside kernel functions here and parallel below.
     for f in kernel_fns:
-      k = f(k)
+      k = f(k, **kwargs)
     return k
 
   return init_fn, apply_fn, kernel_fn
@@ -356,10 +358,128 @@ def parallel(*layers: Layer) -> InternalLayer:
     return list(init_fn_stax(rng, input_shape))
 
   @_requires(**_get_input_req_attr(kernel_fns))
-  def kernel_fn(ks: List[Kernel]) -> List[Kernel]:
-    return [f(k) for k, f in zip(ks, kernel_fns)]
+  def kernel_fn(ks: List[Kernel], **kwargs) -> List[Kernel]:
+    return [f(k, **kwargs) for k, f in zip(ks, kernel_fns)]
 
   return init_fn, apply_fn, kernel_fn
+
+
+@layer
+@_supports_masking(remask_kernel=True)
+def Aggregate(batch_axis: int = 0, channel_axis: int = -1) -> InternalLayer:
+  r"""Layer constructor for aggregation operator (graphical neural network); see
+  e.g. arXiv: 1905.13192.
+
+  Specifically, each `input` (of shape (batch, nodes, channels)) is associated
+  with a `pattern` (of shape (batch, nodes, nodes)) and the output tensor is
+  equal to `np.matmul(pattern, input)`.
+
+  Args:
+    batch_axis:
+      integer, batch axis for `inputs`. Defaults to `0`, the leading axis.
+    channel_axis:
+      integer, channel axis for `inputs`. Defaults to `-1`, the trailing
+      axis. For `kernel_fn`, channel size is considered to be infinite.
+
+  Returns:
+    `(init_fn, apply_fn, kernel_fn)`.
+  """
+  init_fn = lambda rng, input_shape: (input_shape, ())
+
+  def apply_fn(params,
+               inputs: np.ndarray, *,
+               pattern: Optional[np.ndarray] = None, **kwargs):
+    """Compute the transformed tensors after an aggregation layer.
+
+    Args:
+      params:
+        Not used.
+      inputs:
+        A 3D tensor of shape (batch, nodes, channels). Note that the
+        `batch_axis` and ` channel_axis` are usef only for `inputs` not for
+        `pattern` below.
+      pattern:
+        A 3D tensor of shape (batch, nodes, nodes), whose dimension order is
+        fixed.
+
+    Returns:
+      A 3D tensor of shape `(batch, nodes, channels)` which is equal to
+      np.matmul(pattern, inputs).
+    """
+    del params
+    if inputs.ndim != 3:
+      raise ValueError('Currently only support 3D tensor. Abitrary input '
+                       'dimensions will be supported in coming CLs.')
+    if pattern is not None and pattern.ndim != 3:
+      raise ValueError(f'`pattern` must be a 3D tensor. A {pattern.ndim} tensor'
+                       'is found.')
+    _batch_axis = batch_axis % inputs.ndim
+    _channel_axis = channel_axis % inputs.ndim
+    i = [k for k in range(inputs.ndim) if k != _batch_axis and
+         k != _channel_axis]
+    if len(i) != 1:
+      raise ValueError('Currently, only support inputs with node '
+                       'dimension = 1.')
+    i = i[0]
+    ret = lax.dot_general(pattern, inputs, (((2,), (i,)), ((0,), (0,))))
+    return ret
+
+  @_requires(diagonal_spatial=False,
+             batch_axis=batch_axis,
+             channel_axis=channel_axis)
+  def kernel_fn(k: Kernels,
+                *,
+                pattern: Tuple[Optional[np.ndarray],
+                Optional[np.ndarray]] = (None, None),
+                **kwargs):
+    """Compute the transformed kernels after an aggregation kernel layer.
+
+      Specifically, the `nngp`/`ntk` is a 4d tensor of shape
+      `(batch1, batch2, node1, node2)`, where node1 == node2. This tensor will
+      be aggregated (via matrix multiplication) on the left by `pattern[0]` of
+      shape `(batch1, node1, node1)` and on the right by `pattern[1]` of shape
+      `(batch2, node2, node2)`. Ignoring the batch dimensions, the return
+      `nngp/ntk` is `pattern[0] @ nngp/ntk @ pattern[1].T`
+
+    """
+
+    cov1, nngp, cov2, ntk = \
+      k.cov1, k.nngp, k.cov2, k.ntk
+    pattern1, pattern2 = pattern
+
+    def full_conjugate(p1, mat, p2):
+      if mat is None or mat.ndim ==0 or (p1 is None and p2 is None):
+        return mat
+      elif p2 is None:
+        return np.einsum('bli,bcij->bclj', p1, mat, optimize=True)
+      elif p1 is None:
+        np.einsum('bcij,ckj->bcik', mat, p2, optimize=True)
+      else:
+        return np.einsum('bli,bcij,ckj->bclk', p1, mat, p2, optimize=True)
+
+    def diagonal_batch_conjugate(p, mat):
+      if p is None or mat is None or mat.ndim == 0:
+        return mat
+      if k.diagonal_batch:
+        mat = np.einsum('bti, bij, blj->btl', p, mat, p)
+        return mat
+      else:
+        return full_conjugate(p, mat, p)
+
+    cov1 = diagonal_batch_conjugate(pattern1, cov1)
+    cov2 = diagonal_batch_conjugate(pattern2, cov2)
+    nngp = full_conjugate(pattern1, nngp, pattern2)
+    ntk = full_conjugate(pattern1, ntk, pattern2)
+
+    return k.replace(cov1=cov1,
+                     nngp=nngp,
+                     cov2=cov2,
+                     ntk=ntk)
+
+  def mask_fn(mask, input_shape):
+    return np.all(mask, axis=channel_axis, keepdims=True)
+
+  return init_fn, apply_fn, kernel_fn, mask_fn
 
 
 @layer
@@ -376,30 +496,35 @@ def Dense(
   Based on `jax.experimental.stax.Dense`.
 
   Args:
-    out_dim: The output feature / channel dimension. This is ignored in by the
-      `kernel_fn` in NTK parameterization.
+    out_dim:
+      The output feature / channel dimension. This is ignored in by the
+      `kernel_fn` in `"ntk"` parameterization.
 
-    W_std: Specifies the standard deviation of the weights.
+    W_std:
+      Specifies the standard deviation of the weights.
 
-    b_std: Specifies the standard deviation of the biases.
+    b_std:
+      Specifies the standard deviation of the biases.
 
-    parameterization: Either `"ntk"` or `"standard"`.
+    parameterization:
+      Either `"ntk"` or `"standard"`.
 
-      Under ntk parameterization (https://arxiv.org/abs/1806.07572, page 3),
+      Under `"ntk"` parameterization (https://arxiv.org/abs/1806.07572, page 3),
       weights and biases are initialized as
       :math:`W_{ij} \sim \mathcal{N}(0,1)`, :math:`b_i \sim \mathcal{N}(0,1)`,
       and the finite width layer equation is
       :math:`z_i = \sigma_W / \sqrt{N} \sum_j W_{ij} x_j + \sigma_b b_i`.
 
-      Under standard parameterization (https://arxiv.org/abs/2001.07301),
+      Under `"standard"` parameterization (https://arxiv.org/abs/2001.07301),
       weights and biases are initialized as :math:`W_{ij} \sim \mathcal{N}(0,
       W_{std}^2/N)`,
       :math:`b_i \sim \mathcal{N}(0,\sigma_b^2)`, and the finite width layer
       equation is
       :math:`z_i = \sum_j W_{ij} x_j + b_i`.
 
-    batch_axis: Specifies which axis is contains different elements of the
-      batch. Defaults to `0`, the leading axis.
+    batch_axis:
+      Specifies which axis is contains different elements of the batch.
+      Defaults to `0`, the leading axis.
 
     channel_axis: Specifies which axis contains the features / channels.
       Defaults to `-1`, the trailing axis. For `kernel_fn`, channel size is
@@ -459,8 +584,8 @@ def Dense(
     return outputs
 
   @_requires(batch_axis=batch_axis, channel_axis=channel_axis)
-  def kernel_fn(k: Kernel):
-    """Compute the transformed kernels after a dense layer."""
+  def kernel_fn(k: Kernel, **kwargs):
+    """Compute the transformed kernels after a `Dense` layer."""
     cov1, nngp, cov2, ntk = k.cov1, k.nngp, k.cov2, k.ntk
 
     def fc(x):
@@ -505,22 +630,29 @@ def GeneralConv(
   Based on `jax.experimental.stax.GeneralConv`.
 
   Args:
-    dimension_numbers: Specifies which axes should be convolved over. Should
-      match the specification in `jax.lax.dot_general_dilated`.
-    out_chan: The number of output channels / features of the
-      convolution. This is ignored in by the `kernel_fn` in NTK
-      parameterization.
-    filter_shape: The shape of the filter. The shape of the tuple should agree
-      with the number of spatial dimensions in `dimension_numbers`.
-    strides: The stride of the convolution. The shape of the tuple should agree
-      with the number of spatial dimensions in `dimension_nubmers`.
-    padding: Specifies padding for the convolution. Can be one of `"VALID"`,
-      `"SAME"`, or `"CIRCULAR"`. `"CIRCULAR"` uses periodic convolutions.
-    W_std: The standard deviation of the weights.
-    b_std: The standard deviation of the biases.
-    parameterization: Either `"ntk"` or `"standard"`. These parameterizations
-      are the direct analogues for convolution of the corresponding
-      parameterizations for `Dense` layers.
+    dimension_numbers:
+      Specifies which axes should be convolved over. Should match the
+      specification in `jax.lax.dot_general_dilated`.
+    out_chan:
+      The number of output channels / features of the convolution. This is
+      ignored in by the `kernel_fn` in `"ntk"` parameterization.
+    filter_shape:
+      The shape of the filter. The shape of the tuple should agree with the
+      number of spatial dimensions in `dimension_numbers`.
+    strides:
+      The stride of the convolution. The shape of the tuple should agree with
+      the number of spatial dimensions in `dimension_nubmers`.
+    padding:
+      Specifies padding for the convolution. Can be one of `"VALID"`, `"SAME"`,
+      or `"CIRCULAR"`. `"CIRCULAR"` uses periodic convolutions.
+    W_std:
+      standard deviation of the weights.
+    b_std:
+      standard deviation of the biases.
+    parameterization:
+      Either `"ntk"` or `"standard"`. These parameterizations are the direct
+      analogues for convolution of the corresponding parameterizations for
+      `Dense` layers.
 
   Returns:
     `(init_fn, apply_fn, kernel_fn)`.
@@ -550,20 +682,27 @@ def Conv(
   Based on `jax.experimental.stax.Conv`.
 
   Args:
-    out_chan: The number of output channels / features of the
-      convolution. This is ignored in by the `kernel_fn` in NTK
+    out_chan:
+      The number of output channels / features of the
+      convolution. This is ignored in by the `kernel_fn` in `"ntk"`
       parameterization.
-    filter_shape: The shape of the filter. The shape of the tuple should agree
-      with the number of spatial dimensions in `dimension_numbers`.
-    strides: The stride of the convolution. The shape of the tuple should agree
+    filter_shape:
+      The shape of the filter. The shape of the tuple should agree with the
+      number of spatial dimensions in `dimension_numbers`.
+    strides:
+      The stride of the convolution. The shape of the tuple should agree
       with the number of spatial dimensions in `dimension_nubmers`.
-    padding: Specifies padding for the convolution. Can be one of `"VALID"`,
-      `"SAME"`, or `"CIRCULAR"`. `"CIRCULAR"` uses periodic convolutions.
-    W_std: The standard deviation of the weights.
-    b_std: The standard deviation of the biases.
-    parameterization: Either `"ntk"` or `"standard"`. These parameterizations
-      are the direct analogues for convolution of the corresponding
-      parameterizations for `Dense` layers.
+    padding:
+      Specifies padding for the convolution. Can be one of `"VALID"`, `"SAME"`,
+      or `"CIRCULAR"`. `"CIRCULAR"` uses periodic convolutions.
+    W_std:
+      standard deviation of the weights.
+    b_std:
+      standard deviation of the biases.
+    parameterization:
+      Either `"ntk"` or `"standard"`. These parameterizations are the direct
+      analogues for convolution of the corresponding parameterizations for
+      `Dense` layers.
 
   Returns:
     `(init_fn, apply_fn, kernel_fn)`.
@@ -672,6 +811,7 @@ def _GeneralConv(
                            if c not in ('I', 'O'))
       inputs = _same_pad_for_filter_shape(inputs, filter_shape, strides,
                                           spatial_axes, 'wrap')
+      print("\ntype of inputs: {}\n".format(type(inputs)))
 
     return norm * conv_general_dilated(
         inputs,
@@ -719,6 +859,7 @@ def _GeneralConv(
       return _affine(x, W_std, b_std)
 
     cov1 = conv(cov1, 1 if k.diagonal_batch else 2)
+    print("\n type of cov1: {}\n".format(type(cov1)))
     cov2 = conv(cov2, 1 if k.diagonal_batch else 2)
 
     if parameterization == 'ntk':
@@ -780,7 +921,7 @@ def FanOut(num: int) -> InternalLayer:
     `(init_fn, apply_fn, kernel_fn)`.
   """
   init_fn, apply_fn = ostax.FanOut(num)
-  kernel_fn = lambda k: [k] * num
+  kernel_fn = lambda k, **kwargs: [k] * num
   return init_fn, apply_fn, kernel_fn
 
 
@@ -796,7 +937,7 @@ def FanInSum() -> InternalLayer:
     `(init_fn, apply_fn, kernel_fn)`.
   """
   init_fn, apply_fn = ostax.FanInSum
-  kernel_fn = lambda ks: _fan_in_kernel_fn(ks, None)
+  kernel_fn = lambda ks, **kwargs: _fan_in_kernel_fn(ks, None)
 
   def mask_fn(mask, input_shape):
     return _sum_masks(mask)
@@ -818,7 +959,7 @@ def FanInConcat(axis: int = -1) -> InternalLayer:
     `(init_fn, apply_fn, kernel_fn)`.
   """
   init_fn, apply_fn = ostax.FanInConcat(axis)
-  kernel_fn = lambda ks: _fan_in_kernel_fn(ks, axis)
+  kernel_fn = lambda ks, **kwargs: _fan_in_kernel_fn(ks, axis)
 
   def mask_fn(mask, input_shape):
     return _concat_masks(mask, input_shape, axis)
@@ -975,7 +1116,7 @@ def _Pool(
   @_requires(batch_axis=batch_axis,
              channel_axis=channel_axis,
              diagonal_spatial=False)
-  def kernel_fn(k: Kernel):
+  def kernel_fn(k: Kernel, **kwargs):
     """Kernel transformation."""
     cov1, nngp, cov2, ntk = k.cov1, k.nngp, k.cov2, k.ntk
 
@@ -1091,7 +1232,7 @@ def _GlobalPool(
   @_requires(batch_axis=batch_axis,
              channel_axis=channel_axis,
              diagonal_spatial=False)
-  def kernel_fn(k: Kernel):
+  def kernel_fn(k: Kernel, **kwargs):
     cov1, nngp, cov2, ntk = k.cov1, k.nngp, k.cov2, k.ntk
 
     def _pool(ker_mat, batch_ndim, mask=None):
@@ -1178,7 +1319,7 @@ def Flatten(batch_axis: int = 0, batch_axis_out: int = 0) -> InternalLayer:
   @_requires(batch_axis=batch_axis,
              channel_axis=None,
              diagonal_spatial=True)
-  def kernel_fn(k: Kernel):
+  def kernel_fn(k: Kernel, **kwargs):
     """Compute kernels."""
     cov1, nngp, cov2, ntk = k.cov1, k.nngp, k.cov2, k.ntk
 
@@ -1233,7 +1374,7 @@ def Identity() -> InternalLayer:
     `(init_fn, apply_fn, kernel_fn)`.
   """
   init_fn, apply_fn = ostax.Identity
-  kernel_fn = lambda k: k
+  kernel_fn = lambda k, **kwargs: k
   return init_fn, apply_fn, kernel_fn
 
 
@@ -1254,7 +1395,7 @@ def Erf(a: float = 1.,
     `(init_fn, apply_fn, kernel_fn)`.
   """
   return _elementwise(_erf,
-                      'Erf',
+                      f'Erf({a}, {b}, {c})',
                       a=a,
                       b=b,
                       c=c,
@@ -1291,27 +1432,27 @@ def Sin(a: float = 1.,
   Returns:
     `(init_fn, apply_fn, kernel_fn)`.
   """
-  return _elementwise(_sin, 'Sin', a=a, b=b, c=c)
+  return _elementwise(_sin, f'Sin({a}, {b}, {c})', a=a, b=b, c=c)
 
 
 @layer
 @_supports_masking(remask_kernel=True)
 def Rbf(gamma: float = 1.0) -> InternalLayer:
-  """Returns the dual activation function layer for normalized RBF or sqaured exponential kernel.
+  """Dual activation function for normalized RBF or squared exponential kernel.
 
   Dual activation function is `f(x) = sqrt(2)*sin(sqrt(2*gamma) x + pi/4)`.
-
   NNGP kernel transformation correspond to (with input dimension `d`)
-    `k = exp(- gamma / d * ||x - x'||^2) = exp(- gamma*(q11 + q22 - 2 * q12))`.
+  `k = exp(- gamma / d * ||x - x'||^2) = exp(- gamma*(q11 + q22 - 2 * q12))`.
 
   Args:
-    gamma: related to characteristic length-scale (l) that controls width of
-      the kernel, where `gamma = 1 / (2 l^2)`.
+    gamma:
+      related to characteristic length-scale (l) that controls width of the
+      kernel, where `gamma = 1 / (2 l^2)`.
 
   Returns:
     `(init_fn, apply_fn, kernel_fn)`.
   """
-  return _elementwise(_rbf, 'Rbf', gamma=gamma)
+  return _elementwise(_rbf, f'Rbf({gamma})', gamma=gamma)
 
 
 @layer

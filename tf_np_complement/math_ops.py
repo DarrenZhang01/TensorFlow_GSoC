@@ -14,7 +14,8 @@
 # ==============================================================================
 
 """
-Implement TF Numpy operations `pi`, `round`, `sign`, `size`, 'einsum' and linalg series.
+Implement TF Numpy operations `pi`, `round`, `sign`, `size`, 'einsum'
+and linalg series.
 
 Zhibo Zhang, 2020.06.19
 """
@@ -42,11 +43,11 @@ from tensorflow.python.ops import numpy_ops as np
 
 # @utils.np_doc(np.size)
 def size(x):
-  if isinstance(x, (int, float)):
+  x = x.numpy() if isinstance(x, tf.Tensor) else x
+  if isinstance(x, (int, float, onp.int32, onp.int64,
+                    onp.float32, onp.float64)):
     return 1
-  elif isinstance(x, (np.ndarray, tf.Tensor)):
-    return np.prod(x.shape)
-  elif isinstance(x, onp.ndarray):
+  elif isinstance(x, (np.ndarray, onp.ndarray)):
     return np.prod(x.shape)
   else:
     raise TypeError("The inputs must be one of types {int, float, numpy array"

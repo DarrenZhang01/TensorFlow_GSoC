@@ -29,7 +29,9 @@ class OpsTest(test.TestCase):
   def testSize(self):
 
     def run_test(arr):
-      self.assertEqual(np_size(arr), onp.size(arr))
+      onp_arr = arr.numpy() if isinstance(arr, tf.Tensor) else arr
+      print(onp_arr)
+      self.assertEqual(np_size(arr), onp.size(onp_arr))
 
     run_test(np.array([1]))
     run_test(np.array([1, 2, 3, 4, 5]))
@@ -38,6 +40,8 @@ class OpsTest(test.TestCase):
     run_test(np.zeros((5, 6, 7)))
     run_test(1)
     run_test(onp.ones((3, 2, 1)))
+    run_test(tf.constant(5))
+    run_test(tf.constant([1, 1, 1]))
 
 
 if __name__ == "__main__":

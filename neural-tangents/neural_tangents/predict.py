@@ -34,7 +34,7 @@ from jax.tree_util import tree_map
 from neural_tangents.utils import utils, dataclasses
 import scipy as osp
 from neural_tangents.utils.typing import KernelFn, Axes, Get
-from typing import Union, Tuple, Callable, Iterable, Optional, Dict
+from typing import Union, Tuple, Callable, Iterable, Optional, Dict, NamedTuple
 from functools import lru_cache
 
 import tensorflow as tf

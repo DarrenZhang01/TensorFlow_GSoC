@@ -32,6 +32,7 @@ from typing import Union, Tuple, Generator, Set, Iterable, Optional
 
 # from jax import random
 import tensorflow as tf
+import sys
 from stateless_random_ops import split as tf_split
 from tensorflow.random import stateless_uniform
 from tensorflow.python.ops import numpy_ops as np
@@ -239,7 +240,6 @@ def monte_carlo_kernel_fn(
   kernel_fn = empirical.empirical_kernel_fn(apply_fn,
                                             trace_axes=trace_axes,
                                             diagonal_axes=diagonal_axes)
-
   kernel_fn_sample_once = _sample_once_kernel_fn(kernel_fn,
                                                  init_fn,
                                                  batch_size,

@@ -152,5 +152,6 @@ class NeuralTangentsTestCase(tf.test.TestCase, parameterized.TestCase):
         else:
           super().assertAllEqual(x_dict[field.name], y_dict[field.name])
     else:
+      print("type x: {}, type y: {}\n".format(type(x), type(y)))
       return super().assertAllClose(
           onp.array(x), onp.array(y), atol=atol, rtol=rtol)

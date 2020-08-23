@@ -47,7 +47,7 @@ ArrayOrScalar = Union[None, int, float, np.ndarray]
 
 
 def gradient_descent_mse(
-    ntk_train_train: np.ndarray,
+    k_train_train: np.ndarray,
     y_train: np.ndarray,
     learning_rate: float = 1.,
     diag_reg: float = 0.,
@@ -130,7 +130,7 @@ def gradient_descent_mse(
     `predict_fn(t, fx_train_0, fx_test_0, k_test_train)` that
     returns output train [and test] set[s] predictions at time[s] `t`.
   """
-  _, odd, first, _ = _get_axes(ntk_train_train)
+  _, odd, first, _ = _get_axes(k_train_train)
   trace_axes = utils.canonicalize_axis(trace_axes, y_train)
   trace_axes = tuple(-y_train.ndim + a for a in trace_axes)
   n_t_axes, n_non_t_axes = len(trace_axes), y_train.ndim - len(trace_axes)
@@ -139,7 +139,7 @@ def gradient_descent_mse(
 
   @lru_cache(1)
   def get_predict_fn_inf():
-    solve = _get_cho_solve(ntk_train_train, diag_reg, diag_reg_absolute_scale)
+    solve = _get_cho_solve(k_train_train, diag_reg, diag_reg_absolute_scale)
 
     def predict_fn_inf(fx_train_0, fx_test_0, k_test_train):
       fx_train_t = y_train.astype(k_train_train.dtype)
@@ -161,7 +161,7 @@ def gradient_descent_mse(
   @lru_cache(1)
   def get_predict_fn_finite():
     expm1_fn, inv_expm1_fn = _get_fns_in_eigenbasis(
-        ntk_train_train,
+        k_train_train,
         diag_reg,
         diag_reg_absolute_scale,
         (_make_expm1_fn(y_train.size),

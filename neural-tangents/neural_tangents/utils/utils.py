@@ -416,6 +416,12 @@ def get_masked_array(x: ArrayOrList,
   return MaskedArray(x, mask)  # pytype: disable=wrong-arg-count
 
 
+def mask(x: Optional[np.ndarray], mask_mat: Optional[np.ndarray]):
+  if x is None or mask_mat is None:
+    return x
+  return np.where(mask_mat, np.zeros((), x.dtype), x)
+
+
 def size_at(x: Union[np.ndarray, Sequence[int]],
             axes: Iterable[int] = None) -> int:
   if hasattr(x, 'shape'):
@@ -425,6 +431,18 @@ def size_at(x: Union[np.ndarray, Sequence[int]],
     axes = range(len(x))
 
   return functools.reduce(operator.mul, [x[a] for a in axes], 1)
+
+
+def shape_and_axes(
+    x: Union[np.ndarray, Sequence[int]],
+    ignore_axes: Iterable[int] = ()) -> Tuple[Tuple[int, ...], Tuple[int, ...]]:
+  if hasattr(x, 'shape'):
+    x = x.shape
+  ndim = len(x)
+  ignore_axes = tuple(i % ndim for i in ignore_axes)
+  axes = tuple(i for i in range(ndim) if i not in ignore_axes)
+  shape = tuple(x[i] for i in axes)
+  return shape, axes
 
 
 def get_res_batch_dims(contracting_dims: List[int],
@@ -442,17 +460,17 @@ def dot_general(lhs: np.ndarray,
                 contracting_dims: Axes,
                 batch_dims: Axes,
                 precision=None) -> np.ndarray:
-  """`dot_general` with preserved dims order and shared lhs / rhs dims.
+  """`jax.lax.dot_general` with preserved dims order and shared lhs / rhs dims.
 
-  Precisely, returns `dot_general(lhs, rhs, dimension_numbers)` where
+  Precisely, returns `jax.lax.dot_general(lhs, rhs, dimension_numbers)` where
   `dimension_numbers == ((contracting_dims, contracting_dims),
                          (batch_dims, batch_dims))`,
-  but allows arbitrary dimension order and preserves it in the output. See XLA's
+  but preserves the dimension order in the output. See XLA's
    `DotGeneral<https://www.tensorflow.org/xla/operation_semantics#dotgeneral>`.
 
   Args:
-    lhs: np.ndarray.
-    rhs: np.ndarray.
+    lhs: array.
+    rhs: array, must have the same dimensionality as `lhs`.
     contracting_dims: contracting dimensions.
     batch_dims: batch dimensions.
     precision: Optional. Either `None`, which means the default precision for

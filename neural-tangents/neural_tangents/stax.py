@@ -313,8 +313,8 @@ def serial(*layers: Layer) -> InternalLayer:
   Based on `jax.experimental.stax.serial`.
 
   Args:
-    *layers: a sequence of layers, each an `(init_fn, apply_fn, kernel_fn)`
-      triple.
+    *layers:
+      a sequence of layers, each an `(init_fn, apply_fn, kernel_fn)` triple.
 
   Returns:
     A new layer, meaning an `(init_fn, apply_fn, kernel_fn)` triple,
@@ -342,8 +342,8 @@ def parallel(*layers: Layer) -> InternalLayer:
   `FanInSum`/`FanInConcat` layers. Based on `jax.experimental.stax.parallel`.
 
   Args:
-    *layers: a sequence of layers, each with a `(init_fn, apply_fn, kernel_fn)`
-      triple.
+    *layers:
+      a sequence of layers, each with a `(init_fn, apply_fn, kernel_fn)` triple.
 
   Returns:
     A new layer, meaning an `(init_fn, apply_fn, kernel_fn)` triples,
@@ -822,7 +822,7 @@ def _GeneralConv(
 
   @_requires(batch_axis=dimension_numbers[0].index('N'),
              channel_axis=dimension_numbers[0].index('C'))
-  def kernel_fn(k: Kernel):
+  def kernel_fn(k: Kernel, **kwargs):
     """Compute the transformed kernels after a conv layer."""
     cov1, nngp, cov2, ntk, is_reversed = (k.cov1, k.nngp, k.cov2, k.ntk,
                                           k.is_reversed)
@@ -1631,7 +1631,7 @@ def GlobalSelfAttention(
     n_chan_key: int,
     n_chan_val: int,
     n_heads: int,
-    fixed: bool = True,
+    linear_scaling: bool = True,
     W_key_std: float = 1.0,
     W_value_std: float = 1.0,
     W_query_std: float = 1.0,
@@ -2240,7 +2240,7 @@ def Dropout(rate: float, mode: str = 'train') -> InternalLayer:
     raise ValueError('The `rate` must be > 0. and <= 1.')
 
   init_fn, apply_fn = ostax.Dropout(rate, mode=mode)
-  kernel_fn_test = lambda kernels, **kwargs: kernels
+  kernel_fn_test = lambda k, **kwargs: k
 
   def kernel_fn_train(k: Kernel **kwargs):
     """kernel_fn for `train` mode."""
@@ -2368,10 +2368,10 @@ def _cov_full_batch_diag_spatial(x1: np.ndarray,
   return ret
 
 
-def _cov_diagonal_batch(x: np.ndarray,
-                        diagonal_spatial: bool,
-                        batch_axis: int,
-                        channel_axis: int) -> np.ndarray:
+def _cov_diag_batch(x: np.ndarray,
+                    diagonal_spatial: bool,
+                    batch_axis: int,
+                    channel_axis: int) -> np.ndarray:
   if diagonal_spatial:
     ret = _cov_diag_batch_diag_spatial(x, batch_axis, channel_axis)
   else:
@@ -2427,6 +2427,7 @@ def _cov(
 def _inputs_to_kernel(
     x1: np.ndarray,
     x2: Optional[np.ndarray],
+    *,
     diagonal_batch: bool,
     diagonal_spatial: bool,
     compute_ntk: bool,
@@ -2513,6 +2514,8 @@ def _inputs_to_kernel(
       errors and try to use an atypical for inputs value.
     eps: a small number used to check whether x1 and x2 are the same up to
       `eps`.
+    **kwargs: other arguments passed to all intermediary `kernel_fn` calls (not
+      used here).
 
   Returns:
     The `Kernel` object containing inputs covariance[s].
@@ -2529,9 +2532,7 @@ def _inputs_to_kernel(
     def flatten(x):
       if x is None:
         return x
-      x = np.moveaxis(x, batch_axis, 0)
-      x = np.reshape(x, (x.shape[batch_axis], -1))
-      return x
+      return np.moveaxis(x, batch_axis, 0).reshape((x.shape[batch_axis], -1))
 
     x1, x2 = flatten(x1), flatten(x2)
     batch_axis, channel_axis = 0, 1
@@ -2555,7 +2556,7 @@ def _inputs_to_kernel(
     x = x.astype(np.float64)
 
     if diagonal_batch:
-      cov = _cov_diagonal_batch(x, diagonal_spatial, batch_axis, channel_axis)
+      cov = _cov_diag_batch(x, diagonal_spatial, batch_axis, channel_axis)
     else:
       cov = _cov(x, x, diagonal_spatial, batch_axis, channel_axis)
 
@@ -2693,17 +2694,17 @@ def _preprocess_kernel_fn(
   if not hasattr(kernel_fn, _INPUT_REQ):
     kernel_fn = _requires()(kernel_fn)
 
-  def kernel_fn_kernel(kernel, **user_reqs):
-    out_kernel = kernel_fn(kernel, **user_reqs)
+  def kernel_fn_kernel(kernel, **kwargs):
+    out_kernel = kernel_fn(kernel, **kwargs)
     return _set_shapes(init_fn, kernel, out_kernel)
 
-  def kernel_fn_x1(x1, x2, get, **user_reqs):
+  def kernel_fn_x1(x1, x2, get, **kwargs):
     # Get input requirements requested by network layers, user, or defaults.
     kernel_fn_reqs = getattr(kernel_fn, _INPUT_REQ)
-    reqs = _fuse_reqs(kernel_fn_reqs, _DEFAULT_INPUT_REQ, **user_reqs)
+    reqs = _fuse_reqs(kernel_fn_reqs, _DEFAULT_INPUT_REQ, **kwargs)
     compute_ntk = (get is None) or ('ntk' in get)
     kernel = _inputs_to_kernel(x1, x2, compute_ntk=compute_ntk, **reqs)
-    out_kernel = kernel_fn(kernel, **user_reqs)
+    out_kernel = kernel_fn(kernel, **kwargs)
     return _set_shapes(init_fn, kernel, out_kernel)
 
   @utils.get_namedtuple('AnalyticKernel')
@@ -3139,9 +3140,7 @@ def _transform_kernels_sin(k: Kernel, a: float, b: float, c: float) -> Kernel:
                    is_gaussian=False)
 
 
-def _transform_kernels_rbf(
-    k: Kernel,
-    gamma: float = 1.0) -> Kernel:
+def _transform_kernels_rbf(k: Kernel, gamma: float) -> Kernel:
   """Compute new kernels after an `Rbf` layer."""
   cov1, nngp, cov2, ntk = k.cov1, k.nngp, k.cov2, k.ntk
 

@@ -63,8 +63,7 @@ Example:
   >>>  y_test_ntk = predict_fn(x_test=x_test, get='ntk')
 """
 
-# TODO(Zhibo Zhang): Use TF pi to replace math.pi when the TF pi API is mature.
-#     Note: TF Numpy `mean` method is currently in the lack of `out` parameter
+# TODO(Zhibo Zhang): TF Numpy `mean` method is currently in the lack of `out` parameter
 #           support, so I temporarily remove that input.
 
 import sys
@@ -165,9 +164,9 @@ def _requires(**static_reqs):
     """Returns `kernel_fn` with additional consistency checks."""
 
     @utils.wraps(kernel_fn)
-    def new_kernel_fn(k: Kernels, **user_reqs) -> Kernels:
+    def new_kernel_fn(k: Kernels, **kwargs) -> Kernels:
       """Executes `kernel_fn` on `kernels` after checking consistency."""
-      fused_reqs = _fuse_reqs(static_reqs, {}, **user_reqs)
+      fused_reqs = _fuse_reqs(static_reqs, {}, **kwargs)
 
       # `FanInConcat / FanInSum` have no requirements and
       # execute custom consistency checks.
@@ -196,7 +195,7 @@ def _requires(**static_reqs):
               # a requirement for this layer.
               pass
 
-      return kernel_fn(k)
+      return kernel_fn(k, **kwargs)
 
     setattr(new_kernel_fn, _INPUT_REQ, frozendict.frozendict(static_reqs))
     return new_kernel_fn
@@ -260,7 +259,8 @@ def _supports_masking(remask_kernel: bool):
           return None
         return _mask_fn(mask, input_shape)
 
-      def apply_fn_with_masking(params, inputs, mask_constant=None, **kwargs):
+      def apply_fn_with_masking(params, inputs, *,
+                                mask_constant=None, **kwargs):
         inputs = utils.get_masked_array(inputs, mask_constant)
         inputs, mask = inputs.masked_value, inputs.mask
         outputs = apply_fn(params, inputs, mask=mask, **kwargs)
@@ -2242,7 +2242,7 @@ def Dropout(rate: float, mode: str = 'train') -> InternalLayer:
   init_fn, apply_fn = ostax.Dropout(rate, mode=mode)
   kernel_fn_test = lambda k, **kwargs: k
 
-  def kernel_fn_train(k: Kernel **kwargs):
+  def kernel_fn_train(k: Kernel, **kwargs):
     """kernel_fn for `train` mode."""
     cov1, nngp, cov2, ntk = k.cov1, k.nngp, k.cov2, k.ntk
 
@@ -2618,8 +2618,6 @@ def _set_shapes(
                     f'`Kernel`s. Found {type(out_kernel)}.')
 
   if isinstance(out_kernel, Kernel):
-    shape1 = shape_conversion(shape1)
-    shape2 = shape_conversion(shape2)
     out_kernel = out_kernel.replace(shape1=shape_conversion(shape1), \
         shape2=shape_conversion(shape2))
 
@@ -2631,11 +2629,8 @@ def _set_shapes(
       out_kernel = out_kernel.replace(cov2=np.array(cov2))
 
   elif isinstance(out_kernel, list):
-    shape1 = [s if isinstance(s, tuple) else s.shape.as_list() for s in shape1]
-    shape2 = [s if isinstance(s, tuple) else s.shape.as_list() for s in shape2]
-    out_kernel = [k.replace(shape1=s1, \
-        shape2=s2) for k, s1, s2 in \
-        zip(out_kernel, shape1, shape2)]
+    out_kernel = [k.replace(shape1=shape_conversion(s1), shape2=shape_conversion(s2)) for
+            k, s1, s2 in zip(out_kernel, shape1, shape2)]
 
     for i in range(len(out_kernel)):
       if isinstance(out_kernel[i].cov1, tf.Tensor):
@@ -2823,7 +2818,7 @@ def _sin(x, a, b, c, **kwargs):
 
 
 def _rbf(x, gamma, **kwargs):
-  return np.sqrt(2) * np.sin(np.sqrt(2 * gamma) * x + math.pi/4)
+  return np.sqrt(2) * np.sin(np.sqrt(2 * gamma) * x + np.pi/4)
 
 
 def _arccos(x, do_backprop):
@@ -2921,8 +2916,8 @@ def _get_ab_relu_kernel(ker_mat, prod, a, b, do_backprop, ntk=None):
   cosines = ker_mat / _safe_sqrt(prod)
   angles = _arccos(cosines, do_backprop)
 
-  dot_sigma = (a**2 + b**2 - (a - b)**2 * angles / math.pi) / 2
-  ker_mat = ((a - b)**2 * _sqrt(prod - ker_mat**2, do_backprop) / (2 * math.pi) +
+  dot_sigma = (a**2 + b**2 - (a - b)**2 * angles / np.pi) / 2
+  ker_mat = ((a - b)**2 * _sqrt(prod - ker_mat**2, do_backprop) / (2 * np.pi) +
              dot_sigma * ker_mat)
 
   if ntk is not None:
@@ -2986,9 +2981,9 @@ def _get_erf_kernel(
     do_backprop: bool,
     ntk: np.ndarray = None) -> Tuple[np.ndarray, Optional[np.ndarray]]:
   if ntk is not None:
-    dot_sigma = 4 / (math.pi * np.sqrt(prod - 4 * ker_mat**2))
+    dot_sigma = 4 / (np.pi * np.sqrt(prod - 4 * ker_mat**2))
     ntk *= dot_sigma
-  ker_mat = _arcsin(2 * ker_mat / np.sqrt(prod), do_backprop) * 2 / math.pi
+  ker_mat = _arcsin(2 * ker_mat / np.sqrt(prod), do_backprop) * 2 / np.pi
 
 
   return ker_mat, ntk
@@ -3009,9 +3004,9 @@ def _transform_kernels_erf_non_scaled(k: Kernel, do_backprop: bool) -> Kernel:
   nngp, ntk = _get_erf_kernel(nngp, prod12, do_backprop, ntk=ntk)
 
   if k.diagonal_batch and k.diagonal_spatial:
-    cov1 = np.arcsin(2 * cov1 / _cov1_denom) * 2 / math.pi
+    cov1 = np.arcsin(2 * cov1 / _cov1_denom) * 2 / np.pi
     if cov2 is not None:
-      cov2 = np.arcsin(2 * cov2 / _cov2_denom) * 2 / math.pi
+      cov2 = np.arcsin(2 * cov2 / _cov2_denom) * 2 / np.pi
   else:
     cov1, _ = _get_erf_kernel(cov1, prod11, do_backprop)
     if cov2 is not None:
@@ -3035,13 +3030,13 @@ def _get_gelu_kernel(nngp: np.ndarray,
   ratio = nngp / _safe_sqrt(prod_plus_1)
   new_nngp = (nngp**2 + prod * delta_squared) / (prod_plus_1 * delta)
   new_nngp += nngp * _arcsin(ratio, do_backprop)
-  new_nngp /= 2 * math.pi
+  new_nngp /= 2 * np.pi
   new_nngp += 0.25 * nngp
 
   if ntk is not None:
-    second_term = 0.25 + _arcsin(ratio, do_backprop) / (2 * math.pi)
+    second_term = 0.25 + _arcsin(ratio, do_backprop) / (2 * np.pi)
     first_term = 1 / delta_squared + (1 - prod) / prod_plus_1 + 1
-    first_term *= nngp / delta / (2. * math.pi)
+    first_term *= nngp / delta / (2. * np.pi)
     dot_sigma = first_term + second_term
     ntk *= dot_sigma
   return new_nngp, ntk
@@ -3050,7 +3045,7 @@ def _get_gelu_kernel(nngp: np.ndarray,
 def _get_gelu_nngp_diag(nngp_diag: np.ndarray, do_backprop: bool) -> np.ndarray:
   new_diag = nngp_diag / ((nngp_diag + 1.) * np.sqrt(1. + 2.* nngp_diag))
   new_diag += _arcsin(nngp_diag/(nngp_diag + 1), do_backprop) / 2
-  new_diag /= math.pi
+  new_diag /= np.pi
   new_diag += 0.25
   new_diag *= nngp_diag
   return new_diag

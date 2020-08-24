@@ -177,11 +177,11 @@ Selu = elementwise(selu)
 # Gelu = elementwise(gelu)
 
 
-def _pooling_layer(reducer, init_val, pooling_type, rescaler=None):
+def _pooling_layer(reducer, init_val, rescaler=None):
   def PoolingLayer(window_shape, strides=None, padding='VALID', spec=None):
     """Layer construction function for a pooling layer."""
     strides = strides or (1,) * len(window_shape)
-    # rescale = rescaler(window_shape, strides, padding) if rescaler else None
+    rescale = rescaler(window_shape, strides, padding) if rescaler else None
 
     # if spec is None:
     #   non_spatial_axes = 0, len(window_shape) + 1
@@ -216,35 +216,35 @@ def _pooling_layer(reducer, init_val, pooling_type, rescaler=None):
       inputs = onp.moveaxis(inputs, (batch_dim, channel_dim), \
                           (0, dim + 1))
       output = reduce_window(inputs, init_val, reducer, window_shape,
-                              strides, padding, pooling_type)
-      # return rescale(out, inputs, spec) if rescale else out
+                              strides, padding)
+      return rescale(out, inputs, spec) if rescale else out
       # return output
       return tfnp.array(output)
     return init_fun, apply_fun
   return PoolingLayer
-MaxPool = _pooling_layer(tfnp.max, -tfnp.inf, "MAX")
-SumPool = _pooling_layer(tfnp.add, 0., "SUM")
+MaxPool = _pooling_layer(tfnp.max, -tfnp.inf)
 
 
-# def _normalize_by_window_size(dims, strides, padding):
-#   def rescale(outputs, inputs, spec):
-#     if spec is None:
-#       non_spatial_axes = 0, inputs.ndim - 1
-#     else:
-#       non_spatial_axes = spec.index('N'), spec.index('C')
-#
-#     spatial_shape = tuple(inputs.shape[i]
-#                           for i in range(inputs.ndim)
-#                           if i not in non_spatial_axes)
-#     one = tfnp.ones(spatial_shape, dtype=inputs.dtype)
-#     window_sizes = reduce_window(one, 0., tfnp.add, dims, strides, padding)
-#     for i in sorted(non_spatial_axes):
-#       window_sizes = tfnp.expand_dims(window_sizes, i)
-#
-#     return outputs / window_sizes
-#   return rescale
-# AvgPool = _pooling_layer(tfnp.add, 0., _normalize_by_window_size)
-AvgPool = _pooling_layer(tfnp.add, 0., "AVG")
+def _normalize_by_window_size(dims, strides, padding):
+  def rescale(outputs, inputs, spec):
+    if spec is None:
+      non_spatial_axes = 0, inputs.ndim - 1
+    else:
+      non_spatial_axes = spec.index('N'), spec.index('C')
+
+    spatial_shape = tuple(inputs.shape[i]
+                          for i in range(inputs.ndim)
+                          if i not in non_spatial_axes)
+    one = tfnp.ones(spatial_shape, dtype=inputs.dtype)
+    window_sizes = reduce_window(one, 0., tfnp.add, dims, strides, padding)
+    for i in sorted(non_spatial_axes):
+      window_sizes = tfnp.expand_dims(window_sizes, i)
+
+    return outputs * window_sizes
+  return rescale
+SumPool = _pooling_layer(tfnp.add, 0., _normalize_by_window_size)
+AvgPool = _pooling_layer(tfnp.add, 0.)
+# AvgPool = _pooling_layer(tfnp.add, 0., "AVG")
 
 
 def Flatten():

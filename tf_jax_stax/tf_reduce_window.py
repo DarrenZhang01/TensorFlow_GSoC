@@ -32,7 +32,7 @@ import numpy as onp
 
 
 def reduce_window(inputs, init_value, reducer, window_dimensions, strides,
-                  padding, pooling_type):
+                  padding):
   if reducer not in [np.max, np.add]:
     raise TypeError("Only max pooling and average/sum pooling are supported.")
 
@@ -45,5 +45,5 @@ def reduce_window(inputs, init_value, reducer, window_dimensions, strides,
     return output
   # If it is sum pooling, mutiply the output by the number of grids inside a
   # window.
-  grids = onp.prod(list(window_dimensions))
-  return output * grids
+  # grids = onp.prod(list(window_dimensions))
+  return output

@@ -4,7 +4,7 @@
 
 TensorFlow GSoC program '20 - Zhibo Zhang
 
-Mentors: Ashish Agarwal, Allen Lavoie, Dan Moldovan and Peng Wang @ Google Brain
+Mentors: Ashish Agarwal, Allen Lavoie, Dan Moldovan, Peng Wang, Paige Bailey and Akshay Naresh Modi @ Google Brain
 
 Also special thanks to the Google Brain Researchers Roman Novak and Sam Schoenholz for their assistance.
 

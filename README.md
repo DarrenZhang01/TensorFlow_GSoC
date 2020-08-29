@@ -37,15 +37,23 @@ Novak, R., Xiao, L., Hron, J., Lee, J., Alemi, A. A., Sohl-Dickstein, J., & Scho
 - https://github.com/tensorflow/tensorflow/pull/42539
 
 ### 2. Commits:
-- https://github.com/google/trax/pull/956/commits/a82fbcabecac01c195104780e16888c12bc2ffd9
-- https://github.com/google/trax/pull/956/commits/08ad9f0a06e84c175dd9a5cb3902296eb84f3ff4
-- https://github.com/google/trax/pull/956/commits/d31355a8bbd3167cc3f98f616f706af364c046ac
-- https://github.com/google/trax/pull/956/commits/f41b2c81eb6882e8655688b444998c7c253d2a9a
-- https://github.com/google/trax/pull/956/commits/9dff2f7204d5f4e8921131bd95e5ff6cff17672e
-- https://github.com/google/trax/pull/956/commits/2e2c614f4876180f0e59ce04c39747f458665a1a
-- https://github.com/google/trax/pull/956/commits/8a07811561d6c82c24eb6ddb042e8938221071e4
-- https://github.com/google/trax/pull/956/commits/fef84d5ce0bf3f5ba89acb6cd4402c76fb323ff7
-- https://github.com/google/trax/pull/956/commits/c880f86c39ac1b8372d610cba8118e7eb0fc0cc3
+- https://github.com/google/trax/commit/a82fbcabecac01c195104780e16888c12bc2ffd9
+- https://github.com/google/trax/commit/08ad9f0a06e84c175dd9a5cb3902296eb84f3ff4
+- https://github.com/google/trax/commit/d31355a8bbd3167cc3f98f616f706af364c046ac
+- https://github.com/google/trax/commit/f41b2c81eb6882e8655688b444998c7c253d2a9a
+- https://github.com/google/trax/commit/9dff2f7204d5f4e8921131bd95e5ff6cff17672e
+- https://github.com/google/trax/commit/2e2c614f4876180f0e59ce04c39747f458665a1a
+- https://github.com/google/trax/commit/8a07811561d6c82c24eb6ddb042e8938221071e4
+- https://github.com/google/trax/commit/fef84d5ce0bf3f5ba89acb6cd4402c76fb323ff7
+- https://github.com/google/trax/commit/c880f86c39ac1b8372d610cba8118e7eb0fc0cc3
+- https://github.com/google/trax/commit/083ba340a4c513a7ac58647d22341accc07323d1
+- https://github.com/google/trax/commit/acd76cc1e57bbbd36fad55cd134e8acc4d6e2637
+- https://github.com/google/trax/commit/8c5a7b948d54e9d61d7dd7ffc033f60b9bd56560
+- https://github.com/google/trax/commit/e169591adb24d506b26bfe94e1c02a959bf1e49d
+- https://github.com/google/trax/commit/ea29343f9af70d7d20f0a1ab3cf56e40d993a074
+- https://github.com/google/trax/commit/a13a238041d5fa760b13c9c0c72f9c9db9c0eeb5
+- https://github.com/google/trax/commit/5887a7ac29a8420139bc2f09bc5e38848b9b4821
+- https://github.com/google/trax/commit/9943cf0c38b2cb91df74940bd0afcaaad9a8bef2
 
 
 ### 3. Other Contributions:

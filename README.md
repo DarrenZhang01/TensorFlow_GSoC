@@ -54,6 +54,7 @@ Novak, R., Xiao, L., Hron, J., Lee, J., Alemi, A. A., Sohl-Dickstein, J., & Scho
 - https://github.com/google/trax/commit/a13a238041d5fa760b13c9c0c72f9c9db9c0eeb5
 - https://github.com/google/trax/commit/5887a7ac29a8420139bc2f09bc5e38848b9b4821
 - https://github.com/google/trax/commit/9943cf0c38b2cb91df74940bd0afcaaad9a8bef2
+- Commits about TF Neural Tangents: https://github.com/google/neural-tangents/commits/neural-tangents-tf
 
 
 ### 3. Other Contributions:

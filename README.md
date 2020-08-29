@@ -2,19 +2,29 @@
 
 [![Build Status](https://travis-ci.com/DarrenZhang01/TensorFlow_GSoC.svg?branch=master)](https://travis-ci.com/DarrenZhang01/TensorFlow_GSoC)
 
-TensorFlow GSoC program '20 - Zhibo Zhang
+Mentors: [Ashish Agarwal](https://www.linkedin.com/in/ashish-agarwal-3932b764/), [Allen Lavoie](https://github.com/allenlavoie), [Peng Wang](https://github.com/wangpengmit), [Dan Moldovan](https://research.google/people/DanMoldovan/), [Paige Bailey](https://github.com/dynamicwebpaige) and [Akshay Naresh Modi](https://github.com/akshaym) @ Google Brain
 
-Mentors: Ashish Agarwal, Allen Lavoie, Dan Moldovan, Peng Wang, Paige Bailey and Akshay Naresh Modi @ Google Brain
+Also special thanks to the Google Brain Researchers [Roman Novak](https://github.com/romanngg) and [Sam Schoenholz](https://github.com/sschoenholz) for their insights and assistance.
 
-Also special thanks to the Google Brain Researchers Roman Novak and Sam Schoenholz for their assistance.
+## TensorFlow Google Summer of Code program '20 - Zhibo Zhang
 
-Neural Tangents (Infinite-width NNs) migration and reconstruction for TensorFlow 2.x, originally based on JAX (https://github.com/google/neural-tangents). The basic idea is when the width of the NNs approaches infinity, the dynamics is very similar to a Gaussian Process, which enables better understanding of Deep Learning. We hope with the help of enriched TF ecosystems, this can potentially power more SOTA research in explainable AI and assist in building trustworthy machine learning systems.
+* <b>Motivation</b>: Neural Tangents (Infinite-width NNs) migration and reconstruction for TensorFlow 2.x, originally based on JAX (https://github.com/google/neural-tangents). The basic idea is when the width of the NNs approaches infinity, the dynamics is very similar to a Gaussian Process, which enables better understanding of Deep Learning. We hope with the help of enriched TF ecosystems, this can potentially power more SOTA research in explainable AI and assist in building trustworthy machine learning systems.
+
+* <b>Summary</b>: This is not a pure engineering project. Instead, this is an R\&D project. Neural Tangents itself is a work in progress. Besides, nobody ever tried any migration from JAX to TensorFlow before this project, which also increases the difficulty. Every research project has a chance of failure, but fortunately, after overcoming numerous difficulties, my mentors and I have finished migrating the major APIs from JAX to TensorFlow. <b>However, the meaning of this project is far more than a pure migration of Neural Tangents - it is about enriching the TensorFlow NumPy extensions ecosystem, about checking the usability of latest nightly version of TensorFlow and about exploring various possibilities on the compatibility and design differences between JAX and TensorFlow.</b>
+
+* <b>Acknowledgement</b>: I am really lucky to collaborate with the Google Brain TensorFlow team, and get to be guided by my excellent mentors at TensorFlow. They always provide swift response and a lot of patience in helping me become a better problem solver. In particular, I want to thank [Ashish Agarwal](https://www.linkedin.com/in/ashish-agarwal-3932b764/), [Allen Lavoie](https://github.com/allenlavoie), [Peng Wang](https://github.com/wangpengmit), [Dan Moldovan](https://research.google/people/DanMoldovan/), [Paige Bailey](https://github.com/dynamicwebpaige) and [Akshay Naresh Modi](https://github.com/akshaym) for their guidance. In this project, I also get to collaborate and learn from the Google Brain Researchers [Roman Novak](https://github.com/romanngg) and [Sam Schoenholz](https://github.com/sschoenholz), and they assisted me in submitting the changes to the Google Neural Tangents repo. Thank you all for an execellent summer!
 
 We welcome any thoughts and ideas - zhibozhang@cs.toronto.edu
 
 <strong>UPDATE</strong>: Until now, the major APIs of Neural Tangents program are under TF support. Feel free to
 run the [example files `function_space`, `infinite_fcn` and `weight_space`](https://github.com/DarrenZhang01/TensorFlow_GSoC/tree/master/neural-tangents/examples)
 
+
+### Reference:
+
+Novak, R., Xiao, L., Hron, J., Lee, J., Alemi, A. A., Sohl-Dickstein, J., & Schoenholz, S. S. (2019). Neural tangents: Fast and easy infinite neural networks in python. arXiv preprint arXiv:1912.02803.
+
+## Appendix: 
 
 ### 1. Pull Requests:
 
@@ -41,6 +51,3 @@ run the [example files `function_space`, `infinite_fcn` and `weight_space`](http
 
 
 
-### Reference:
-
-Novak, R., Xiao, L., Hron, J., Lee, J., Alemi, A. A., Sohl-Dickstein, J., & Schoenholz, S. S. (2019). Neural tangents: Fast and easy infinite neural networks in python. arXiv preprint arXiv:1912.02803.

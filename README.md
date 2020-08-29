@@ -1,4 +1,4 @@
-## Neural Tangents (Infinite-width NNs) for TensorFlow 2.x.
+# Neural Tangents (Infinite-width NNs) for TensorFlow 2.x.
 
 [![Build Status](https://travis-ci.com/DarrenZhang01/TensorFlow_GSoC.svg?branch=master)](https://travis-ci.com/DarrenZhang01/TensorFlow_GSoC)
 
@@ -6,7 +6,7 @@ Mentors: [Ashish Agarwal](https://www.linkedin.com/in/ashish-agarwal-3932b764/),
 
 Also special thanks to the Google Brain Researchers [Roman Novak](https://github.com/romanngg) and [Sam Schoenholz](https://github.com/sschoenholz) for their insights and assistance.
 
-## TensorFlow Google Summer of Code program '20 - Zhibo Zhang
+## Summary: TensorFlow Google Summer of Code program '20 - Zhibo Zhang
 
 * <b>Motivation</b>: Neural Tangents (Infinite-width NNs) migration and reconstruction for TensorFlow 2.x, originally based on JAX (https://github.com/google/neural-tangents). The basic idea is when the width of the NNs approaches infinity, the dynamics is very similar to a Gaussian Process, which enables better understanding of Deep Learning. We hope with the help of enriched TF ecosystems, this can potentially power more SOTA research in explainable AI and assist in building trustworthy machine learning systems.
 
